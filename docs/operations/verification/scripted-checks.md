@@ -22,3 +22,6 @@ Extended smoke suite:
 - Command responds without server error.
 - Expected success or failure message contains contract key phrase.
 - Side effects are persisted when expected.
+- `/tp` plain command path resolves to plugin behavior (or explicit diagnostic fallback).
+- RTP path does not emit thread-context failure errors in server logs.
+- First-join RTP marker state persists once per UUID.

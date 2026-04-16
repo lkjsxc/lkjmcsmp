@@ -9,7 +9,7 @@
 
 ## Feedback Rules
 
-1. Success sends concise confirmation message.
+1. Success sends concise confirmation message only after action completion.
 2. Failure sends exact reason and required action.
 3. Cooldown and timeout show numeric remaining time.
 4. Permission failures include missing node.
@@ -20,3 +20,4 @@
 2. Menu pagination preserves stable ordering.
 3. Disabled actions render with explicit locked tooltip.
 4. Every menu has a deterministic back path to root.
+5. Every plugin inventory view uses 54 slots.

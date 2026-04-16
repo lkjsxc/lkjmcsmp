@@ -2,7 +2,7 @@
 
 ## Config Owners
 
-- `config.yml`: gameplay defaults, cooldowns, limits, menu toggles
+- `config.yml`: gameplay defaults, cooldowns, limits, menu toggles, proxy-aware teleport behavior
 - `shop.yml`: base exchange rates
 - `milestones.yml`: pseudo-advancement definitions
 
@@ -12,3 +12,20 @@
 2. Seasonal overrides persist in SQLite runtime tables.
 3. Config reload command must validate schema before apply.
 4. Invalid config reload leaves previous config active.
+
+## Teleport Config Keys
+
+- `teleport.request-timeout-seconds`
+- `teleport.rtp-cooldown-seconds`
+- `teleport.rtp-min-radius`
+- `teleport.rtp-max-radius`
+- `teleport.rtp-attempts`
+- `teleport.rtp-world-whitelist`
+- `teleport.first-join.enabled`
+- `teleport.first-join.world`
+
+## Proxy Runtime Validation
+
+1. Startup reads proxy-related server configs and emits explicit diagnostics.
+2. Velocity-enabled mode with missing secret is configuration-invalid.
+3. Proxy mismatch warnings must be actionable and include file/key context.

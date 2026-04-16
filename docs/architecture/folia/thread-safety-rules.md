@@ -5,6 +5,8 @@
 1. Only adapter layer touches Bukkit entities, worlds, and inventories.
 2. Domain services consume immutable value objects.
 3. Repository calls never run inside inventory click listeners without async handoff.
+4. Never read another player's live location from the wrong player thread.
+5. World/chunk block-state reads for RTP probing run in region-safe tasks.
 
 ## State Rules
 
@@ -16,3 +18,4 @@
 
 1. Scheduler bridge failures surface explicit command and GUI errors.
 2. Cross-thread access violations are logged with operation context.
+3. Teleport completion failures are reported as failures, never as successful teleports.

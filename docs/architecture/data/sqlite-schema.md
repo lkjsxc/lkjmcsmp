@@ -89,3 +89,8 @@
 - `before_json` TEXT NOT NULL
 - `after_json` TEXT NOT NULL
 - `created_at` TEXT NOT NULL
+
+### `first_join_rtp`
+
+- `player_uuid` TEXT PRIMARY KEY
+- `completed_at` TEXT NOT NULL

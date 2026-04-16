@@ -1,5 +1,10 @@
 # Menu Tree
 
+## Inventory Size Contract
+
+- All plugin menus use 54 slots (large chest layout).
+- Shared navigation row reserves `Refresh` and `Back` controls.
+
 ## Root Menu (`/menu`)
 
 1. Teleport
