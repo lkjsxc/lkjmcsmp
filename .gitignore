@@ -1,8 +1,24 @@
 /.gradle/
 /build/
 /run/
+/.DS_Store
 /.idea/
 /.vscode/
 *.iml
 *.db
 *.log
+*.pid
+*.tmp
+*.bak
+.env
+.env.*
+*.local
+
+# local server runtime artifacts
+/tmp/
+/logs/
+/plugins/
+/cache/
+/world/
+/world_nether/
+/world_the_end/
