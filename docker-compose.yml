@@ -15,7 +15,7 @@ services:
       - "25575:25575"
     volumes:
       - ./tmp/mc-data:/data
-      - ./build/libs:/data/plugins
+      - ./build/libs:/plugins:ro
     healthcheck:
       test: ["CMD", "mc-monitor", "status", "--host", "127.0.0.1", "--port", "25565"]
       interval: 15s
