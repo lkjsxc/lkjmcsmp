@@ -15,6 +15,7 @@ import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.gui.MenuListener;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.persistence.AuditDao;
+import com.lkjmcsmp.persistence.EconomyOverrideDao;
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.MilestoneDao;
 import com.lkjmcsmp.persistence.PartyDao;
@@ -63,6 +64,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         database.initialize();
 
         PointsDao pointsDao = new PointsDao(database);
+        EconomyOverrideDao economyOverrideDao = new EconomyOverrideDao(database);
         HomeDao homeDao = new HomeDao(database);
         WarpDao warpDao = new WarpDao(database);
         PartyDao partyDao = new PartyDao(database);
@@ -75,6 +77,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         SchedulerBridge schedulerBridge = new FoliaSchedulerBridge(this);
         PointsService pointsService = new PointsService(
                 pointsDao,
+                economyOverrideDao,
                 auditDao,
                 shopConfig.getConfigurationSection("items"),
                 config.getBoolean("economy.allow-partial-convert", false),
@@ -96,7 +99,13 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 config.getInt("teleport.rtp-radius", 2000),
                 Objects.requireNonNull(config.getStringList("teleport.rtp-world-whitelist")));
 
-        MenuService menuService = new MenuService(pointsService, progressionService);
+        MenuService menuService = new MenuService(
+                pointsService,
+                progressionService,
+                homeService,
+                warpService,
+                partyService,
+                teleportService);
         return new Services(pointsService, homeService, warpService, partyService, teleportService, progressionService, menuService);
     }
 

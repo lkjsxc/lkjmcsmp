@@ -2,6 +2,7 @@ package com.lkjmcsmp.domain;
 
 import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.persistence.AuditDao;
+import com.lkjmcsmp.persistence.EconomyOverrideDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 public final class PointsService {
     private final PointsDao pointsDao;
+    private final EconomyOverrideDao economyOverrideDao;
     private final AuditDao auditDao;
     private final Map<String, ShopEntry> shopItems;
     private final boolean allowPartialConvert;
@@ -21,13 +23,16 @@ public final class PointsService {
 
     public PointsService(
             PointsDao pointsDao,
+            EconomyOverrideDao economyOverrideDao,
             AuditDao auditDao,
             ConfigurationSection shopItemsSection,
             boolean allowPartialConvert,
-            int maxConvertPerOp) {
+            int maxConvertPerOp) throws Exception {
         this.pointsDao = pointsDao;
+        this.economyOverrideDao = economyOverrideDao;
         this.auditDao = auditDao;
         this.shopItems = parseItems(shopItemsSection);
+        mergeOverrides(this.shopItems, economyOverrideDao.list());
         this.allowPartialConvert = allowPartialConvert;
         this.maxConvertPerOp = maxConvertPerOp;
     }
@@ -50,6 +55,23 @@ public final class PointsService {
                     key.toLowerCase(), material, entry.getInt("quantity", 1), entry.getInt("points", 1)));
         }
         return items;
+    }
+
+    private static void mergeOverrides(
+            Map<String, ShopEntry> baseItems,
+            Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
+        for (EconomyOverrideDao.OverrideRecord override : overrides) {
+            String itemKey = override.itemKey().toLowerCase();
+            ShopEntry base = baseItems.get(itemKey);
+            if (base == null) {
+                continue;
+            }
+            baseItems.put(itemKey, new ShopEntry(
+                    base.key(),
+                    base.material(),
+                    override.quantity(),
+                    override.pointsCost()));
+        }
     }
 
     public int getBalance(UUID playerId) throws Exception {
@@ -97,8 +119,10 @@ public final class PointsService {
         if (current == null) {
             return Result.fail("unknown shop item");
         }
+        String normalizedItemKey = itemKey.toLowerCase();
+        economyOverrideDao.upsert(normalizedItemKey, newPoints, newQty, actor.getUniqueId());
         ShopEntry next = new ShopEntry(current.key(), current.material(), newQty, newPoints);
-        shopItems.put(itemKey.toLowerCase(), next);
+        shopItems.put(normalizedItemKey, next);
         auditDao.log(
                 actor.getUniqueId(),
                 null,
