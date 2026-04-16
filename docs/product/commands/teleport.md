@@ -34,6 +34,11 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 - `teleport.rtp-world-whitelist`
 - `teleport.rtp-cooldown-seconds`
 
+## RTP Default Contract
+
+- Default min radius: `1000`
+- Default max radius: `100000`
+
 ## Teleport Rules
 
 1. `tpa` requests expire after configured timeout.
@@ -43,9 +48,10 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 5. `rtp` selects random locations using configured donut range (`min/max radius`).
 6. `rtp` uses bounded attempts and fails explicitly when no valid location is found.
 7. `rtp` location validation requires safe feet/head space and non-lethal support block.
-8. Teleports execute using Folia-safe scheduling for source and target entities.
+8. Teleports execute using Folia-safe scheduling for source and target entities and completion-driven teleport API.
 9. Success messages are emitted only after teleport completion is confirmed.
 10. Failed teleports must return explicit reason; no success-shaped fallback responses.
+11. `/home`, `/warp`, and `/team home` teleport outcomes follow the same completion/failure semantics as `/tp` and `/rtp`.
 
 ## First-Join RTP Rules
 

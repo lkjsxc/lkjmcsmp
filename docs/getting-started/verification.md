@@ -22,3 +22,5 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Core command registrations exist (`tp`, `rtp`, `tpa`, `home`, `team`, `warp`).
 - GUI root menu can be opened by command.
 - Cobblestone conversion command path succeeds for an operator test account.
+- Hotbar slot `8` menu entrypoint opens GUI and cannot be dropped.
+- Scoreboard sidebar appears with online-count and points lines.

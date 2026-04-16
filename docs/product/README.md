@@ -14,4 +14,5 @@ This section is the player-facing contract for commands, menus, economy, social 
 - [gui/README.md](gui/README.md): GUI menu topology and interaction rules
 - [economy/README.md](economy/README.md): points conversion and exchange behavior
 - [advancements/README.md](advancements/README.md): pseudo-advancement progression contracts
+- [scoreboard/README.md](scoreboard/README.md): SMP sidebar layout and refresh lifecycle
 - [social/README.md](social/README.md): party model and permissions/audit behavior

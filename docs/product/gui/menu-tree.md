@@ -13,7 +13,7 @@
 4. Team
 5. Points Shop
 6. Progression
-7. Settings
+7. Close Menu
 
 ## Teleport Menu
 
@@ -51,9 +51,12 @@
 - Buy logs
 - Buy dirt
 - Exchange history
+- Back
 
 ## Progression Menu
 
 - Milestone list
-- Completed milestones
-- Reward claim actions
+- Progress ratio and percent per milestone
+- Detailed milestone explanation text
+- Reward preview
+- Claim actions for `COMPLETED_UNCLAIMED`

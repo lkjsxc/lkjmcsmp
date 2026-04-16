@@ -6,6 +6,9 @@
 2. Right-click opens details where available.
 3. Shift-click is ignored unless explicitly documented.
 4. Closed inventories clear temporary session context.
+5. Slot `8` hotbar menu item click/use opens root menu.
+6. Slot `8` drop intent is cancelled and treated as menu-open input.
+7. Clicking slot `8` while another inventory is open opens root menu.
 
 ## Feedback Rules
 
@@ -21,3 +24,4 @@
 3. Disabled actions render with explicit locked tooltip.
 4. Every menu has a deterministic back path to root.
 5. Every plugin inventory view uses 54 slots.
+6. Root menu exposes a deterministic close button.

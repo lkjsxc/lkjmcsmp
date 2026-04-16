@@ -14,6 +14,8 @@
 4. Inventory-full on item grant uses safe fallback:
    - drop at player location only if configured
    - otherwise reject and keep unclaimed status
+5. Claim actions from GUI and `/adv claim <key>` use the same service path.
+6. Claim results include exact reason (`unknown milestone`, `not claimable`, or success).
 
 ## Audit Fields
 

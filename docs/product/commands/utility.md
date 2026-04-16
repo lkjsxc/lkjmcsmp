@@ -15,6 +15,8 @@
 3. Negative and zero amounts are rejected.
 4. Conversion amount may be capped by config per operation.
 5. `/points` reflects committed ledger state, not temporary calculations.
+6. GUI points shop includes a convert action that converts all available cobblestone by default.
+7. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`.
 
 ## Failures
 

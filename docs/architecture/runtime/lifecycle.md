@@ -6,9 +6,10 @@
 2. Initialize SQLite connection and schema migrator.
 3. Construct domain services and repository adapters.
 4. Register commands.
-5. Register GUI listeners.
-6. Register progression event listeners.
-7. Emit startup summary log.
+5. Register GUI listeners (inventory + hotbar menu entrypoint).
+6. Register teleport override and first-join listeners.
+7. Start scoreboard refresh scheduler and register scoreboard lifecycle listener.
+8. Emit startup summary log.
 
 ## Disable Sequence
 

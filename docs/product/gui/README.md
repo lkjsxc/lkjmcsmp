@@ -13,3 +13,4 @@ This section defines menu hierarchy, button semantics, and interaction guarantee
 
 - [menu-tree.md](menu-tree.md): menu topology and entry points
 - [interaction-rules.md](interaction-rules.md): click handling and consistency rules
+- [hotbar-entrypoint.md](hotbar-entrypoint.md): slot-8 menu item lifecycle and lock rules

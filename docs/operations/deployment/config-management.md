@@ -17,8 +17,8 @@
 
 - `teleport.request-timeout-seconds`
 - `teleport.rtp-cooldown-seconds`
-- `teleport.rtp-min-radius`
-- `teleport.rtp-max-radius`
+- `teleport.rtp-min-radius` (default `1000`)
+- `teleport.rtp-max-radius` (default `100000`)
 - `teleport.rtp-attempts`
 - `teleport.rtp-world-whitelist`
 - `teleport.first-join.enabled`

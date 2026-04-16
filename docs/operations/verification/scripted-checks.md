@@ -25,3 +25,7 @@ Extended smoke suite:
 - `/tp` plain command path resolves to plugin behavior (or explicit diagnostic fallback).
 - RTP path does not emit thread-context failure errors in server logs.
 - First-join RTP marker state persists once per UUID.
+- Hotbar slot `8` opens root menu on click/use.
+- Hotbar menu item drop intent does not lose item and opens root menu.
+- Progression GUI shows milestone status plus numeric progress text.
+- Scoreboard sidebar renders for online player with `online` and `points` lines.

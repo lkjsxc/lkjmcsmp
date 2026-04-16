@@ -9,6 +9,7 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
 - `runPlayerTask(Player, Runnable)`
 - `runRegionTask(Location, Runnable)`
 - `runAsyncTask(Runnable)`
+- completion-aware player teleport adapter (async completion with explicit success/failure)
 
 ## Rules
 
@@ -21,3 +22,4 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
    - execute teleport in destination player-safe context
 6. RTP terrain probing (`highest block`, safety blocks) executes in region-safe context.
 7. Completion/failure callbacks must surface explicit player-facing results.
+8. Any player-facing teleport result is emitted only from completion callbacks, never pre-teleport.
