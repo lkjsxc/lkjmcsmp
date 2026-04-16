@@ -1,8 +1,16 @@
 # Operations
 
-Use this section for deployment and verification runbooks.
+## Goal
+
+Define operational runbooks for deployment, verification, and acceptance gates.
+
+## Rules
+
+1. Compose verification is the mandatory acceptance path.
+2. Local runtime guidance stays aligned with deployment contracts.
+3. Operational docs use command-first, copy-paste-friendly steps.
 
 ## Child Index
 
-- [verification/README.md](verification/README.md): compose verification contracts
-- [deployment/README.md](deployment/README.md): local deployment and configuration workflow
+- [verification/README.md](verification/README.md): compose pipeline and smoke assertions
+- [deployment/README.md](deployment/README.md): local server and configuration operations

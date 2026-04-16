@@ -15,6 +15,7 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 1. `verify` returns zero only when build/tests/docs/line checks all pass.
 2. `smoke` returns zero only when plugin startup and scripted command checks pass.
 3. Non-zero from any step blocks acceptance.
+4. Teleport, menu lock, and scoreboard regressions are treated as acceptance blockers.
 
 ## Minimal Smoke Assertions
 

@@ -9,6 +9,7 @@
 5. Slot `8` hotbar menu item click/use opens root menu.
 6. Slot `8` drop intent is cancelled and treated as menu-open input.
 7. Clicking slot `8` while another inventory is open opens root menu.
+8. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
 
 ## Feedback Rules
 
@@ -25,3 +26,4 @@
 4. Every menu has a deterministic back path to root.
 5. Every plugin inventory view uses 54 slots.
 6. Root menu exposes a deterministic close button.
+7. Every non-root menu renders `Back` with `ARROW` material.

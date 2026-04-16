@@ -26,7 +26,9 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 - `lkjmcsmp.rtp.use`
 - `lkjmcsmp.rtp.bypasscooldown`
 
-## RTP Config Contract
+## Config Contract
+
+### RTP Keys
 
 - `teleport.rtp-min-radius`
 - `teleport.rtp-max-radius`
@@ -34,24 +36,35 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 - `teleport.rtp-world-whitelist`
 - `teleport.rtp-cooldown-seconds`
 
-## RTP Default Contract
+### Stability Keys
+
+- `teleport.stability-delay-seconds`
+- `teleport.stability-radius-blocks`
+
+## Default Contract
 
 - Default min radius: `1000`
 - Default max radius: `100000`
+- Default stability delay: `5`
+- Default stability radius: `1`
 
 ## Teleport Rules
 
 1. `tpa` requests expire after configured timeout.
 2. Requests are one-to-one; newest request replaces previous same-direction request.
-3. `rtp` requires world whitelist membership.
-4. `rtp` enforces cooldown unless bypass permission is present.
-5. `rtp` selects random locations using configured donut range (`min/max radius`).
-6. `rtp` uses bounded attempts and fails explicitly when no valid location is found.
-7. `rtp` location validation requires safe feet/head space and non-lethal support block.
-8. Teleports execute using Folia-safe scheduling for source and target entities and completion-driven teleport API.
-9. Success messages are emitted only after teleport completion is confirmed.
-10. Failed teleports must return explicit reason; no success-shaped fallback responses.
-11. `/home`, `/warp`, and `/team home` teleport outcomes follow the same completion/failure semantics as `/tp` and `/rtp`.
+3. `tpa`/`tpahere` request creation notifies both players:
+   - requester receives request-created result
+   - target receives requester name, direction (`tpa` or `tpahere`), timeout, and accept/deny hint
+4. Request deny/expire/accept outcomes send explicit feedback to all affected players.
+5. `rtp` requires world whitelist membership.
+6. `rtp` enforces cooldown unless bypass permission is present.
+7. `rtp` selects random locations using configured donut range (`min/max radius`).
+8. `rtp` uses bounded attempts and fails explicitly when no valid location is found.
+9. `rtp` location validation requires safe feet/head space and non-lethal support block.
+10. Teleports execute using Folia-safe scheduling for source and target entities and completion-driven teleport API.
+11. Success messages are emitted only after teleport completion is confirmed.
+12. Failed teleports must return explicit reason; no success-shaped fallback responses.
+13. `/home`, `/warp`, and `/team home` teleport outcomes follow the same completion/failure semantics as `/tp` and `/rtp`.
 
 ## First-Join RTP Rules
 
@@ -60,6 +73,24 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 3. First-join RTP still obeys whitelist, range, attempts, and safety rules.
 4. If no valid location is found, player stays at spawn and receives explicit failure feedback.
 
+## Stability Delay Rules
+
+1. Stability delay applies to all command-driven teleports:
+   - `/tp`
+   - `/tpa` + `/tpaccept`
+   - `/tpahere` + `/tpaccept`
+   - `/home`
+   - `/warp`
+   - `/team home`
+   - `/rtp`
+2. Delay uses `teleport.stability-delay-seconds`.
+3. Movement tolerance uses `teleport.stability-radius-blocks`.
+4. The player who will be teleported must remain within configured radius for the full delay window.
+5. Distance check is full 3D Euclidean distance from command invocation position.
+6. If movement exceeds radius before delay completion, teleport is cancelled with explicit message.
+7. Stability countdown messages include remaining seconds.
+8. Zero delay disables waiting but still uses normal completion/failure messaging.
+
 ## Failures
 
 - Offline target: explicit failure.
@@ -67,4 +98,7 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 - Cooldown active: remaining seconds included.
 - No valid world available: explicit failure.
 - No safe RTP location after max attempts: explicit failure.
+- Stability check failed due movement: explicit cancellation.
+- Request target offline at request time: explicit failure.
+- Request requester offline at accept time: explicit failure.
 - Scheduler/teleport completion failure: explicit failure.

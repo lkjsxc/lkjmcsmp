@@ -8,7 +8,9 @@ Expose `/menu` through a deterministic right-end hotbar control.
 
 1. Slot `8` (rightmost hotbar slot) is reserved for the menu item.
 2. Slot `8` lock is hard-enforced: item replacement/removal attempts are cancelled.
-3. Player join/respawn must restore the menu item in slot `8`.
+3. Lock applies to click, drag, number-key swap, offhand swap, and inventory transfer vectors.
+4. Player join/respawn must restore the menu item in slot `8`.
+5. If slot `8` token is missing or tampered, it is reinstalled immediately.
 
 ## Interaction Contract
 

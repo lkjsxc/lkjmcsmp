@@ -18,3 +18,5 @@ Provide a clean, typical-SMP sidebar with essential status only.
 1. Line ordering is stable.
 2. Missing data uses explicit fallback values (`0` for points).
 3. Sidebar format remains compact and readable without color dependency.
+4. Scoreboard is enabled for all online players by default.
+5. Data read failures do not suppress sidebar rendering.

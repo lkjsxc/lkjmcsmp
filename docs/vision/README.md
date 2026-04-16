@@ -1,15 +1,17 @@
 # Vision
 
-Use this section for project intent and LLM-first authoring requirements.
+## Goal
 
-## Read This Section When
+Capture why the project exists and how LLM-first maintenance should be performed.
 
-- You define new gameplay systems.
-- You edit contract language.
-- You need style and terminology constraints.
+## Rules
+
+1. Keep purpose, principles, and authoring constraints aligned.
+2. Prefer durable terminology over transient implementation labels.
+3. Use this section as the source for writing style and conceptual intent.
 
 ## Child Index
 
-- [purpose.md](purpose.md): product intent
-- [principles.md](principles.md): design principles
-- [llm-authoring.md](llm-authoring.md): authoring rules for AI-maintained repositories
+- [purpose.md](purpose.md): project mission and expected player value
+- [principles.md](principles.md): core product and engineering principles
+- [llm-authoring.md](llm-authoring.md): mandatory LLM authoring constraints

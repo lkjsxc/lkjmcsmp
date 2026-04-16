@@ -19,7 +19,7 @@
 
 ## Cross-Cutting Services
 
-- `ClockService`
-- `AuditService`
-- `PermissionService`
-- `SchedulerBridge` (Folia-safe task abstraction)
+- `SchedulerBridge`: Folia-safe task abstraction for player/region/async/delayed execution
+- `TeleportService`: command teleport policies, request lifecycle, stability delay, and RTP safety
+- `SmpScoreboardService`: scoreboard lifecycle and periodic refresh orchestration
+- `HotbarMenuService`: slot-8 menu token lifecycle and lock enforcement

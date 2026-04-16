@@ -4,6 +4,7 @@
 
 - All plugin menus use 54 slots (large chest layout).
 - Shared navigation row reserves `Refresh` and `Back` controls.
+- `Back` control uses `ARROW` material across all menus.
 
 ## Root Menu (`/menu`)
 
@@ -51,7 +52,7 @@
 - Buy logs
 - Buy dirt
 - Exchange history
-- Back
+- Back (`ARROW`)
 
 ## Progression Menu
 
@@ -60,3 +61,4 @@
 - Detailed milestone explanation text
 - Reward preview
 - Claim actions for `COMPLETED_UNCLAIMED`
+- Back (`ARROW`)

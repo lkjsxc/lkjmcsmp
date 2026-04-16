@@ -23,9 +23,13 @@ Extended smoke suite:
 - Expected success or failure message contains contract key phrase.
 - Side effects are persisted when expected.
 - `/tp` plain command path resolves to plugin behavior (or explicit diagnostic fallback).
+- Teleport request creation emits requester and target notifications.
+- Teleport stability delay enforces movement radius and emits cancellation when exceeded.
 - RTP path does not emit thread-context failure errors in server logs.
 - First-join RTP marker state persists once per UUID.
 - Hotbar slot `8` opens root menu on click/use.
 - Hotbar menu item drop intent does not lose item and opens root menu.
+- Hotbar slot `8` token cannot be moved by inventory manipulation vectors.
+- GUI `Back` controls render as arrow items.
 - Progression GUI shows milestone status plus numeric progress text.
 - Scoreboard sidebar renders for online player with `online` and `points` lines.

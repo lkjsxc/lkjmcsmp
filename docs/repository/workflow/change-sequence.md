@@ -2,11 +2,11 @@
 
 ## Contract
 
-1. Update docs contracts.
-2. Update code and config.
-3. Update verification scripts if needed.
+1. Update docs contracts first (including affected parent `README.md` files).
+2. Update code and config to match docs.
+3. Update verification scripts/contracts if needed.
 4. Run compose verification pipeline.
-5. Commit.
+5. Commit coherent verified batch.
 
 ## Notes
 

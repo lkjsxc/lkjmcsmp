@@ -1,15 +1,17 @@
 # Getting Started
 
-Use this section to bootstrap `lkjmcsmp` quickly and follow the canonical local verification path.
+## Goal
 
-## Read This Section When
+Provide the shortest safe path from clone to verified local execution.
 
-- You are creating a new local checkout.
-- You need the first build/test verification commands.
-- You need the compose acceptance flow.
+## Rules
+
+1. Use compose verification commands exactly as documented.
+2. Treat verification failures as blockers, not warnings.
+3. Keep onboarding instructions deterministic and copy-paste ready.
 
 ## Child Index
 
-- [orientation.md](orientation.md): project shape and expectations
-- [quickstart.md](quickstart.md): fastest setup path
-- [verification.md](verification.md): required compose verification commands
+- [orientation.md](orientation.md): repository orientation and baseline assumptions
+- [quickstart.md](quickstart.md): fast local setup path
+- [verification.md](verification.md): full acceptance verification flow
