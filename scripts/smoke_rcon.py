@@ -33,7 +33,7 @@ def main() -> int:
     client = connect_with_retry()
     try:
         run_cmd(client, "plugins", "lkjmcsmp")
-        for command in ("menu", "points", "convert", "home", "warp", "team", "tpa", "rtp", "adv"):
+        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "adv"):
             run_cmd(client, f"help {command}", command)
         return 0
     finally:
