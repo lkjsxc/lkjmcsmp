@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 public final class HotbarMenuListener implements Listener {
@@ -32,6 +33,7 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
+        hotbarMenuService.ensureInstalled(event.getPlayer());
         if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
             return;
         }
@@ -50,6 +52,7 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent event) {
+        hotbarMenuService.ensureInstalled(event.getPlayer());
         if (!hotbarMenuService.isToken(event.getItemDrop().getItemStack())) {
             return;
         }
@@ -63,15 +66,25 @@ public final class HotbarMenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
+        hotbarMenuService.ensureInstalled(player);
         int playerHotbarRawSlot = event.getView().getTopInventory().getSize() + HotbarMenuService.HOTBAR_SLOT;
         boolean clickedHotbarSlot = event.getRawSlot() == playerHotbarRawSlot;
         boolean numberKeyOnHotbarSlot = event.getClick() == ClickType.NUMBER_KEY
                 && event.getHotbarButton() == HotbarMenuService.HOTBAR_SLOT;
-        if (!clickedHotbarSlot && !numberKeyOnHotbarSlot) {
+        boolean clickedToken = hotbarMenuService.isToken(event.getCurrentItem());
+        boolean cursorToken = hotbarMenuService.isToken(event.getCursor());
+        boolean numberKeyUsesToken = event.getClick() == ClickType.NUMBER_KEY
+                && event.getHotbarButton() >= 0
+                && hotbarMenuService.isToken(player.getInventory().getItem(event.getHotbarButton()));
+        if (!clickedHotbarSlot && !numberKeyOnHotbarSlot && !clickedToken && !cursorToken && !numberKeyUsesToken) {
             return;
         }
         event.setCancelled(true);
-        hotbarMenuService.open(player);
+        if (clickedHotbarSlot || numberKeyOnHotbarSlot || clickedToken) {
+            hotbarMenuService.open(player);
+            return;
+        }
+        hotbarMenuService.ensureInstalled(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -82,7 +95,16 @@ public final class HotbarMenuListener implements Listener {
         }
         event.setCancelled(true);
         if (event.getWhoClicked() instanceof Player player) {
-            hotbarMenuService.install(player);
+            hotbarMenuService.ensureInstalled(player);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onSwapHands(PlayerSwapHandItemsEvent event) {
+        if (!hotbarMenuService.isToken(event.getMainHandItem()) && !hotbarMenuService.isToken(event.getOffHandItem())) {
+            return;
+        }
+        event.setCancelled(true);
+        hotbarMenuService.ensureInstalled(event.getPlayer());
     }
 }

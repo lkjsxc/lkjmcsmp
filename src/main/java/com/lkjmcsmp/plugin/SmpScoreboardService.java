@@ -29,6 +29,7 @@ public final class SmpScoreboardService {
 
     public void start() {
         stop();
+        refreshAll();
         refreshTask = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(
                 plugin,
                 task -> refreshAll(),
@@ -44,10 +45,16 @@ public final class SmpScoreboardService {
     }
 
     public void refresh(Player player) {
+        if (!player.isOnline()) {
+            return;
+        }
         refreshPlayer(player, Bukkit.getOnlinePlayers().size());
     }
 
     public void clear(Player player) {
+        if (Bukkit.getScoreboardManager() == null) {
+            return;
+        }
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
     }
 
@@ -59,6 +66,9 @@ public final class SmpScoreboardService {
     }
 
     private void refreshPlayer(Player player, int onlineCount) {
+        if (!player.isOnline()) {
+            return;
+        }
         UUID playerId = player.getUniqueId();
         plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
             int points;
@@ -73,15 +83,23 @@ public final class SmpScoreboardService {
         });
     }
 
-    private static void render(Player player, int onlineCount, int points) {
+    private void render(Player player, int onlineCount, int points) {
         if (!player.isOnline()) {
             return;
         }
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective(OBJECTIVE_NAME, Criteria.DUMMY, TITLE);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.getScore("Online: " + onlineCount).setScore(2);
-        objective.getScore("Points: " + points).setScore(1);
-        player.setScoreboard(scoreboard);
+        if (Bukkit.getScoreboardManager() == null) {
+            logger.warning("Scoreboard manager unavailable for " + player.getName());
+            return;
+        }
+        try {
+            Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+            Objective objective = scoreboard.registerNewObjective(OBJECTIVE_NAME, Criteria.DUMMY, TITLE);
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            objective.getScore("Online: " + onlineCount).setScore(2);
+            objective.getScore("Points: " + points).setScore(1);
+            player.setScoreboard(scoreboard);
+        } catch (Exception ex) {
+            logger.warning("Failed to render scoreboard for " + player.getName() + ": " + ex.getMessage());
+        }
     }
 }

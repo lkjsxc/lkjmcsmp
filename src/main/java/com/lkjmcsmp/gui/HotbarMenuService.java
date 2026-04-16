@@ -23,8 +23,14 @@ public final class HotbarMenuService {
         player.getInventory().setItem(HOTBAR_SLOT, createTokenItem());
     }
 
+    public void ensureInstalled(Player player) {
+        if (!isToken(player.getInventory().getItem(HOTBAR_SLOT))) {
+            install(player);
+        }
+    }
+
     public void open(Player player) {
-        install(player);
+        ensureInstalled(player);
         menuService.openRoot(player);
     }
 

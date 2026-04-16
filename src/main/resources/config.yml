@@ -1,6 +1,8 @@
 teleport:
   request-timeout-seconds: 60
   rtp-cooldown-seconds: 60
+  stability-delay-seconds: 5
+  stability-radius-blocks: 1
   rtp-min-radius: 1000
   rtp-max-radius: 100000
   rtp-attempts: 10

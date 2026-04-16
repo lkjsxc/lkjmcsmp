@@ -106,6 +106,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 schedulerBridge,
                 Duration.ofSeconds(config.getInt("teleport.request-timeout-seconds", 60)),
                 Duration.ofSeconds(config.getInt("teleport.rtp-cooldown-seconds", 60)),
+                Duration.ofSeconds(config.getInt("teleport.stability-delay-seconds", 5)),
+                config.getDouble("teleport.stability-radius-blocks", 1.0D),
                 config.getInt("teleport.rtp-min-radius", 1000),
                 config.getInt("teleport.rtp-max-radius", 100000),
                 config.getInt("teleport.rtp-attempts", 10),

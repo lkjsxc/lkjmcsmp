@@ -17,6 +17,11 @@ public final class FoliaSchedulerBridge implements SchedulerBridge {
     }
 
     @Override
+    public void runPlayerDelayedTask(Player player, long delayTicks, Runnable runnable) {
+        player.getScheduler().runDelayed(plugin, task -> runnable.run(), null, delayTicks);
+    }
+
+    @Override
     public void runRegionTask(Location location, Runnable runnable) {
         plugin.getServer().getRegionScheduler().run(
                 plugin,

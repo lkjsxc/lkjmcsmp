@@ -50,7 +50,7 @@ public final class FirstJoinTeleportListener implements Listener {
             return;
         }
         String targetWorld = firstJoinWorld.isBlank() ? player.getWorld().getName() : firstJoinWorld;
-        teleportService.randomTeleport(player, targetWorld, true, result -> {
+        teleportService.randomTeleport(player, targetWorld, true, false, result -> {
             if (result.success()) {
                 player.sendMessage("First join setup complete: " + result.message());
                 persistCompletion(player);

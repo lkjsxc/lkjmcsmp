@@ -67,7 +67,7 @@ public final class MenuService {
                 Material.COBBLESTONE,
                 "Convert Cobblestone",
                 "Converts all cobblestone in inventory to points"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
@@ -84,7 +84,7 @@ public final class MenuService {
         } catch (Exception ex) {
             player.sendMessage("Failed to load progression: " + ex.getMessage());
         }
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 

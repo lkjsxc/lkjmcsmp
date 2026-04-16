@@ -50,7 +50,7 @@ final class CoreMenuViews {
         inventory.setItem(14, MenuItems.named(pending ? Material.RED_DYE : Material.GRAY_DYE, pending ? "Deny Request" : "No Pending Request", "Runs /tpdeny"));
         inventory.setItem(15, MenuItems.named(canDirect ? Material.DIAMOND_SWORD : Material.BARRIER, canDirect ? "Direct Teleport" : "Direct Teleport (Locked)", "Runs /tp <player>"));
         inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
@@ -73,7 +73,7 @@ final class CoreMenuViews {
         inventory.setItem(45, MenuItems.named(Material.LIME_DYE, "Set Default Home", "Runs /sethome home"));
         inventory.setItem(46, MenuItems.named(Material.RED_DYE, "Delete Default Home", "Runs /delhome home"));
         inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
@@ -90,7 +90,7 @@ final class CoreMenuViews {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Warps Set"));
         }
         inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
@@ -114,7 +114,7 @@ final class CoreMenuViews {
         inventory.setItem(17, MenuItems.named(Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome"));
         inventory.setItem(18, MenuItems.named(Material.TNT, "Disband Team", "Runs /team disband"));
         inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
@@ -133,7 +133,7 @@ final class CoreMenuViews {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Players Online"));
         }
         inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 }
