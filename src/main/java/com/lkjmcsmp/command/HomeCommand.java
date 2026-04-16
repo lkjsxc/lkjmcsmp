@@ -1,8 +1,8 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.plugin.Locations;
-import com.lkjmcsmp.plugin.SchedulerBridge;
 import com.lkjmcsmp.progression.ProgressionService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,12 +10,12 @@ import org.bukkit.command.CommandSender;
 
 public final class HomeCommand implements CommandExecutor {
     private final HomeService homeService;
-    private final SchedulerBridge schedulerBridge;
+    private final TeleportService teleportService;
     private final ProgressionService progressionService;
 
-    public HomeCommand(HomeService homeService, SchedulerBridge schedulerBridge, ProgressionService progressionService) {
+    public HomeCommand(HomeService homeService, TeleportService teleportService, ProgressionService progressionService) {
         this.homeService = homeService;
-        this.schedulerBridge = schedulerBridge;
+        this.teleportService = teleportService;
         this.progressionService = progressionService;
     }
 
@@ -23,7 +23,7 @@ public final class HomeCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
-                switch (label.toLowerCase()) {
+                switch (command.getName().toLowerCase()) {
                     case "sethome" -> {
                         var result = homeService.setHome(player, args.length == 0 ? "home" : args[0]);
                         if (result.success()) {
@@ -65,7 +65,6 @@ public final class HomeCommand implements CommandExecutor {
             player.sendMessage("World is unavailable for that home.");
             return;
         }
-        schedulerBridge.runPlayerTask(player, () -> player.teleport(location.get()));
-        player.sendMessage("Teleported home.");
+        teleportService.teleportToLocation(player, location.get(), "Teleported home.", result -> player.sendMessage(result.message()));
     }
 }

@@ -24,7 +24,14 @@ public final class AdvCommand implements CommandExecutor {
                     return true;
                 }
                 if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
-                    player.sendMessage("Milestones: " + progressionService.getViews(player.getUniqueId()).keySet());
+                    for (var entry : progressionService.getViews(player.getUniqueId()).entrySet()) {
+                        var view = entry.getValue();
+                        player.sendMessage(
+                                entry.getKey()
+                                        + " [" + view.status().name() + "] "
+                                        + view.progress() + "/" + view.definition().target()
+                                        + " :: " + view.definition().description());
+                    }
                     return true;
                 }
                 menuService.openProgress(player);

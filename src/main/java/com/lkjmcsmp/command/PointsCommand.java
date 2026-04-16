@@ -22,7 +22,7 @@ public final class PointsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
-                switch (label.toLowerCase()) {
+                switch (command.getName().toLowerCase()) {
                     case "points" -> player.sendMessage("Points: " + pointsService.getBalance(player.getUniqueId()));
                     case "convert" -> handleConvert(player, args);
                     case "shop" -> handleShop(player, args);
@@ -50,8 +50,8 @@ public final class PointsCommand implements CommandExecutor {
             return;
         }
         var result = pointsService.convertCobblestone(player, amount);
-        if (result.success()) {
-            progressionService.increment(player.getUniqueId(), "convert_amount", amount);
+        if (result.success() && result.amount() > 0) {
+            progressionService.increment(player.getUniqueId(), "convert_amount", result.amount());
         }
         player.sendMessage(result.message());
     }

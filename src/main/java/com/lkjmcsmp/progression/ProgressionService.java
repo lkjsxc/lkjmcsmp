@@ -32,6 +32,7 @@ public final class ProgressionService {
             map.put(key, new MilestoneDefinition(
                     key,
                     entry.getString("title", key),
+                    entry.getString("description", entry.getString("title", key)),
                     entry.getString("kind", "custom"),
                     entry.getInt("target", 1),
                     entry.getInt("reward-points", 0)));
@@ -84,7 +85,7 @@ public final class ProgressionService {
         return Result.ok("reward claimed");
     }
 
-    public record MilestoneDefinition(String key, String title, String kind, int target, int rewardPoints) {
+    public record MilestoneDefinition(String key, String title, String description, String kind, int target, int rewardPoints) {
     }
 
     public record MilestoneView(MilestoneDefinition definition, MilestoneStatus status, int progress) {

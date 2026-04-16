@@ -1,8 +1,8 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.PartyService;
+import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.plugin.Locations;
-import com.lkjmcsmp.plugin.SchedulerBridge;
 import com.lkjmcsmp.progression.ProgressionService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -15,12 +15,12 @@ import java.util.UUID;
 
 public final class TeamCommand implements CommandExecutor {
     private final PartyService partyService;
-    private final SchedulerBridge schedulerBridge;
+    private final TeleportService teleportService;
     private final ProgressionService progressionService;
 
-    public TeamCommand(PartyService partyService, SchedulerBridge schedulerBridge, ProgressionService progressionService) {
+    public TeamCommand(PartyService partyService, TeleportService teleportService, ProgressionService progressionService) {
         this.partyService = partyService;
-        this.schedulerBridge = schedulerBridge;
+        this.teleportService = teleportService;
         this.progressionService = progressionService;
     }
 
@@ -99,8 +99,7 @@ public final class TeamCommand implements CommandExecutor {
             player.sendMessage("Party home world unavailable.");
             return;
         }
-        schedulerBridge.runPlayerTask(player, () -> player.teleport(location.get()));
-        player.sendMessage("Teleported to party home.");
+        teleportService.teleportToLocation(player, location.get(), "Teleported to party home.", result -> player.sendMessage(result.message()));
     }
 
     private void teamChat(Player player, String[] args) throws Exception {

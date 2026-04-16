@@ -1,8 +1,8 @@
 package com.lkjmcsmp.command;
 
+import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.plugin.Locations;
-import com.lkjmcsmp.plugin.SchedulerBridge;
 import com.lkjmcsmp.progression.ProgressionService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,12 +10,12 @@ import org.bukkit.command.CommandSender;
 
 public final class WarpCommand implements CommandExecutor {
     private final WarpService warpService;
-    private final SchedulerBridge schedulerBridge;
+    private final TeleportService teleportService;
     private final ProgressionService progressionService;
 
-    public WarpCommand(WarpService warpService, SchedulerBridge schedulerBridge, ProgressionService progressionService) {
+    public WarpCommand(WarpService warpService, TeleportService teleportService, ProgressionService progressionService) {
         this.warpService = warpService;
-        this.schedulerBridge = schedulerBridge;
+        this.teleportService = teleportService;
         this.progressionService = progressionService;
     }
 
@@ -23,7 +23,7 @@ public final class WarpCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
-                switch (label.toLowerCase()) {
+                switch (command.getName().toLowerCase()) {
                     case "setwarp" -> {
                         if (!CommandUtil.requirePermission(player, "lkjmcsmp.warp.manage")) {
                             return true;
@@ -72,8 +72,15 @@ public final class WarpCommand implements CommandExecutor {
             player.sendMessage("World is unavailable for that warp.");
             return;
         }
-        schedulerBridge.runPlayerTask(player, () -> player.teleport(location.get()));
-        progressionService.increment(player.getUniqueId(), "warp_use", 1);
-        player.sendMessage("Teleported to warp.");
+        teleportService.teleportToLocation(player, location.get(), "Teleported to warp.", result -> {
+            if (result.success()) {
+                try {
+                    progressionService.increment(player.getUniqueId(), "warp_use", 1);
+                } catch (Exception ex) {
+                    player.sendMessage("Progression update failed: " + ex.getMessage());
+                }
+            }
+            player.sendMessage(result.message());
+        });
     }
 }

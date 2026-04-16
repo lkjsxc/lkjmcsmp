@@ -89,6 +89,23 @@ public final class TeleportService {
         moveActorToSource(actor, target, actor, "teleported to " + target.getName(), callback);
     }
 
+    public void teleportToLocation(Player actor, Location destination, String successMessage, Consumer<Result> callback) {
+        schedulerBridge.runPlayerTask(actor, () -> {
+            if (!actor.isOnline()) {
+                complete(actor, callback, Result.fail("player went offline"));
+                return;
+            }
+            actor.teleportAsync(destination).whenComplete((moved, ex) -> {
+                if (ex != null) {
+                    String detail = ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage();
+                    complete(actor, callback, Result.fail("teleport failed: " + detail));
+                    return;
+                }
+                complete(actor, callback, Boolean.TRUE.equals(moved) ? Result.ok(successMessage) : Result.fail("teleport failed"));
+            });
+        });
+    }
+
     public void randomTeleport(Player player, String worldName, boolean bypassCooldown, Consumer<Result> callback) {
         if (!bypassCooldown) {
             Instant until = rtpCooldownUntil.getOrDefault(player.getUniqueId(), Instant.EPOCH);
@@ -130,14 +147,7 @@ public final class TeleportService {
                 return;
             }
             Location sourceLocation = source.getLocation().clone();
-            schedulerBridge.runPlayerTask(actor, () -> {
-                if (!actor.isOnline()) {
-                    complete(callbackPlayer, callback, Result.fail("actor went offline"));
-                    return;
-                }
-                boolean moved = actor.teleport(sourceLocation);
-                complete(callbackPlayer, callback, moved ? Result.ok(successMessage) : Result.fail("teleport failed"));
-            });
+            teleportToLocation(actor, sourceLocation, successMessage, result -> complete(callbackPlayer, callback, result));
         });
     }
 
@@ -153,18 +163,13 @@ public final class TeleportService {
                 runRandomTeleportAttempt(player, world, attempt + 1, callback);
                 return;
             }
-            schedulerBridge.runPlayerTask(player, () -> {
-                if (!player.isOnline()) {
-                    complete(player, callback, Result.fail("player went offline"));
-                    return;
-                }
-                boolean moved = player.teleport(destination);
-                if (!moved) {
-                    complete(player, callback, Result.fail("random teleport failed"));
+            teleportToLocation(player, destination, "random teleport complete", result -> {
+                if (!result.success()) {
+                    callback.accept(result);
                     return;
                 }
                 rtpCooldownUntil.put(player.getUniqueId(), Instant.now().plus(rtpCooldown));
-                complete(player, callback, Result.ok("random teleport complete"));
+                callback.accept(result);
             });
         });
     }

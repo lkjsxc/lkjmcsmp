@@ -93,7 +93,7 @@ public final class PointsService {
         }
         removeMaterial(player, Material.COBBLESTONE, consume);
         pointsDao.addPoints(player.getUniqueId(), consume, "COBBLE_CONVERT", "{\"amount\":" + consume + "}");
-        return Result.ok("converted " + consume + " cobblestone into " + consume + " points");
+        return Result.ok("converted " + consume + " cobblestone into " + consume + " points", consume);
     }
 
     public Result purchase(Player player, String itemKey) throws Exception {
@@ -161,13 +161,17 @@ public final class PointsService {
         }
     }
 
-    public record Result(boolean success, String message) {
+    public record Result(boolean success, String message, int amount) {
         public static Result ok(String message) {
-            return new Result(true, message);
+            return new Result(true, message, 0);
+        }
+
+        public static Result ok(String message, int amount) {
+            return new Result(true, message, amount);
         }
 
         public static Result fail(String message) {
-            return new Result(false, message);
+            return new Result(false, message, 0);
         }
     }
 }
