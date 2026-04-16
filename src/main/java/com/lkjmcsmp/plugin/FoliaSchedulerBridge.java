@@ -23,4 +23,9 @@ public final class FoliaSchedulerBridge implements SchedulerBridge {
                 location,
                 task -> runnable.run());
     }
+
+    @Override
+    public void runAsyncTask(Runnable runnable) {
+        plugin.getServer().getAsyncScheduler().runNow(plugin, task -> runnable.run());
+    }
 }

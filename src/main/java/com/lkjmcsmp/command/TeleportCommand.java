@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Locale;
+
 public final class TeleportCommand implements CommandExecutor {
     private final TeleportService teleportService;
 
@@ -18,16 +20,16 @@ public final class TeleportCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
-                switch (label.toLowerCase()) {
+                switch (command.getName().toLowerCase(Locale.ROOT)) {
                     case "tp" -> directTp(player, args);
                     case "tpa" -> requestTp(player, args, false);
                     case "tpahere" -> requestTp(player, args, true);
-                    case "tpaccept" -> player.sendMessage(teleportService.acceptRequest(player).message());
+                    case "tpaccept" -> teleportService.acceptRequest(player, result -> player.sendMessage(result.message()));
                     case "tpdeny" -> player.sendMessage(teleportService.denyRequest(player).message());
                     case "rtp" -> {
                         boolean bypass = player.hasPermission("lkjmcsmp.rtp.bypasscooldown");
                         String world = args.length > 0 ? args[0] : "world";
-                        player.sendMessage(teleportService.randomTeleport(player, world, bypass).message());
+                        teleportService.randomTeleport(player, world, bypass, result -> player.sendMessage(result.message()));
                     }
                     default -> {
                         return false;
@@ -53,7 +55,7 @@ public final class TeleportCommand implements CommandExecutor {
             player.sendMessage("Target offline.");
             return;
         }
-        player.sendMessage(teleportService.directTeleport(player, target).message());
+        teleportService.directTeleport(player, target, result -> player.sendMessage(result.message()));
     }
 
     private void requestTp(Player player, String[] args, boolean summonHere) {

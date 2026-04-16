@@ -15,13 +15,17 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public final class TeleportService {
     private final SchedulerBridge schedulerBridge;
     private final Duration requestTimeout;
     private final Duration rtpCooldown;
-    private final int rtpRadius;
+    private final int rtpMinRadius;
+    private final int rtpMaxRadius;
+    private final int rtpAttempts;
     private final List<String> worldWhitelist;
+    private final RtpLocationSelector rtpSelector;
     private final Map<UUID, TpaRequest> pendingByTarget = new ConcurrentHashMap<>();
     private final Map<UUID, Instant> rtpCooldownUntil = new ConcurrentHashMap<>();
     private final Random random = new Random();
@@ -30,13 +34,24 @@ public final class TeleportService {
             SchedulerBridge schedulerBridge,
             Duration requestTimeout,
             Duration rtpCooldown,
-            int rtpRadius,
+            int rtpMinRadius,
+            int rtpMaxRadius,
+            int rtpAttempts,
             List<String> worldWhitelist) {
         this.schedulerBridge = schedulerBridge;
         this.requestTimeout = requestTimeout;
         this.rtpCooldown = rtpCooldown;
-        this.rtpRadius = rtpRadius;
+        this.rtpMinRadius = rtpMinRadius;
+        this.rtpMaxRadius = rtpMaxRadius;
+        this.rtpAttempts = rtpAttempts;
         this.worldWhitelist = worldWhitelist.stream().map(String::toLowerCase).toList();
+        if (rtpMinRadius < 0 || rtpMaxRadius < rtpMinRadius) {
+            throw new IllegalArgumentException("Invalid RTP radius range.");
+        }
+        if (rtpAttempts < 1) {
+            throw new IllegalArgumentException("teleport.rtp-attempts must be >= 1");
+        }
+        this.rtpSelector = new RtpLocationSelector(rtpMinRadius, rtpMaxRadius, random);
     }
 
     public Result requestTeleport(Player from, Player to, boolean summonHere) {
@@ -50,50 +65,45 @@ public final class TeleportService {
         return removed == null ? Result.fail("no pending request") : Result.ok("request denied");
     }
 
-    public Result acceptRequest(Player target) {
+    public void acceptRequest(Player target, Consumer<Result> callback) {
         TpaRequest request = pendingByTarget.remove(target.getUniqueId());
         if (request == null) {
-            return Result.fail("no pending request");
+            complete(target, callback, Result.fail("no pending request"));
+            return;
         }
         if (request.expiresAt().isBefore(Instant.now())) {
-            return Result.fail("request expired");
+            complete(target, callback, Result.fail("request expired"));
+            return;
         }
         Player from = Bukkit.getPlayer(request.from());
         if (from == null || !from.isOnline()) {
-            return Result.fail("requesting player is offline");
+            complete(target, callback, Result.fail("requesting player is offline"));
+            return;
         }
-        if (request.summonHere()) {
-            schedulerBridge.runPlayerTask(from, () -> from.teleport(target.getLocation()));
-        } else {
-            schedulerBridge.runPlayerTask(target, () -> target.teleport(from.getLocation()));
-        }
-        return Result.ok("teleport request accepted");
+        Player actor = request.summonHere() ? from : target;
+        Player source = request.summonHere() ? target : from;
+        moveActorToSource(actor, source, target, "teleport request accepted", callback);
     }
 
-    public Result directTeleport(Player actor, Player target) {
-        schedulerBridge.runPlayerTask(actor, () -> actor.teleport(target.getLocation()));
-        return Result.ok("teleported to " + target.getName());
+    public void directTeleport(Player actor, Player target, Consumer<Result> callback) {
+        moveActorToSource(actor, target, actor, "teleported to " + target.getName(), callback);
     }
 
-    public Result randomTeleport(Player player, String worldName, boolean bypassCooldown) {
+    public void randomTeleport(Player player, String worldName, boolean bypassCooldown, Consumer<Result> callback) {
         if (!bypassCooldown) {
             Instant until = rtpCooldownUntil.getOrDefault(player.getUniqueId(), Instant.EPOCH);
             if (until.isAfter(Instant.now())) {
                 long seconds = Duration.between(Instant.now(), until).toSeconds();
-                return Result.fail("rtp cooldown active: " + seconds + "s");
+                complete(player, callback, Result.fail("rtp cooldown active: " + seconds + "s"));
+                return;
             }
         }
         World world = resolveWorld(worldName);
         if (world == null) {
-            return Result.fail("rtp world is not allowed");
+            complete(player, callback, Result.fail("rtp world is not allowed"));
+            return;
         }
-        int x = random.nextInt(rtpRadius * 2 + 1) - rtpRadius;
-        int z = random.nextInt(rtpRadius * 2 + 1) - rtpRadius;
-        int y = world.getHighestBlockYAt(x, z) + 1;
-        Location target = new Location(world, x + 0.5, y, z + 0.5);
-        schedulerBridge.runPlayerTask(player, () -> player.teleport(target));
-        rtpCooldownUntil.put(player.getUniqueId(), Instant.now().plus(rtpCooldown));
-        return Result.ok("random teleport complete");
+        runRandomTeleportAttempt(player, world, 1, callback);
     }
 
     private World resolveWorld(String worldName) {
@@ -106,6 +116,61 @@ public final class TeleportService {
 
     public Optional<TpaRequest> pendingFor(UUID targetId) {
         return Optional.ofNullable(pendingByTarget.get(targetId));
+    }
+
+    private void moveActorToSource(
+            Player actor,
+            Player source,
+            Player callbackPlayer,
+            String successMessage,
+            Consumer<Result> callback) {
+        schedulerBridge.runPlayerTask(source, () -> {
+            if (!source.isOnline()) {
+                complete(callbackPlayer, callback, Result.fail("target offline"));
+                return;
+            }
+            Location sourceLocation = source.getLocation().clone();
+            schedulerBridge.runPlayerTask(actor, () -> {
+                if (!actor.isOnline()) {
+                    complete(callbackPlayer, callback, Result.fail("actor went offline"));
+                    return;
+                }
+                boolean moved = actor.teleport(sourceLocation);
+                complete(callbackPlayer, callback, moved ? Result.ok(successMessage) : Result.fail("teleport failed"));
+            });
+        });
+    }
+
+    private void runRandomTeleportAttempt(Player player, World world, int attempt, Consumer<Result> callback) {
+        if (attempt > rtpAttempts) {
+            complete(player, callback, Result.fail("no safe random teleport location found"));
+            return;
+        }
+        Location probe = rtpSelector.createProbeLocation(world);
+        schedulerBridge.runRegionTask(probe, () -> {
+            Location destination = rtpSelector.resolveSafeDestination(world, probe.getBlockX(), probe.getBlockZ());
+            if (destination == null) {
+                runRandomTeleportAttempt(player, world, attempt + 1, callback);
+                return;
+            }
+            schedulerBridge.runPlayerTask(player, () -> {
+                if (!player.isOnline()) {
+                    complete(player, callback, Result.fail("player went offline"));
+                    return;
+                }
+                boolean moved = player.teleport(destination);
+                if (!moved) {
+                    complete(player, callback, Result.fail("random teleport failed"));
+                    return;
+                }
+                rtpCooldownUntil.put(player.getUniqueId(), Instant.now().plus(rtpCooldown));
+                complete(player, callback, Result.ok("random teleport complete"));
+            });
+        });
+    }
+
+    private void complete(Player player, Consumer<Result> callback, Result result) {
+        schedulerBridge.runPlayerTask(player, () -> callback.accept(result));
     }
 
     public record Result(boolean success, String message) {

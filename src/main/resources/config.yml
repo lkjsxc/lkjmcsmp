@@ -1,10 +1,14 @@
 teleport:
   request-timeout-seconds: 60
   rtp-cooldown-seconds: 60
-  rtp-radius: 2000
+  rtp-min-radius: 500
+  rtp-max-radius: 2000
   rtp-attempts: 10
   rtp-world-whitelist:
     - world
+  first-join:
+    enabled: true
+    world: ""
 homes:
   max-per-player: 3
 economy:

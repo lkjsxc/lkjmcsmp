@@ -38,21 +38,21 @@ public final class MenuService {
     }
 
     public void openRoot(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, 27, ROOT_TITLE);
-        inventory.setItem(10, MenuItems.named(Material.ENDER_PEARL, "Teleport"));
-        inventory.setItem(11, MenuItems.named(Material.RED_BED, "Homes"));
-        inventory.setItem(12, MenuItems.named(Material.COMPASS, "Warps"));
-        inventory.setItem(13, MenuItems.named(Material.PLAYER_HEAD, "Team"));
-        inventory.setItem(14, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
-        inventory.setItem(15, MenuItems.named(Material.BOOK, "Progression"));
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, ROOT_TITLE);
+        inventory.setItem(19, MenuItems.named(Material.ENDER_PEARL, "Teleport"));
+        inventory.setItem(20, MenuItems.named(Material.RED_BED, "Homes"));
+        inventory.setItem(21, MenuItems.named(Material.COMPASS, "Warps"));
+        inventory.setItem(22, MenuItems.named(Material.PLAYER_HEAD, "Team"));
+        inventory.setItem(23, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
+        inventory.setItem(24, MenuItems.named(Material.BOOK, "Progression"));
         player.openInventory(inventory);
     }
 
     public void openShop(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, 54, SHOP_TITLE);
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, SHOP_TITLE);
         int slot = 0;
         for (Map.Entry<String, com.lkjmcsmp.domain.model.ShopEntry> entry : pointsService.getShopItems().entrySet()) {
-            if (slot >= 45) {
+            if (slot >= MenuLayout.CONTENT_LIMIT) {
                 break;
             }
             var value = entry.getValue();
@@ -62,16 +62,16 @@ public final class MenuService {
             item.setItemMeta(meta);
             inventory.setItem(slot++, item);
         }
-        inventory.setItem(49, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
         player.openInventory(inventory);
     }
 
     public void openProgress(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, 54, PROGRESS_TITLE);
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, PROGRESS_TITLE);
         try {
             int slot = 0;
             for (var view : progressionService.getViews(player.getUniqueId()).values()) {
-                if (slot >= 45) {
+                if (slot >= MenuLayout.CONTENT_LIMIT) {
                     break;
                 }
                 ItemStack icon = MenuItems.named(Material.BOOK, view.definition().title());
@@ -83,7 +83,7 @@ public final class MenuService {
         } catch (Exception ex) {
             player.sendMessage("Failed to load progression: " + ex.getMessage());
         }
-        inventory.setItem(49, MenuItems.named(Material.BARRIER, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.BARRIER, "Back"));
         player.openInventory(inventory);
     }
 

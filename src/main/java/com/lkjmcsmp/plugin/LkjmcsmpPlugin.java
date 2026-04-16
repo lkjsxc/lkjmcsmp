@@ -16,6 +16,7 @@ import com.lkjmcsmp.gui.MenuListener;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.persistence.AuditDao;
 import com.lkjmcsmp.persistence.EconomyOverrideDao;
+import com.lkjmcsmp.persistence.FirstJoinDao;
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.MilestoneDao;
 import com.lkjmcsmp.persistence.PartyDao;
@@ -34,6 +35,8 @@ import java.util.Objects;
 
 public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
+    private SchedulerBridge schedulerBridge;
+    private FirstJoinDao firstJoinDao;
 
     @Override
     public void onEnable() {
@@ -43,7 +46,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             saveResource("milestones.yml", false);
             Services initialized = initializeServices();
             registerCommands(initialized);
-            getServer().getPluginManager().registerEvents(new MenuListener(initialized.menus()), this);
+            registerListeners(initialized);
+            ProxyRuntimeValidator.validate(this);
             this.services = initialized;
             getLogger().info("lkjmcsmp enabled");
         } catch (Exception ex) {
@@ -74,7 +78,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         FileConfiguration shopConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
         FileConfiguration milestonesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "milestones.yml"));
 
-        SchedulerBridge schedulerBridge = new FoliaSchedulerBridge(this);
+        this.schedulerBridge = new FoliaSchedulerBridge(this);
         PointsService pointsService = new PointsService(
                 pointsDao,
                 economyOverrideDao,
@@ -96,8 +100,11 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 schedulerBridge,
                 Duration.ofSeconds(config.getInt("teleport.request-timeout-seconds", 60)),
                 Duration.ofSeconds(config.getInt("teleport.rtp-cooldown-seconds", 60)),
-                config.getInt("teleport.rtp-radius", 2000),
+                config.getInt("teleport.rtp-min-radius", 500),
+                config.getInt("teleport.rtp-max-radius", 2000),
+                config.getInt("teleport.rtp-attempts", 10),
                 Objects.requireNonNull(config.getStringList("teleport.rtp-world-whitelist")));
+        this.firstJoinDao = new FirstJoinDao(database);
 
         MenuService menuService = new MenuService(
                 pointsService,
@@ -114,15 +121,15 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("points", new PointsCommand(services.points(), services.menus(), services.progression()));
         register("convert", new PointsCommand(services.points(), services.menus(), services.progression()));
         register("shop", new PointsCommand(services.points(), services.menus(), services.progression()));
-        register("home", new HomeCommand(services.homes(), new FoliaSchedulerBridge(this), services.progression()));
-        register("sethome", new HomeCommand(services.homes(), new FoliaSchedulerBridge(this), services.progression()));
-        register("delhome", new HomeCommand(services.homes(), new FoliaSchedulerBridge(this), services.progression()));
-        register("homes", new HomeCommand(services.homes(), new FoliaSchedulerBridge(this), services.progression()));
-        register("warp", new WarpCommand(services.warps(), new FoliaSchedulerBridge(this), services.progression()));
-        register("setwarp", new WarpCommand(services.warps(), new FoliaSchedulerBridge(this), services.progression()));
-        register("delwarp", new WarpCommand(services.warps(), new FoliaSchedulerBridge(this), services.progression()));
-        register("warps", new WarpCommand(services.warps(), new FoliaSchedulerBridge(this), services.progression()));
-        register("team", new TeamCommand(services.parties(), new FoliaSchedulerBridge(this), services.progression()));
+        register("home", new HomeCommand(services.homes(), schedulerBridge, services.progression()));
+        register("sethome", new HomeCommand(services.homes(), schedulerBridge, services.progression()));
+        register("delhome", new HomeCommand(services.homes(), schedulerBridge, services.progression()));
+        register("homes", new HomeCommand(services.homes(), schedulerBridge, services.progression()));
+        register("warp", new WarpCommand(services.warps(), schedulerBridge, services.progression()));
+        register("setwarp", new WarpCommand(services.warps(), schedulerBridge, services.progression()));
+        register("delwarp", new WarpCommand(services.warps(), schedulerBridge, services.progression()));
+        register("warps", new WarpCommand(services.warps(), schedulerBridge, services.progression()));
+        register("team", new TeamCommand(services.parties(), schedulerBridge, services.progression()));
         register("tp", new TeleportCommand(services.teleports()));
         register("tpa", new TeleportCommand(services.teleports()));
         register("tpahere", new TeleportCommand(services.teleports()));
@@ -130,6 +137,17 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("tpdeny", new TeleportCommand(services.teleports()));
         register("rtp", new TeleportCommand(services.teleports()));
         register("adv", new AdvCommand(services.progression(), services.menus()));
+    }
+
+    private void registerListeners(Services initialized) {
+        getServer().getPluginManager().registerEvents(new MenuListener(initialized.menus()), this);
+        getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(getLogger()), this);
+        if (getConfig().getBoolean("teleport.first-join.enabled", true)) {
+            String firstJoinWorld = Objects.requireNonNull(getConfig().getString("teleport.first-join.world", ""));
+            getServer().getPluginManager().registerEvents(
+                    new FirstJoinTeleportListener(initialized.teleports(), firstJoinDao, schedulerBridge, firstJoinWorld, getLogger()),
+                    this);
+        }
     }
 
     private void register(String command, CommandExecutor executor) {

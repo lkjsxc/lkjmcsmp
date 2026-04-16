@@ -122,6 +122,12 @@ public final class SqliteDatabase {
                   created_at TEXT NOT NULL
                 );
                 """);
+            statement.execute("""
+                CREATE TABLE IF NOT EXISTS first_join_rtp (
+                  player_uuid TEXT PRIMARY KEY,
+                  completed_at TEXT NOT NULL
+                );
+                """);
         }
     }
 }
