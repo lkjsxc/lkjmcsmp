@@ -1,0 +1,21 @@
+milestones:
+  first_convert:
+    title: First Conversion
+    kind: convert_amount
+    target: 64
+    reward-points: 32
+  first_home_set:
+    title: Settled Down
+    kind: home_set
+    target: 1
+    reward-points: 16
+  first_warp_use:
+    title: World Traveler
+    kind: warp_use
+    target: 1
+    reward-points: 16
+  first_party_join:
+    title: Social Start
+    kind: party_join
+    target: 1
+    reward-points: 24

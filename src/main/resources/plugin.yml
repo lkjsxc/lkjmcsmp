@@ -1,0 +1,98 @@
+name: lkjmcsmp
+version: ${version}
+main: com.lkjmcsmp.plugin.LkjmcsmpPlugin
+api-version: "1.21"
+folia-supported: true
+authors: [lkjmcsmp contributors]
+
+commands:
+  menu:
+    usage: /menu
+    permission: lkjmcsmp.menu.use
+  points:
+    usage: /points
+    permission: lkjmcsmp.points.view
+  convert:
+    usage: /convert cobblestone <amount>
+    permission: lkjmcsmp.points.convert
+  shop:
+    usage: /shop
+    permission: lkjmcsmp.shop.use
+  adv:
+    usage: /adv
+    permission: lkjmcsmp.menu.use
+  home:
+    usage: /home [name]
+    permission: lkjmcsmp.home.use
+  sethome:
+    usage: /sethome <name>
+    permission: lkjmcsmp.home.manage
+  delhome:
+    usage: /delhome <name>
+    permission: lkjmcsmp.home.manage
+  homes:
+    usage: /homes
+    permission: lkjmcsmp.home.use
+  warp:
+    usage: /warp <name>
+    permission: lkjmcsmp.warp.use
+  setwarp:
+    usage: /setwarp <name>
+    permission: lkjmcsmp.warp.manage
+  delwarp:
+    usage: /delwarp <name>
+    permission: lkjmcsmp.warp.manage
+  warps:
+    usage: /warps
+    permission: lkjmcsmp.warp.use
+  team:
+    usage: /team <subcommand>
+    permission: lkjmcsmp.team.use
+  tp:
+    usage: /tp <player>
+    permission: lkjmcsmp.tp.use
+  tpa:
+    usage: /tpa <player>
+    permission: lkjmcsmp.tpa.use
+  tpahere:
+    usage: /tpahere <player>
+    permission: lkjmcsmp.tpa.use
+  tpaccept:
+    usage: /tpaccept
+    permission: lkjmcsmp.tpa.use
+  tpdeny:
+    usage: /tpdeny
+    permission: lkjmcsmp.tpa.use
+  rtp:
+    usage: /rtp [world]
+    permission: lkjmcsmp.rtp.use
+
+permissions:
+  lkjmcsmp.menu.use:
+    default: true
+  lkjmcsmp.points.view:
+    default: true
+  lkjmcsmp.points.convert:
+    default: true
+  lkjmcsmp.shop.use:
+    default: true
+  lkjmcsmp.home.use:
+    default: true
+  lkjmcsmp.home.manage:
+    default: true
+  lkjmcsmp.warp.use:
+    default: true
+  lkjmcsmp.warp.manage:
+    default: op
+  lkjmcsmp.team.use:
+    default: true
+  lkjmcsmp.tp.use:
+    default: op
+  lkjmcsmp.tpa.use:
+    default: true
+  lkjmcsmp.rtp.use:
+    default: true
+  lkjmcsmp.rtp.bypasscooldown:
+    default: op
+  lkjmcsmp.economy.override:
+    default: op

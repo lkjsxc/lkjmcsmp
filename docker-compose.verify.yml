@@ -1,0 +1,25 @@
+services:
+  verify:
+    image: gradle:8.10.2-jdk21
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - gradle-cache:/home/gradle/.gradle
+    command: ["bash", "scripts/verify.sh"]
+
+  smoke:
+    image: python:3.12-slim
+    working_dir: /workspace
+    environment:
+      RCON_HOST: folia
+      RCON_PORT: 25575
+      RCON_PASSWORD: "${RCON_PASSWORD:-lkjmcsmp-rcon}"
+    volumes:
+      - .:/workspace
+    depends_on:
+      folia:
+        condition: service_healthy
+    command: ["bash", "scripts/smoke.sh"]
+
+volumes:
+  gradle-cache:
