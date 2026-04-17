@@ -12,6 +12,7 @@ Define the canonical behavior and maintenance contracts for the plugin in an LLM
 4. Keep docs files at `<= 300` lines and authored source files at `<= 200` lines.
 5. Prefer stable headings, terse bullets, and one canonical definition per concept.
 6. Update parent `README.md` files in the same batch as child doc changes.
+7. Prefer action-stable interaction contracts over click-type divergence.
 
 ## Top-Level Index
 

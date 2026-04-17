@@ -9,6 +9,8 @@ Define player-facing behavior for commands, menus, progression, economy, social 
 1. Every player-visible behavior change updates this section first.
 2. Command and GUI flows must describe the same outcomes.
 3. Success/failure messaging expectations must remain explicit.
+4. Growth-heavy surfaces should be specified with deterministic pagination contracts.
+5. Destructive actions require explicit dedicated flows.
 
 ## Child Index
 

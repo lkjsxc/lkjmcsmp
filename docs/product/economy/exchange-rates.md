@@ -22,11 +22,16 @@ Define strict base rates with optional seasonal overrides controlled by explicit
 3. Seasonal override changes require:
    - permission `lkjmcsmp.economy.override`
    - audit log record with actor, before, after, and timestamp
-4. Shop purchase flow is quantity-driven: player selects integer unit count and total cost is `unit-cost * selected-units`.
-5. Log purchases default to unit pricing (`1` log per unit, `16` points per unit).
-6. Purchase fails when points are insufficient.
-7. Purchase grants items only after points deduction succeeds.
-8. Failed item insertion rolls back points deduction.
+4. Shop purchase flow is list-to-detail:
+   - list view selects target item
+   - detail view controls integer unit quantity
+   - detail view executes explicit `Buy`
+5. Opening detail view resets quantity to default baseline (`1` unit).
+6. Total cost is `unit-cost * selected-units`.
+7. Log purchases default to unit pricing (`1` log per unit, `16` points per unit).
+8. Purchase fails when points are insufficient.
+9. Purchase grants items only after points deduction succeeds.
+10. Failed item insertion rolls back points deduction.
 
 ## Override Scope
 

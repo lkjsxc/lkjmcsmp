@@ -26,8 +26,14 @@
 
 ## Menu Config Keys
 
-- `menus.auto-refresh-seconds` (default `1`)
+- `menus.auto-refresh-seconds` (default `5`)
 - `menus.show-manual-refresh-controls` (default `false`)
+
+## Menu Refresh Contract
+
+1. Primary refresh path is event-driven after state-changing actions.
+2. Fallback periodic refresh is for dynamic menus only.
+3. Fallback cadence default is `5` seconds.
 
 ## Proxy Runtime Validation
 

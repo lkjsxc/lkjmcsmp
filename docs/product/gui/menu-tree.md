@@ -3,8 +3,9 @@
 ## Inventory Size Contract
 
 - All plugin menus use 54 slots (large chest layout).
-- Shared navigation row reserves `Back` and context actions; manual `Refresh` is hidden by default.
-- Open menus auto-refresh every `1` second by default and immediately after state-changing actions.
+- Shared navigation row reserves context action, paging controls, and `Back`; manual `Refresh` is hidden by default.
+- Menus refresh immediately after state changes.
+- Dynamic menus may use `5`-second fallback refresh.
 - `Back` control uses `ARROW` material across all menus.
 
 ## Root Menu (`/menu`)
@@ -28,16 +29,20 @@
 
 ## Homes Menu
 
-- Home list
-- Left-click home entry: teleport
-- Right-click home entry: delete
+- Home list (paginated)
+- Home entry click: teleport
 - Add Current Location (auto-name `home-<n>` using first available sequential index)
-- Set default `home`
-- Delete default `home`
+- Open Home Deletion Page
+
+## Homes Deletion Page
+
+- Home list (paginated)
+- Home entry click: delete with explicit deletion affordance
+- Back (`ARROW`)
 
 ## Warps Menu
 
-- Warp list
+- Warp list (paginated)
 - Teleport to warp
 - Manage warps (permission-gated)
 
@@ -51,15 +56,23 @@
 
 ## Points Shop Menu
 
+- Item list (paginated)
 - Convert cobblestone
-- Buy logs (quantity picker + explicit `Buy`; unit price `16` points per log)
-- Buy dirt (quantity picker + explicit `Buy`)
-- Exchange history
+- Select item to open purchase detail page
+- Back (`ARROW`)
+
+## Points Shop Detail Menu
+
+- Selected item description and unit pricing
+- Quantity controls
+- Explicit purchase button
+- Purchase executes only when balance is sufficient
+- Selection state resets whenever detail menu is opened
 - Back (`ARROW`)
 
 ## Progression Menu
 
-- Milestone list
+- Milestone list (paginated)
 - Progress ratio and percent per milestone
 - Detailed milestone explanation text
 - Reward preview

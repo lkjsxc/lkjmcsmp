@@ -25,7 +25,7 @@ Provide a compact SMP sidebar that stays visible and deterministic for all onlin
 
 1. Sidebar is enabled for all online players by default.
 2. Managed objective identity is fixed and reused across join/reconcile/retry paths.
-3. Every render reasserts `DisplaySlot.SIDEBAR` to keep sidebar visible.
+3. Every render reasserts `DisplaySlot.SIDEBAR` and reclaims ownership if overwritten.
 4. Missing title or required lines is a recoverable failure and must trigger lifecycle retry/rebuild.
 5. A blank or missing sidebar for an online player after retry window is a blocker regression.
 

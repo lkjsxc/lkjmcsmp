@@ -4,7 +4,7 @@
 
 1. Player join: enqueue immediate player-scoped render.
 2. Plugin enable: run startup reconcile for already-online players before steady-state operation.
-3. Periodic reconcile: refresh online count and points for all online players on a fixed multi-second cadence.
+3. Periodic reconcile: refresh online count and points for all online players on fixed `5s` cadence.
 4. Targeted refresh: optional data-change refreshes must use the same render pipeline as join/reconcile.
 5. Player quit: detach/reset scoreboard state and clear queued retries for that player.
 
@@ -21,7 +21,7 @@
 1. Build snapshot: `onlineCount`, `points`, and fallback defaults (`points=0`) when lookup fails.
 2. Ensure board primitives exist using fixed IDs from layout contract.
 3. Apply title + required lines in canonical order only.
-4. Set `DisplaySlot.SIDEBAR` on managed objective every render.
+4. Set `DisplaySlot.SIDEBAR` on managed objective every render (always reclaim ownership).
 5. Verify required objective + lines exist; treat any mismatch as a render failure.
 
 ## Recovery Strategy
@@ -39,6 +39,7 @@
 3. Render operations remain idempotent for identical snapshots.
 4. Data failures must not hide sidebar output.
 5. Sidebar implementation is Bukkit/Paper-native only; no external sidebar library fallback.
+6. Player-scoped scoreboard rendering may run after short join delay to avoid early lifecycle races.
 
 ## Assumptions
 

@@ -31,7 +31,9 @@
 7. Homes GUI includes `Add Current Location`, equivalent to `/sethome <generated-name>`.
 8. Generated home names use `home-<n>` with the first available positive sequential index (`home-1`, `home-2`, ...).
 9. `Add Current Location` returns the chosen generated name in success feedback.
-10. Homes/warps GUI lists hide manual `Refresh` by default and auto-refresh every `1` second plus immediate post-action refresh.
+10. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
+11. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
+12. Homes/warps GUI lists hide manual `Refresh`; dynamic fallback refresh is `5` seconds.
 
 ## Failures
 

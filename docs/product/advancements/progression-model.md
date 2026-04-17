@@ -18,6 +18,12 @@ Maintain progression milestones in plugin state without datapack dependency.
 - First warp use
 - First party join
 - Total points earned thresholds
+- First shop purchase
+- First teleport request sent
+- First random teleport use
+- Home count thresholds
+- Shop unit purchase thresholds
+- Party participation thresholds
 
 ## Milestone Metadata Contract
 
@@ -36,3 +42,4 @@ Maintain progression milestones in plugin state without datapack dependency.
 5. GUI must show numeric progress (`current/target`) and percentage.
 6. `LOCKED` milestones still show description and target for forward planning.
 7. `COMPLETED_UNCLAIMED` milestones must render with clear claim affordance.
+8. Growth strategy should prefer many small deterministic milestones over a single sparse chain.

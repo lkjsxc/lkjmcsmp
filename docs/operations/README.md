@@ -9,6 +9,7 @@ Define operational runbooks for deployment, verification, and acceptance gates.
 1. Compose verification is the mandatory acceptance path.
 2. Local runtime guidance stays aligned with deployment contracts.
 3. Operational docs use command-first, copy-paste-friendly steps.
+4. Smoke assertions must match documented blocker contracts.
 
 ## Child Index
 

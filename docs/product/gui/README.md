@@ -2,7 +2,7 @@
 
 ## Goal
 
-Define deterministic menu topology, navigation semantics, and item-lock behavior.
+Define deterministic menu topology, navigation semantics, pagination behavior, and slot-8 entrypoint guarantees.
 
 ## Rules
 
@@ -11,7 +11,11 @@ Define deterministic menu topology, navigation semantics, and item-lock behavior
 3. Locked or denied actions always explain why they are denied.
 4. Menu entrypoint items remain hard-locked in their reserved positions.
 5. Manual `Refresh` controls are hidden by default in production menus.
-6. Open menus auto-refresh every `1` second by default and immediately after state changes.
+6. Primary action behavior must not depend on left-click vs right-click.
+7. Destructive operations use explicit dedicated flows (page or confirm step), not alternate click types.
+8. Menus refresh on state change, with `5`-second fallback refresh only for dynamic menus.
+9. Growth-heavy menus (homes, shop, progression, picker lists) use deterministic pagination.
+10. Shop uses list-to-detail navigation for purchase execution.
 7. Teleport accept UX mirrors `/tpaccept`: fail on none, accept directly on one, requester picker on many.
 
 ## Child Index

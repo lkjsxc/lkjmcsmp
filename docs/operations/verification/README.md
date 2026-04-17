@@ -9,6 +9,8 @@ Define acceptance gates and scripted checks that block regressions.
 1. Non-zero verify/smoke results block acceptance.
 2. Verification covers docs topology, line limits, build/test, and runtime smoke.
 3. Scripted checks track contracts in product and architecture docs.
+4. Scoreboard visibility/recovery failures are always blocker failures.
+5. Hotbar entrypoint and menu interaction regressions are blocker failures.
 
 ## Child Index
 

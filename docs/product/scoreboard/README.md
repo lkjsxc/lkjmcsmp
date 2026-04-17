@@ -12,10 +12,10 @@ Define a deterministic, recoverable sidebar contract so every online player keep
 4. Data lookup failures degrade to explicit fallback values instead of hiding the sidebar.
 5. Missing/corrupt objective state is a recoverable fault: retry + rebuild rules must restore visibility deterministically.
 6. Any sustained missing sidebar state for an online player is a regression.
+7. Plugin owns sidebar slot for online players and reclaims `SIDEBAR` during reconcile.
 
 ## Assumptions
 
-- The plugin owns one fixed sidebar objective identity and reclaims `SIDEBAR` on reconcile if another source overwrites it.
 - Deterministic behavior means equal input snapshots produce equal title text, line text, and line order across all update paths.
 
 ## Child Index

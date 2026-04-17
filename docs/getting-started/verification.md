@@ -25,13 +25,17 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - GUI root menu can be opened by command.
 - Cobblestone conversion command path succeeds for an operator test account.
 - Hotbar slot `8` menu entrypoint opens GUI and cannot be dropped.
-- GUI menus auto-refresh state without a manual refresh control.
+- Hotbar slot `8` menu entrypoint opens from cancelled/blocked interaction contexts.
+- GUI menus refresh state without a manual refresh control.
 - Homes GUI add-current-location path yields sequential auto names (`home-1`, `home-2`, ...).
+- Homes deletion uses explicit dedicated deletion flow.
 - Shop quantity path honors unit rate (`1` log = `16` points) in total-cost math.
+- Shop item list transitions to item detail purchase screen with reset-on-open quantity.
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
 - Scoreboard sidebar appears with online-count and points lines.
 - Scoreboard join render and periodic reconcile render produce the same title and line ordering.
 - Scoreboard recovers visibility after objective removal within documented retry/reconcile window.
+- Scoreboard reconcile reclaims `SIDEBAR` ownership after overwrite.
 - Scoreboard dependency set must remain Bukkit/Paper-only (no external sidebar library).
 
 ## Scoreboard Blocker Rule

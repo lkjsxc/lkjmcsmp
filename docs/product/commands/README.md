@@ -10,6 +10,8 @@ Specify canonical command behavior, permissions, side effects, and error outputs
 2. Commands return explicit success or explicit failure; no silent outcomes.
 3. Permission failures include the missing permission node.
 4. Cooldowns and delays include remaining time where relevant.
+5. GUI interactions must not rely on left-click/right-click divergence for command intent.
+6. Growth-heavy command-backed lists must preserve stable pagination ordering in GUI.
 
 ## Child Index
 

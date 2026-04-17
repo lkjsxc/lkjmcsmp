@@ -2,14 +2,14 @@
 
 ## Input Rules
 
-1. Left-click triggers primary action.
-2. Right-click opens details where available.
-3. Shift-click is ignored unless explicitly documented.
-4. Closed inventories clear temporary session context.
-5. Slot `8` hotbar menu item click/use opens root menu.
-6. Slot `8` drop intent is cancelled and treated as menu-open input.
-7. Clicking slot `8` while another inventory is open opens root menu.
-8. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
+1. Item click behavior is action-stable across left/right click.
+2. Shift-click is ignored unless explicitly documented.
+3. Closed inventories clear temporary session context.
+4. Slot `8` hotbar menu item click/use opens root menu.
+5. Slot `8` drop intent is cancelled and treated as menu-open input.
+6. Clicking slot `8` while another inventory is open opens root menu.
+7. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
+8. Destructive actions (for example home deletion) are reachable only through explicit dedicated views.
 
 ## Feedback Rules
 
@@ -28,6 +28,7 @@
 6. Root menu exposes a deterministic close button.
 7. Every non-root menu renders `Back` with `ARROW` material.
 8. Menus hide manual `Refresh` controls by default.
-9. Open menus auto-refresh every `1` second by default and after state-changing actions.
+9. Menus refresh immediately after state-changing actions.
+10. Dynamic menus may use fallback refresh every `5` seconds.
 10. Shop quantity selection only changes previewed totals; purchase requires explicit `Buy`.
 11. `/tpaccept`-linked accept flows open requester picker only when two or more requests are pending.
