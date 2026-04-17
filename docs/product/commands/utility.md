@@ -16,7 +16,11 @@
 4. Conversion amount may be capped by config per operation.
 5. `/points` reflects committed ledger state, not temporary calculations.
 6. GUI points shop includes a convert action that converts all available cobblestone by default.
-7. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`.
+7. GUI points shop purchases use quantity selection with deterministic rate math (`unit-cost * quantity`).
+8. Quantity selection only updates preview totals; purchase executes only on explicit `Buy`.
+9. Logs use unit pricing by default (`1` log = `16` points).
+10. Utility GUI views hide manual `Refresh` by default and auto-refresh every `1` second plus immediate post-action refresh.
+11. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`.
 
 ## Failures
 

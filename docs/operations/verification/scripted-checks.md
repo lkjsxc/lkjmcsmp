@@ -16,6 +16,7 @@ Extended smoke suite:
 - Points conversion and shop purchase
 - Pseudo-advancement claim flow
 - GUI root menu open
+- Scoreboard sidebar lifecycle and recovery
 
 ## Minimum Assertions
 
@@ -31,5 +32,28 @@ Extended smoke suite:
 - Hotbar menu item drop intent does not lose item and opens root menu.
 - Hotbar slot `8` token cannot be moved by inventory manipulation vectors.
 - GUI `Back` controls render as arrow items.
+- GUI menus do not render manual `Refresh`; state-changing actions update visible state without manual reopen.
+- Homes GUI `Add Current Location` creates sequential names (`home-1`, `home-2`, ...).
 - Progression GUI shows milestone status plus numeric progress text.
+- Shop quantity purchase computes deterministic totals; logs use `1 log = 16 points`.
+- `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Scoreboard sidebar renders for online player with `online` and `points` lines.
+- Scoreboard implementation dependency set excludes external sidebar libraries.
+
+## Scoreboard Reliability Assertions
+
+1. Sidebar appears for an online operator test player with canonical title and required lines.
+2. Join path and periodic reconcile path produce identical line order and labels.
+3. Injected sidebar-objective removal is recovered within bounded retry/reconcile window.
+4. Recovery attempts emit structured logs with `trigger`, `playerUuid`, and `attempt`.
+5. No external sidebar library classes or artifacts exist in plugin dependency graph.
+
+## Blocker Policy
+
+- Any failed scoreboard assertion is an acceptance blocker.
+- Missing sidebar recovery evidence is an acceptance blocker.
+
+## Assumptions
+
+- Smoke harness has operator-level permission to run vanilla `/scoreboard` commands for failure injection.
+- Smoke harness can read server logs to assert retry/recovery logging behavior.

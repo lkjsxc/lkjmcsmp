@@ -27,3 +27,7 @@
 5. Every plugin inventory view uses 54 slots.
 6. Root menu exposes a deterministic close button.
 7. Every non-root menu renders `Back` with `ARROW` material.
+8. Menus hide manual `Refresh` controls by default.
+9. Open menus auto-refresh every `1` second by default and after state-changing actions.
+10. Shop quantity selection only changes previewed totals; purchase requires explicit `Buy`.
+11. `/tpaccept`-linked accept flows open requester picker only when two or more requests are pending.

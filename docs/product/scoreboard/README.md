@@ -2,15 +2,23 @@
 
 ## Goal
 
-Define scoreboard content and lifecycle so sidebar rendering is reliable for all online players.
+Define a deterministic, recoverable sidebar contract so every online player keeps a visible scoreboard.
 
-## Rules
+## Reliability Invariants
 
-1. Sidebar content and ordering remain deterministic.
-2. Join and periodic refresh paths must both render scoreboard consistently.
-3. Data lookup failures must degrade to explicit fallback values instead of hiding the sidebar.
+1. Sidebar rendering uses Bukkit/Paper scoreboard APIs only (`Scoreboard`, `Objective`, `Team`, `DisplaySlot`).
+2. External sidebar libraries are not allowed, including fallback paths.
+3. Join render, startup reconcile, and periodic reconcile must converge to the same layout contract.
+4. Data lookup failures degrade to explicit fallback values instead of hiding the sidebar.
+5. Missing/corrupt objective state is a recoverable fault: retry + rebuild rules must restore visibility deterministically.
+6. Any sustained missing sidebar state for an online player is a regression.
+
+## Assumptions
+
+- The plugin owns one fixed sidebar objective identity and reclaims `SIDEBAR` on reconcile if another source overwrites it.
+- Deterministic behavior means equal input snapshots produce equal title text, line text, and line order across all update paths.
 
 ## Child Index
 
 - [sidebar-layout.md](sidebar-layout.md): canonical scoreboard title and lines
-- [update-lifecycle.md](update-lifecycle.md): render, refresh, and teardown lifecycle
+- [update-lifecycle.md](update-lifecycle.md): Folia-safe render, retry, reconcile, and teardown lifecycle

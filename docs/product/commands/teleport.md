@@ -51,20 +51,25 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 ## Teleport Rules
 
 1. `tpa` requests expire after configured timeout.
-2. Requests are one-to-one; newest request replaces previous same-direction request.
+2. Requests are tracked per target with one active request per requester-target pair; newest request from the same requester replaces their previous pending request.
 3. `tpa`/`tpahere` request creation notifies both players:
    - requester receives request-created result
    - target receives requester name, direction (`tpa` or `tpahere`), timeout, and accept/deny hint
-4. Request deny/expire/accept outcomes send explicit feedback to all affected players.
-5. `rtp` requires world whitelist membership.
-6. `rtp` enforces cooldown unless bypass permission is present.
-7. `rtp` selects random locations using configured donut range (`min/max radius`).
-8. `rtp` uses bounded attempts and fails explicitly when no valid location is found.
-9. `rtp` location validation requires safe feet/head space and non-lethal support block.
-10. Teleports execute using Folia-safe scheduling for source and target entities and completion-driven teleport API.
-11. Success messages are emitted only after teleport completion is confirmed.
-12. Failed teleports must return explicit reason; no success-shaped fallback responses.
-13. `/home`, `/warp`, and `/team home` teleport outcomes follow the same completion/failure semantics as `/tp` and `/rtp`.
+4. `/tpaccept` request resolution:
+   - no pending requests: explicit failure
+   - one pending request: accept immediately without picker
+   - two or more pending requests: open requester-picker GUI (from command or Teleport menu) and accept selected request
+   - requester picker lists pending requesters in stable order and auto-refreshes every `1` second by default
+5. Request deny/expire/accept outcomes send explicit feedback to all affected players.
+6. `rtp` requires world whitelist membership.
+7. `rtp` enforces cooldown unless bypass permission is present.
+8. `rtp` selects random locations using configured donut range (`min/max radius`).
+9. `rtp` uses bounded attempts and fails explicitly when no valid location is found.
+10. `rtp` location validation requires safe feet/head space and non-lethal support block.
+11. Teleports execute using Folia-safe scheduling for source and target entities and completion-driven teleport API.
+12. Success messages are emitted only after teleport completion is confirmed.
+13. Failed teleports must return explicit reason; no success-shaped fallback responses.
+14. `/home`, `/warp`, and `/team home` teleport outcomes follow the same completion/failure semantics as `/tp` and `/rtp`.
 
 ## First-Join RTP Rules
 

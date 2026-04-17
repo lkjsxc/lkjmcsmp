@@ -3,7 +3,8 @@
 ## Inventory Size Contract
 
 - All plugin menus use 54 slots (large chest layout).
-- Shared navigation row reserves `Refresh` and `Back` controls.
+- Shared navigation row reserves `Back` and context actions; manual `Refresh` is hidden by default.
+- Open menus auto-refresh every `1` second by default and immediately after state-changing actions.
 - `Back` control uses `ARROW` material across all menus.
 
 ## Root Menu (`/menu`)
@@ -21,7 +22,8 @@
 - Random Teleport
 - TPA Request (target picker)
 - TPA Here (target picker)
-- Pending Request Accept/Deny
+- Pending Request Accept (`/tpaccept` parity: direct accept on one pending, requester picker on multiple)
+- Pending Request Deny
 - Direct Player Teleport (permission-gated)
 
 ## Homes Menu
@@ -29,6 +31,7 @@
 - Home list
 - Left-click home entry: teleport
 - Right-click home entry: delete
+- Add Current Location (auto-name `home-<n>` using first available sequential index)
 - Set default `home`
 - Delete default `home`
 
@@ -49,8 +52,8 @@
 ## Points Shop Menu
 
 - Convert cobblestone
-- Buy logs
-- Buy dirt
+- Buy logs (quantity picker + explicit `Buy`; unit price `16` points per log)
+- Buy dirt (quantity picker + explicit `Buy`)
 - Exchange history
 - Back (`ARROW`)
 

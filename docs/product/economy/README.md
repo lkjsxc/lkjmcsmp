@@ -9,6 +9,7 @@ Define how points are generated, stored, and exchanged for items.
 1. Points behavior must remain ledger-backed and auditable.
 2. Conversion and purchase paths must share canonical rate definitions.
 3. Error outcomes must explain missing points or missing resources explicitly.
+4. Shop purchases use explicit quantity selection against documented unit rates.
 
 ## Child Index
 

@@ -24,6 +24,11 @@
 - `teleport.first-join.enabled`
 - `teleport.first-join.world`
 
+## Menu Config Keys
+
+- `menus.auto-refresh-seconds` (default `1`)
+- `menus.show-manual-refresh-controls` (default `false`)
+
 ## Proxy Runtime Validation
 
 1. Startup reads proxy-related server configs and emits explicit diagnostics.

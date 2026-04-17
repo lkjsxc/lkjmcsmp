@@ -16,6 +16,7 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 2. `smoke` runs scripted command checks against a live Folia container.
 3. Non-zero from any step blocks acceptance.
 4. Final `down -v` removes test state.
+5. Verification expectations include GUI auto-refresh behavior, homes auto-name flow, shop quantity pricing math, multi-request `/tpaccept` picker, and scoreboard hardening constraints.
 
 ## Stop Rule
 
