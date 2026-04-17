@@ -9,6 +9,7 @@ Define deterministic runtime setup for local and proxy-backed plugin deployment.
 1. Runtime config keys and defaults remain documented.
 2. Proxy/runtime assumptions are validated explicitly.
 3. Deployment instructions avoid hidden environment dependencies.
+4. Menu configuration reflects event-driven refresh with picker-only manual refresh controls.
 
 ## Child Index
 

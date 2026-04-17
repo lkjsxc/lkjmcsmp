@@ -12,6 +12,7 @@ Specify canonical command behavior, permissions, side effects, and error outputs
 4. Cooldowns and delays include remaining time where relevant.
 5. GUI interactions must not rely on left-click/right-click divergence for command intent.
 6. Growth-heavy command-backed lists must preserve stable pagination ordering in GUI.
+7. Shop command quantity semantics use final item counts (`1..64`), not multiplier units.
 
 ## Child Index
 

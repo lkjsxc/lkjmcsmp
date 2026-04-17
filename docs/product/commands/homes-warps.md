@@ -33,7 +33,7 @@
 9. `Add Current Location` returns the chosen generated name in success feedback.
 10. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
 11. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
-12. Homes/warps GUI lists hide manual `Refresh`; dynamic fallback refresh is `5` seconds.
+12. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
 
 ## Failures
 

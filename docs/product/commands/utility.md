@@ -17,11 +17,12 @@
 5. `/points` reflects committed ledger state, not temporary calculations.
 6. GUI points shop list opens an item detail purchase screen when an item is selected.
 7. Detail purchase screen resets quantity configuration on each open.
-8. GUI points shop purchases use quantity selection with deterministic rate math (`unit-cost * quantity`).
+8. GUI points shop purchases use final item quantity selection (`1..64`) with deterministic rate math (`points-per-item * quantity`).
 9. Quantity selection only updates preview totals; purchase executes only on explicit `Buy`.
-10. Logs use unit pricing by default (`1` log = `16` points).
-11. Utility GUI views hide manual `Refresh`; dynamic fallback refresh is `5` seconds.
-12. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`, including cancelled/blocked interaction contexts.
+10. Logs use per-item pricing by default (`1` log = `16` points).
+11. Utility GUI views avoid background auto-refresh reopen loops.
+12. Picker menus expose explicit manual `Refresh`.
+13. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`, including cancelled/blocked interaction contexts.
 
 ## Failures
 

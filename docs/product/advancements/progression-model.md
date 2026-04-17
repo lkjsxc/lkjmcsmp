@@ -22,7 +22,7 @@ Maintain progression milestones in plugin state without datapack dependency.
 - First teleport request sent
 - First random teleport use
 - Home count thresholds
-- Shop unit purchase thresholds
+- Shop purchase quantity thresholds
 - Party participation thresholds
 
 ## Milestone Metadata Contract

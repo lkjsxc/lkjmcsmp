@@ -10,6 +10,7 @@ Define pseudo-advancement milestones, progress tracking, and reward claim semant
 2. Reward claims must be replay-safe and idempotent.
 3. Progress visibility in commands/GUI must match milestone state.
 4. Milestone set should cover multiple gameplay domains (economy, homes/warps, social, teleport, shop).
+5. Shop progression thresholds count purchased item quantities, not multiplier units.
 
 ## Child Index
 
