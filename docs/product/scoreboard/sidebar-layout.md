@@ -2,24 +2,35 @@
 
 ## Goal
 
-Provide a compact SMP sidebar that stays visible and deterministic for all online players.
+Provide a compact deterministic sidebar with stable visible output and stable internal identity.
 
 ## Title
 
 - `lkjmcsmp SMP`
 
-## Required Lines
+## Required Visible Lines
 
 1. `Online: <count>` where `<count>` is current online players.
 2. `Points: <balance>` where `<balance>` is player points (`0` on lookup failure).
 
+## Required Ordering
+
+1. `Online` line score is above `Points` line score.
+2. Render pipeline must produce identical order for equal snapshots.
+
+## Stable Entry Identity Rules
+
+1. Internal scoreboard entries backing each visible line are stable fixed identifiers.
+2. Entry identity must not depend on player name, locale, or random generation.
+3. Render paths (join, periodic, retry, targeted) reuse the same entry identities.
+4. Cleanup + rebuild preserves the same objective and entry identity contracts.
+
 ## Deterministic Formatting Rules
 
-1. Line ordering is stable.
-2. Line text uses fixed labels (`Online`, `Points`) and integer values only.
-3. Rendering does not depend on colors, gradients, animation, or locale-specific formatting.
-4. Missing data uses explicit fallback values (`0` for points).
-5. Equal snapshots must render equal title and line text.
+1. Visible text uses fixed labels (`Online`, `Points`) with integer values only.
+2. Rendering does not depend on gradients, animation, or locale-specific number formatting.
+3. Missing data uses explicit fallback values (`0` for points).
+4. Equal snapshots must render equal title and equal visible line text.
 
 ## Visibility and Recovery Rules
 
@@ -31,4 +42,5 @@ Provide a compact SMP sidebar that stays visible and deterministic for all onlin
 
 ## API Constraint
 
-- Implementation must remain on Bukkit/Paper native scoreboard APIs only; no external sidebar library fallback is permitted.
+- Implementation must remain on Bukkit/Paper native scoreboard APIs only.
+- External sidebar libraries and Packet/NMS sidebar fallback paths are not permitted.

@@ -3,6 +3,7 @@
 ## Top-Level Packages
 
 - `com.lkjmcsmp.plugin`: Bukkit/Folia entrypoint and wiring
+- `com.lkjmcsmp.plugin.scoreboard`: scoreboard lifecycle, snapshot, render, and recovery orchestration
 - `com.lkjmcsmp.command`: command handlers and argument adapters
 - `com.lkjmcsmp.gui`: inventory menu orchestration
 - `com.lkjmcsmp.domain`: pure gameplay services and policies
@@ -16,17 +17,18 @@
 2. `command` and `gui` depend on `domain` interfaces.
 3. `persistence` implements repository interfaces owned by `domain`.
 4. `plugin` performs composition root responsibilities only.
-5. `SmpScoreboardService` may depend on Bukkit/Paper APIs and `SchedulerBridge`, but scoreboard policy decisions remain contract-driven from docs.
+5. Scoreboard runtime components may depend on Bukkit/Paper APIs and `SchedulerBridge`, but scoreboard policy remains contract-driven from docs.
 
 ## Cross-Cutting Services
 
 - `SchedulerBridge`: Folia-safe task abstraction for player/region/async/delayed execution
 - `TeleportService`: command teleport policies, request lifecycle, stability delay, and RTP safety
-- `SmpScoreboardService`: scoreboard lifecycle, Bukkit/Paper-native sidebar rendering, deterministic retry/rebuild, and periodic reconcile orchestration
+- `SmpScoreboardService`: facade entrypoint for scoreboard lifecycle operations
+- `scoreboard` runtime components: player tracking, snapshot loading, sidebar rendering, and deterministic retry/rebuild orchestration
 - `HotbarMenuService`: slot-8 menu token lifecycle and lock enforcement
 
 ## Scoreboard Reliability Boundary
 
 1. Sidebar contract must be satisfiable using Bukkit/Paper scoreboard APIs only.
-2. No external sidebar dependency may be introduced in runtime or verification paths.
+2. No external sidebar or Packet/NMS sidebar dependency may be introduced in runtime or verification paths.
 3. Scoreboard logs must include enough context (`trigger`, `playerUuid`, `attempt`) for operational triage.

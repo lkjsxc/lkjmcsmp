@@ -7,6 +7,7 @@
 - Menus refresh immediately after state changes.
 - Background auto-refresh reopen loops are disallowed.
 - `Back` control uses `ARROW` material across all menus.
+- Slot positions are canonical in [slot-maps.md](slot-maps.md).
 
 ## Root Menu (`/menu`)
 
@@ -44,7 +45,7 @@
 
 - Warp list (paginated)
 - Teleport to warp
-- Manage warps (permission-gated)
+- Back (`ARROW`)
 
 ## Team Menu
 
@@ -53,7 +54,7 @@
 - Invite player (target picker)
 - Accept invite / leave / disband
 - Team home and sethome
-- Slot map and role-aware action grouping are defined in `team-layout.md`
+- Canonical slot mapping is defined in `team-layout.md` and `slot-maps.md`
 
 ## Points Shop Menu
 
@@ -69,6 +70,7 @@
 - Explicit purchase button
 - Purchase executes only when balance is sufficient
 - Selection state resets whenever detail menu is opened
+- Quantity control cluster uses deterministic center-row slots from `slot-maps.md`
 - Back (`ARROW`)
 
 ## Progression Menu

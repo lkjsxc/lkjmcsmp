@@ -8,6 +8,9 @@
 4. Never read another player's live location from the wrong player thread.
 5. World/chunk block-state reads for RTP probing run in region-safe tasks.
 6. Scoreboard player mutation tasks never scan online players; cross-player aggregates are precomputed from tracked state.
+7. Scoreboard object mutation (`Objective`, `Score`, `DisplaySlot`) happens only in target player-safe context.
+8. Scoreboard retry/periodic callbacks validate player online state and render epoch before mutation.
+9. Scoreboard snapshots are immutable handoff objects from async loaders to player mutation tasks.
 
 ## State Rules
 

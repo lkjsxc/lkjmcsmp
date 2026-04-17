@@ -11,7 +11,7 @@
 7. Construct `SmpScoreboardService` with scheduler bridge + points dependencies.
 8. Register scoreboard join/quit lifecycle listeners.
 9. Run startup scoreboard reconcile for already-online players.
-10. Start periodic scoreboard reconcile scheduler.
+10. Start per-player periodic scoreboard reconcile loops.
 11. Emit startup summary log including scoreboard scheduler state.
 
 ## Disable Sequence
@@ -25,7 +25,7 @@
 ## Runtime Threading Rules
 
 1. Scoreboard mutations execute only in player-safe scheduler context.
-2. Startup/periodic reconcile orchestration executes in global scheduler context.
+2. Startup/periodic reconcile orchestration is player-scoped via delayed player scheduling (no global repeating loop dependency).
 3. Data lookups execute off gameplay mutation path and feed immutable snapshots back to player tasks.
 
 ## Failure Rules

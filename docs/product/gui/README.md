@@ -17,11 +17,13 @@ Define deterministic menu topology, navigation semantics, pagination behavior, a
 9. Growth-heavy menus (homes, shop, progression, picker lists) use deterministic pagination.
 10. Shop uses list-to-detail navigation for purchase execution.
 11. Teleport accept UX mirrors `/tpaccept`: fail on none, accept directly on one, requester picker on many.
-12. Team menu slot mapping follows the canonical layout contract.
+12. All menus follow canonical slot maps; action placement must stay deterministic across releases.
+13. Team menu slot mapping follows the canonical layout contract.
 
 ## Child Index
 
 - [menu-tree.md](menu-tree.md): canonical menu hierarchy and navigation controls
+- [slot-maps.md](slot-maps.md): canonical slot map for every menu surface
 - [interaction-rules.md](interaction-rules.md): inventory click and feedback behavior
 - [hotbar-entrypoint.md](hotbar-entrypoint.md): slot-8 menu token lock and interaction policy
 - [team-layout.md](team-layout.md): team menu slot map and role-aware affordances
