@@ -121,9 +121,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 warpService,
                 partyService,
                 teleportService,
-                schedulerBridge,
-                config.getInt("menus.auto-refresh-seconds", 1),
-                config.getBoolean("menus.show-manual-refresh-controls", false));
+                schedulerBridge);
         return new Services(pointsService, homeService, warpService, partyService, teleportService, progressionService, menuService);
     }
 
@@ -158,7 +156,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             hotbarMenuService.install(online);
         }
         getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(getLogger()), this);
-        this.scoreboardService = new SmpScoreboardService(this, schedulerBridge, initialized.points(), getLogger());
+        this.scoreboardService = new SmpScoreboardService(schedulerBridge, initialized.points(), getLogger());
         getServer().getPluginManager().registerEvents(new SmpScoreboardListener(scoreboardService), this);
         scoreboardService.start();
         if (getConfig().getBoolean("teleport.first-join.enabled", true)) {

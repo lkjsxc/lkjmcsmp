@@ -51,7 +51,7 @@ public final class PointsService {
                 continue;
             }
             items.put(key.toLowerCase(), new ShopEntry(
-                    key.toLowerCase(), material, entry.getInt("quantity", 1), entry.getInt("points", 1)));
+                    key.toLowerCase(), material, entry.getInt("points", 1)));
         }
         return items;
     }
@@ -65,7 +65,6 @@ public final class PointsService {
             baseItems.put(itemKey, new ShopEntry(
                     base.key(),
                     base.material(),
-                    override.quantity(),
                     override.pointsCost()));
         }
     }
@@ -92,19 +91,17 @@ public final class PointsService {
     public Result purchase(Player player, String itemKey) throws Exception {
         return purchase(player, itemKey, 1);
     }
-    public Result purchase(Player player, String itemKey, int units) throws Exception {
-        if (units <= 0) {
-            return Result.fail("units must be positive");
+    public Result purchase(Player player, String itemKey, int quantity) throws Exception {
+        if (quantity < 1 || quantity > 64) {
+            return Result.fail("quantity must be in 1..64");
         }
         ShopEntry entry = shopItems.get(itemKey.toLowerCase());
         if (entry == null) {
             return Result.fail("unknown shop item");
         }
         int totalPoints;
-        int totalQuantity;
         try {
-            totalPoints = Math.multiplyExact(entry.points(), units);
-            totalQuantity = Math.multiplyExact(entry.quantity(), units);
+            totalPoints = Math.multiplyExact(entry.points(), quantity);
         } catch (ArithmeticException ex) {
             return Result.fail("quantity too large");
         }
@@ -112,25 +109,28 @@ public final class PointsService {
         if (balance < totalPoints) {
             return Result.fail("insufficient points");
         }
-        if (!hasInventoryCapacity(player, entry.material(), totalQuantity)) {
+        if (!hasInventoryCapacity(player, entry.material(), quantity)) {
             return Result.fail("not enough inventory space");
         }
-        pointsDao.addPoints(player.getUniqueId(), -totalPoints, "SHOP_PURCHASE", "{\"item\":\"" + entry.key() + "\",\"units\":" + units + "}");
-        addMaterial(player, entry.material(), totalQuantity);
-        return Result.ok("purchased " + totalQuantity + "x " + entry.material() + " for " + totalPoints + " points");
+        pointsDao.addPoints(player.getUniqueId(), -totalPoints, "SHOP_PURCHASE", "{\"item\":\"" + entry.key() + "\",\"quantity\":" + quantity + "}");
+        addMaterial(player, entry.material(), quantity);
+        return Result.ok("purchased " + quantity + "x " + entry.material() + " for " + totalPoints + " points");
     }
-    public Result applyOverride(Player actor, String itemKey, int newPoints, int newQty) throws Exception {
+    public Result applyOverride(Player actor, String itemKey, int newPoints) throws Exception {
+        if (newPoints <= 0) {
+            return Result.fail("points must be positive");
+        }
         ShopEntry current = shopItems.get(itemKey.toLowerCase());
         if (current == null) {
             return Result.fail("unknown shop item");
         }
         String normalizedItemKey = itemKey.toLowerCase();
-        economyOverrideDao.upsert(normalizedItemKey, newPoints, newQty, actor.getUniqueId());
-        ShopEntry next = new ShopEntry(current.key(), current.material(), newQty, newPoints);
+        economyOverrideDao.upsert(normalizedItemKey, newPoints, 1, actor.getUniqueId());
+        ShopEntry next = new ShopEntry(current.key(), current.material(), newPoints);
         shopItems.put(normalizedItemKey, next);
         auditDao.log(actor.getUniqueId(), null, "SEASONAL_OVERRIDE_APPLIED",
-                "{\"item\":\"" + itemKey + "\",\"points\":" + current.points() + ",\"qty\":" + current.quantity() + "}",
-                "{\"item\":\"" + itemKey + "\",\"points\":" + newPoints + ",\"qty\":" + newQty + "}");
+                "{\"item\":\"" + itemKey + "\",\"points\":" + current.points() + "}",
+                "{\"item\":\"" + itemKey + "\",\"points\":" + newPoints + "}");
         return Result.ok("seasonal override applied");
     }
     public Map<String, ShopEntry> getShopItems() {

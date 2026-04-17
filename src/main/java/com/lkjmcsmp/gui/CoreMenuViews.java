@@ -10,23 +10,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.List;
-import java.util.UUID;
 
 final class CoreMenuViews {
     private final HomeService homeService;
     private final WarpService warpService;
-    private final PartyService partyService;
     private final TeleportService teleportService;
     private final PlayerPickerMenuView pickerView;
-    private final boolean showManualRefreshControls;
+    private final TeamMenuView teamMenuView;
 
     CoreMenuViews(
             HomeService homeService,
             WarpService warpService,
             PartyService partyService,
-            TeleportService teleportService,
-            boolean showManualRefreshControls) {
-        this(homeService, warpService, partyService, teleportService, new PlayerPickerMenuView(), showManualRefreshControls);
+            TeleportService teleportService) {
+        this(homeService, warpService, partyService, teleportService, new PlayerPickerMenuView());
     }
 
     CoreMenuViews(
@@ -34,14 +31,12 @@ final class CoreMenuViews {
             WarpService warpService,
             PartyService partyService,
             TeleportService teleportService,
-            PlayerPickerMenuView pickerView,
-            boolean showManualRefreshControls) {
+            PlayerPickerMenuView pickerView) {
         this.homeService = homeService;
         this.warpService = warpService;
-        this.partyService = partyService;
         this.teleportService = teleportService;
         this.pickerView = pickerView;
-        this.showManualRefreshControls = showManualRefreshControls;
+        this.teamMenuView = new TeamMenuView(partyService);
     }
 
     void open(Player player, String title) throws Exception {
@@ -50,7 +45,7 @@ final class CoreMenuViews {
             case MenuTitles.HOMES -> openHomes(player, 0);
             case MenuTitles.HOMES_DELETE -> openHomesDelete(player, 0);
             case MenuTitles.WARPS -> openWarps(player, 0);
-            case MenuTitles.TEAM -> openTeam(player);
+            case MenuTitles.TEAM -> teamMenuView.open(player);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     openPicker(player, title, 0);
             default -> throw new IllegalArgumentException("Unknown menu title: " + title);
@@ -60,19 +55,19 @@ final class CoreMenuViews {
     void openPicker(Player player, String title, int page) throws Exception {
         switch (title) {
             case MenuTitles.PICK_TPA -> pickerView.openOnlinePlayers(
-                    player, MenuTitles.PICK_TPA, "Run /tpa <player>", page, showManualRefreshControls);
+                    player, MenuTitles.PICK_TPA, "Run /tpa <player>", page, true);
             case MenuTitles.PICK_TPA_HERE -> pickerView.openOnlinePlayers(
-                    player, MenuTitles.PICK_TPA_HERE, "Run /tpahere <player>", page, showManualRefreshControls);
+                    player, MenuTitles.PICK_TPA_HERE, "Run /tpahere <player>", page, true);
             case MenuTitles.PICK_TP -> pickerView.openOnlinePlayers(
-                    player, MenuTitles.PICK_TP, "Run /tp <player>", page, showManualRefreshControls);
+                    player, MenuTitles.PICK_TP, "Run /tp <player>", page, true);
             case MenuTitles.PICK_TP_ACCEPT -> pickerView.openRequesters(
                     player,
                     MenuTitles.PICK_TP_ACCEPT,
                     teleportService.pendingFor(player.getUniqueId()),
                     page,
-                    showManualRefreshControls);
+                    true);
             case MenuTitles.PICK_INVITE -> pickerView.openOnlinePlayers(
-                    player, MenuTitles.PICK_INVITE, "Run /team invite <player>", page, showManualRefreshControls);
+                    player, MenuTitles.PICK_INVITE, "Run /team invite <player>", page, true);
             default -> throw new IllegalArgumentException("Unknown picker title: " + title);
         }
     }
@@ -170,26 +165,4 @@ final class CoreMenuViews {
         player.openInventory(inventory);
     }
 
-    private void openTeam(Player player) throws Exception {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.TEAM);
-        UUID playerId = player.getUniqueId();
-        var partyId = partyService.getPartyId(playerId);
-        boolean leader = partyId.isPresent() && partyService.isLeader(playerId);
-        int members = partyId.isPresent() ? partyService.listMembers(playerId).size() : 0;
-        inventory.setItem(10, MenuItems.named(
-                Material.PLAYER_HEAD,
-                "Team Info",
-                "Party: " + partyId.orElse("<none>"),
-                "Role: " + (leader ? "leader" : "member/none"),
-                "Members: " + members));
-        inventory.setItem(12, MenuItems.named(Material.CRAFTING_TABLE, "Create Team", "Runs /team create"));
-        inventory.setItem(13, MenuItems.named(Material.NAME_TAG, "Invite Player", "Runs /team invite <player>"));
-        inventory.setItem(14, MenuItems.named(Material.LIME_DYE, "Accept Invite", "Runs /team accept"));
-        inventory.setItem(15, MenuItems.named(Material.BARRIER, "Leave Team", "Runs /team leave"));
-        inventory.setItem(16, MenuItems.named(Material.ENDER_PEARL, "Team Home", "Runs /team home"));
-        inventory.setItem(17, MenuItems.named(Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome"));
-        inventory.setItem(18, MenuItems.named(Material.TNT, "Disband Team", "Runs /team disband"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
-        player.openInventory(inventory);
-    }
 }

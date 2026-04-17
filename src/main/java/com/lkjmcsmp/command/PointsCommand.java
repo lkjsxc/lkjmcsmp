@@ -61,33 +61,38 @@ public final class PointsCommand implements CommandExecutor {
             menuService.openShop(player);
             return;
         }
-            if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("buy")) {
-                int units = 1;
-                if (args.length == 3) {
-                    try {
-                        units = Integer.parseInt(args[2]);
+        if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("buy")) {
+            int quantity = 1;
+            if (args.length == 3) {
+                try {
+                    quantity = Integer.parseInt(args[2]);
                 } catch (NumberFormatException ex) {
-                    player.sendMessage("Units must be a number.");
+                    player.sendMessage("Quantity must be a number.");
                     return;
                 }
-                }
-                var result = pointsService.purchase(player, args[1], units);
-                if (result.success()) {
-                    progressionService.increment(player.getUniqueId(), "shop_purchase_units", units);
-                }
-                player.sendMessage(result.message());
-                return;
             }
-        if (args.length == 4 && args[0].equalsIgnoreCase("override")) {
-            if (!CommandUtil.requirePermission(player, "lkjmcsmp.economy.override")) {
-                return;
+            var result = pointsService.purchase(player, args[1], quantity);
+            if (result.success()) {
+                progressionService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
             }
-            int points = Integer.parseInt(args[2]);
-            int qty = Integer.parseInt(args[3]);
-            var result = pointsService.applyOverride(player, args[1], points, qty);
             player.sendMessage(result.message());
             return;
         }
-        player.sendMessage("Usage: /shop [buy <item> [units]|override <item> <points> <qty>]");
+        if (args.length == 3 && args[0].equalsIgnoreCase("override")) {
+            if (!CommandUtil.requirePermission(player, "lkjmcsmp.economy.override")) {
+                return;
+            }
+            int points;
+            try {
+                points = Integer.parseInt(args[2]);
+            } catch (NumberFormatException ex) {
+                player.sendMessage("Points must be a number.");
+                return;
+            }
+            var result = pointsService.applyOverride(player, args[1], points);
+            player.sendMessage(result.message());
+            return;
+        }
+        player.sendMessage("Usage: /shop [buy <item> [quantity]|override <item> <points>]");
     }
 }

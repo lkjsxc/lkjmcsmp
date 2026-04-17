@@ -50,13 +50,13 @@ milestones:
   first_shop_purchase:
     title: First Purchase
     description: Buy your first shop unit from the points shop.
-    kind: shop_purchase_units
+    kind: shop_purchase_quantity
     target: 1
     reward-points: 16
   shop_bulk_buyer:
     title: Bulk Buyer
     description: Buy fifty total shop units.
-    kind: shop_purchase_units
+    kind: shop_purchase_quantity
     target: 50
     reward-points: 64
   first_tpa_request:

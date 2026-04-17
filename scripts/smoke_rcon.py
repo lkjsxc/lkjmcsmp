@@ -38,10 +38,10 @@ def assert_radius_defaults():
     if not SOURCE_CONFIG.exists():
         raise RuntimeError(f"source config missing: {SOURCE_CONFIG}")
     text = SOURCE_CONFIG.read_text(encoding="utf-8")
-    for expected in ("rtp-min-radius: 1000", "rtp-max-radius: 100000", "auto-refresh-seconds: 5"):
+    for expected in ("rtp-min-radius: 1000", "rtp-max-radius: 100000"):
         if expected not in text:
             raise RuntimeError(f"config missing `{expected}`")
-    print("[ok] source config defaults for RTP radius and menu refresh")
+    print("[ok] source config defaults for RTP radius")
 
 
 def assert_progression_and_menu_contract_markers():

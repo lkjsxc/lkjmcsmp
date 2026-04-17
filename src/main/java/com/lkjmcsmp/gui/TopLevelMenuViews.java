@@ -49,8 +49,8 @@ final class TopLevelMenuViews {
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName("Item :: " + entry.getKey());
             meta.setLore(java.util.List.of(
-                    "Unit bundle: " + value.quantity() + "x " + value.material(),
-                    "Unit cost: " + value.points() + " points",
+                    "Price: " + value.points() + " points per item",
+                    "Selectable quantity: 1..64",
                     "Click to open purchase details"));
             item.setItemMeta(meta);
             inventory.setItem(slot++, item);
@@ -82,25 +82,27 @@ final class TopLevelMenuViews {
             player.openInventory(inventory);
             return;
         }
-        int totalPoints = selected.points() * selection.units();
-        int totalQuantity = selected.quantity() * selection.units();
+        int totalPoints = selected.points() * selection.quantity();
+        int totalQuantity = selection.quantity();
         inventory.setItem(13, MenuItems.named(
                 selected.material(),
                 "Selected :: " + selected.key(),
                 "Receive: " + totalQuantity + "x " + selected.material(),
-                "Unit: " + selected.points() + " points"));
-        inventory.setItem(22, MenuItems.named(Material.RED_DYE, "Quantity -10"));
+                "Price: " + selected.points() + " points each"));
+        inventory.setItem(20, MenuItems.named(Material.CLOCK, "Set Quantity 1"));
+        inventory.setItem(22, MenuItems.named(Material.RED_DYE, "Quantity -8"));
         inventory.setItem(23, MenuItems.named(Material.REDSTONE, "Quantity -1"));
         inventory.setItem(24, MenuItems.named(
                 Material.PAPER,
-                "Quantity :: " + selection.units(),
+                "Quantity :: " + selection.quantity(),
                 "Total cost: " + totalPoints + " points"));
         inventory.setItem(25, MenuItems.named(Material.LIME_DYE, "Quantity +1"));
-        inventory.setItem(26, MenuItems.named(Material.EMERALD, "Quantity +10"));
+        inventory.setItem(26, MenuItems.named(Material.EMERALD, "Quantity +8"));
+        inventory.setItem(28, MenuItems.named(Material.CLOCK, "Set Quantity 64"));
         inventory.setItem(31, MenuItems.named(
                 Material.GOLD_INGOT,
                 "Buy Selected",
-                "Units: " + selection.units(),
+                "Quantity: " + selection.quantity(),
                 "Total: " + totalPoints + " points"));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);

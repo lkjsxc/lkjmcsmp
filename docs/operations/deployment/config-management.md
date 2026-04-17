@@ -2,7 +2,7 @@
 
 ## Config Owners
 
-- `config.yml`: gameplay defaults, cooldowns, limits, menu toggles, proxy-aware teleport behavior
+- `config.yml`: gameplay defaults, cooldowns, limits, and proxy-aware teleport behavior
 - `shop.yml`: base exchange rates
 - `milestones.yml`: pseudo-advancement definitions
 
@@ -23,10 +23,6 @@
 - `teleport.rtp-world-whitelist`
 - `teleport.first-join.enabled`
 - `teleport.first-join.world`
-
-## Menu Config Keys
-
-- `menus.show-picker-refresh-controls` (default `true`)
 
 ## Menu Refresh Contract
 

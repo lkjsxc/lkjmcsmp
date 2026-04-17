@@ -16,7 +16,7 @@ commands:
     usage: /convert cobblestone <amount>
     permission: lkjmcsmp.points.convert
   shop:
-    usage: /shop [buy <item> [units]|override <item> <points> <qty>]
+    usage: /shop [buy <item> [quantity]|override <item> <points>]
     permission: lkjmcsmp.shop.use
   adv:
     usage: /adv

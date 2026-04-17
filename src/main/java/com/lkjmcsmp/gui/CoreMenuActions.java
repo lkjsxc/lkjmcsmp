@@ -96,6 +96,9 @@ final class CoreMenuActions {
     }
 
     private boolean handleTeam(Player player, String display) throws Exception {
+        if (display.endsWith("(Locked)")) {
+            return tell(player, "Action is locked. Read the item description for details.");
+        }
         return switch (display) {
             case "Team Info" -> open(player, MenuTitles.TEAM);
             case "Create Team" -> command(player, "team create");
@@ -142,9 +145,7 @@ final class CoreMenuActions {
         };
     }
 
-    void clearPlayerState(UUID playerId) {
-        pagesByPlayer.remove(playerId);
-    }
+    void clearPlayerState(UUID playerId) { pagesByPlayer.remove(playerId); }
     private boolean turnPage(Player player, String title, int delta) throws Exception {
         setPage(player, title, page(player, title) + delta);
         return switch (title) {
@@ -191,7 +192,6 @@ final class CoreMenuActions {
         player.sendMessage(message);
         return true;
     }
-
     private static boolean command(Player player, String command) {
         player.performCommand(command);
         return true;

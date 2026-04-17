@@ -77,46 +77,49 @@ final class TopLevelMenuActions {
             setShopPage(playerId, MenuPageStateSync.readCurrentPage(player, shopPage(playerId)));
             return true;
         }
-        if (display.startsWith("Item :: ")) {
-            String key = display.substring("Item :: ".length()).trim().toLowerCase();
-            if (!pointsService.getShopItems().containsKey(key)) {
-                player.sendMessage("Unknown shop item.");
-                return true;
-            }
-            state.setShopSelection(playerId, new ShopSelection(key, 1));
-            views.openShopDetail(player, state.shopSelection(playerId));
+        if (!display.startsWith("Item :: ")) {
+            return false;
+        }
+        String key = display.substring("Item :: ".length()).trim().toLowerCase();
+        if (!pointsService.getShopItems().containsKey(key)) {
+            player.sendMessage("Unknown shop item.");
             return true;
         }
-        return false;
+        state.setShopSelection(playerId, new ShopSelection(key, 1));
+        views.openShopDetail(player, state.shopSelection(playerId));
+        return true;
     }
 
     private boolean handleShopDetail(Player player, String display) throws Exception {
         UUID playerId = player.getUniqueId();
-        if (display.equals("Quantity -10")) {
-            adjustSelection(playerId, -10);
-            views.openShopDetail(player, state.shopSelection(playerId));
-            return true;
+        return switch (display) {
+            case "Set Quantity 1" -> reopenAfterSet(player, playerId, 1);
+            case "Set Quantity 64" -> reopenAfterSet(player, playerId, 64);
+            case "Quantity -8" -> reopenAfterDelta(player, playerId, -8);
+            case "Quantity -1" -> reopenAfterDelta(player, playerId, -1);
+            case "Quantity +1" -> reopenAfterDelta(player, playerId, 1);
+            case "Quantity +8" -> reopenAfterDelta(player, playerId, 8);
+            case "Buy Selected" -> {
+                buySelected(player);
+                yield true;
+            }
+            default -> false;
+        };
+    }
+
+    private boolean reopenAfterDelta(Player player, UUID playerId, int delta) {
+        state.adjustSelection(playerId, delta);
+        views.openShopDetail(player, state.shopSelection(playerId));
+        return true;
+    }
+
+    private boolean reopenAfterSet(Player player, UUID playerId, int quantity) {
+        ShopSelection current = state.shopSelection(playerId);
+        if (current != null) {
+            state.setShopSelection(playerId, current.withQuantity(quantity));
         }
-        if (display.equals("Quantity -1")) {
-            adjustSelection(playerId, -1);
-            views.openShopDetail(player, state.shopSelection(playerId));
-            return true;
-        }
-        if (display.equals("Quantity +1")) {
-            adjustSelection(playerId, 1);
-            views.openShopDetail(player, state.shopSelection(playerId));
-            return true;
-        }
-        if (display.equals("Quantity +10")) {
-            adjustSelection(playerId, 10);
-            views.openShopDetail(player, state.shopSelection(playerId));
-            return true;
-        }
-        if (display.equals("Buy Selected")) {
-            buySelected(player);
-            return true;
-        }
-        return false;
+        views.openShopDetail(player, state.shopSelection(playerId));
+        return true;
     }
 
     private boolean handleProgress(InventoryClickEvent event, Player player, String display) throws Exception {
@@ -165,10 +168,6 @@ final class TopLevelMenuActions {
     void setShopPage(UUID playerId, int page) { state.setShopPage(playerId, page); }
     void setProgressPage(UUID playerId, int page) { state.setProgressPage(playerId, page); }
 
-    private void adjustSelection(UUID playerId, int delta) {
-        state.adjustSelection(playerId, delta);
-    }
-
     private void buySelected(Player player) throws Exception {
         ShopSelection selection = state.shopSelection(player.getUniqueId());
         if (selection == null) {
@@ -176,9 +175,9 @@ final class TopLevelMenuActions {
             views.openShop(player, shopPage(player.getUniqueId()));
             return;
         }
-        var result = pointsService.purchase(player, selection.itemKey(), selection.units());
+        var result = pointsService.purchase(player, selection.itemKey(), selection.quantity());
         if (result.success()) {
-            progressionService.increment(player.getUniqueId(), "shop_purchase_units", selection.units());
+            progressionService.increment(player.getUniqueId(), "shop_purchase_quantity", selection.quantity());
         }
         player.sendMessage(result.message());
         views.openShopDetail(player, state.shopSelection(player.getUniqueId()));

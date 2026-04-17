@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 final class PlayerPickerMenuView {
-    void openOnlinePlayers(Player player, String title, String actionHint, int page, boolean showManualRefresh) {
+    void openOnlinePlayers(Player player, String title, String actionHint, int page, boolean showRefreshControl) {
         List<Player> players = Bukkit.getOnlinePlayers().stream()
                 .filter(online -> !online.getUniqueId().equals(player.getUniqueId()))
                 .map(online -> (Player) online)
@@ -25,7 +25,7 @@ final class PlayerPickerMenuView {
         if (players.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Players Online"));
         }
-        if (showManualRefresh) {
+        if (showRefreshControl) {
             inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
         }
         MenuPagination.renderControls(inventory, bounded, players.size());
@@ -33,7 +33,7 @@ final class PlayerPickerMenuView {
         player.openInventory(inventory);
     }
 
-    void openRequesters(Player player, String title, List<TpaRequest> requests, int page, boolean showManualRefresh) {
+    void openRequesters(Player player, String title, List<TpaRequest> requests, int page, boolean showRefreshControl) {
         List<TpaRequest> onlineRequests = requests.stream()
                 .filter(request -> {
                     Player requester = Bukkit.getPlayer(request.from());
@@ -56,7 +56,7 @@ final class PlayerPickerMenuView {
         if (onlineRequests.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Pending Requests"));
         }
-        if (showManualRefresh) {
+        if (showRefreshControl) {
             inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
         }
         MenuPagination.renderControls(inventory, bounded, onlineRequests.size());

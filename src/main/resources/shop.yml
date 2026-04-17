@@ -1,25 +1,19 @@
 items:
   oak_log:
     material: OAK_LOG
-    quantity: 1
     points: 16
   spruce_log:
     material: SPRUCE_LOG
-    quantity: 1
     points: 16
   birch_log:
     material: BIRCH_LOG
-    quantity: 1
     points: 16
   dirt:
     material: DIRT
-    quantity: 64
-    points: 48
+    points: 1
   sand:
     material: SAND
-    quantity: 64
-    points: 72
+    points: 2
   gravel:
     material: GRAVEL
-    quantity: 64
-    points: 72
+    points: 2
