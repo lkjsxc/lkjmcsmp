@@ -36,7 +36,6 @@ public final class PointsService {
         this.allowPartialConvert = allowPartialConvert;
         this.maxConvertPerOp = maxConvertPerOp;
     }
-
     private static Map<String, ShopEntry> parseItems(ConfigurationSection section) {
         Map<String, ShopEntry> items = new HashMap<>();
         if (section == null) {
@@ -56,10 +55,7 @@ public final class PointsService {
         }
         return items;
     }
-
-    private static void mergeOverrides(
-            Map<String, ShopEntry> baseItems,
-            Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
+    private static void mergeOverrides(Map<String, ShopEntry> baseItems, Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
         for (EconomyOverrideDao.OverrideRecord override : overrides) {
             String itemKey = override.itemKey().toLowerCase();
             ShopEntry base = baseItems.get(itemKey);
@@ -73,11 +69,9 @@ public final class PointsService {
                     override.pointsCost()));
         }
     }
-
     public int getBalance(UUID playerId) throws Exception {
         return pointsDao.getBalance(playerId);
     }
-
     public Result convertCobblestone(Player player, int requestedAmount) throws Exception {
         if (requestedAmount <= 0) {
             return Result.fail("amount must be positive");
@@ -95,25 +89,36 @@ public final class PointsService {
         pointsDao.addPoints(player.getUniqueId(), consume, "COBBLE_CONVERT", "{\"amount\":" + consume + "}");
         return Result.ok("converted " + consume + " cobblestone into " + consume + " points", consume);
     }
-
     public Result purchase(Player player, String itemKey) throws Exception {
+        return purchase(player, itemKey, 1);
+    }
+    public Result purchase(Player player, String itemKey, int units) throws Exception {
+        if (units <= 0) {
+            return Result.fail("units must be positive");
+        }
         ShopEntry entry = shopItems.get(itemKey.toLowerCase());
         if (entry == null) {
             return Result.fail("unknown shop item");
         }
+        int totalPoints;
+        int totalQuantity;
+        try {
+            totalPoints = Math.multiplyExact(entry.points(), units);
+            totalQuantity = Math.multiplyExact(entry.quantity(), units);
+        } catch (ArithmeticException ex) {
+            return Result.fail("quantity too large");
+        }
         int balance = pointsDao.getBalance(player.getUniqueId());
-        if (balance < entry.points()) {
+        if (balance < totalPoints) {
             return Result.fail("insufficient points");
         }
-        ItemStack stack = new ItemStack(entry.material(), entry.quantity());
-        Map<Integer, ItemStack> rejected = player.getInventory().addItem(stack);
-        if (!rejected.isEmpty()) {
+        if (!hasInventoryCapacity(player, entry.material(), totalQuantity)) {
             return Result.fail("not enough inventory space");
         }
-        pointsDao.addPoints(player.getUniqueId(), -entry.points(), "SHOP_PURCHASE", "{\"item\":\"" + entry.key() + "\"}");
-        return Result.ok("purchased " + entry.quantity() + "x " + entry.material() + " for " + entry.points() + " points");
+        pointsDao.addPoints(player.getUniqueId(), -totalPoints, "SHOP_PURCHASE", "{\"item\":\"" + entry.key() + "\",\"units\":" + units + "}");
+        addMaterial(player, entry.material(), totalQuantity);
+        return Result.ok("purchased " + totalQuantity + "x " + entry.material() + " for " + totalPoints + " points");
     }
-
     public Result applyOverride(Player actor, String itemKey, int newPoints, int newQty) throws Exception {
         ShopEntry current = shopItems.get(itemKey.toLowerCase());
         if (current == null) {
@@ -123,19 +128,14 @@ public final class PointsService {
         economyOverrideDao.upsert(normalizedItemKey, newPoints, newQty, actor.getUniqueId());
         ShopEntry next = new ShopEntry(current.key(), current.material(), newQty, newPoints);
         shopItems.put(normalizedItemKey, next);
-        auditDao.log(
-                actor.getUniqueId(),
-                null,
-                "SEASONAL_OVERRIDE_APPLIED",
+        auditDao.log(actor.getUniqueId(), null, "SEASONAL_OVERRIDE_APPLIED",
                 "{\"item\":\"" + itemKey + "\",\"points\":" + current.points() + ",\"qty\":" + current.quantity() + "}",
                 "{\"item\":\"" + itemKey + "\",\"points\":" + newPoints + ",\"qty\":" + newQty + "}");
         return Result.ok("seasonal override applied");
     }
-
     public Map<String, ShopEntry> getShopItems() {
         return Map.copyOf(shopItems);
     }
-
     private static int countMaterial(Player player, Material material) {
         int count = 0;
         for (ItemStack stack : player.getInventory().getContents()) {
@@ -145,7 +145,6 @@ public final class PointsService {
         }
         return count;
     }
-
     private static void removeMaterial(Player player, Material material, int amount) {
         int remaining = amount;
         for (ItemStack stack : player.getInventory().getContents()) {
@@ -160,16 +159,37 @@ public final class PointsService {
             }
         }
     }
-
+    private static boolean hasInventoryCapacity(Player player, Material material, int requiredAmount) {
+        int capacity = 0;
+        int maxStack = material.getMaxStackSize();
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (stack == null || stack.getType() == Material.AIR) {
+                capacity += maxStack;
+            } else if (stack.getType() == material) {
+                capacity += Math.max(0, maxStack - stack.getAmount());
+            }
+            if (capacity >= requiredAmount) {
+                return true;
+            }
+        }
+        return capacity >= requiredAmount;
+    }
+    private static void addMaterial(Player player, Material material, int amount) {
+        int remaining = amount;
+        int maxStack = material.getMaxStackSize();
+        while (remaining > 0) {
+            int stackAmount = Math.min(maxStack, remaining);
+            player.getInventory().addItem(new ItemStack(material, stackAmount));
+            remaining -= stackAmount;
+        }
+    }
     public record Result(boolean success, String message, int amount) {
         public static Result ok(String message) {
             return new Result(true, message, 0);
         }
-
         public static Result ok(String message, int amount) {
             return new Result(true, message, amount);
         }
-
         public static Result fail(String message) {
             return new Result(false, message, 0);
         }

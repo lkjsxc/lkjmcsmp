@@ -25,7 +25,7 @@ public final class TeleportService {
     private final List<String> worldWhitelist;
     private final RtpLocationSelector rtpSelector;
     private final TeleportExecutionService teleportExecution;
-    private final Map<UUID, TpaRequest> pendingByTarget = new ConcurrentHashMap<>();
+    private final PendingTeleportRequests pendingRequests = new PendingTeleportRequests();
     private final Map<UUID, Instant> rtpCooldownUntil = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
@@ -59,24 +59,32 @@ public final class TeleportService {
         this.rtpSelector = new RtpLocationSelector(rtpMinRadius, rtpMaxRadius, random);
         this.teleportExecution = new TeleportExecutionService(schedulerBridge, stabilityDelay, stabilityRadiusBlocks);
     }
+
     public long requestTimeoutSeconds() {
         return requestTimeout.getSeconds();
     }
     public Result requestTeleport(Player from, Player to, boolean summonHere) {
-        pendingByTarget.put(to.getUniqueId(),
-                new TpaRequest(from.getUniqueId(), to.getUniqueId(), summonHere, Instant.now().plus(requestTimeout)));
+        pendingRequests.put(new TpaRequest(from.getUniqueId(), to.getUniqueId(), summonHere, Instant.now().plus(requestTimeout)));
         return Result.ok("request sent");
     }
     public Result denyRequest(Player target) {
-        TpaRequest removed = pendingByTarget.remove(target.getUniqueId());
-        return removed == null ? Result.fail("no pending request") : Result.ok("request denied");
+        return denyRequest(target, null);
+    }
+    public Result denyRequest(Player target, UUID requesterId) {
+        return pendingRequests.remove(target.getUniqueId(), requesterId).isPresent()
+                ? Result.ok("request denied")
+                : Result.fail("no pending request");
     }
     public void acceptRequest(Player target, Consumer<Result> callback) {
-        TpaRequest request = pendingByTarget.remove(target.getUniqueId());
-        if (request == null) {
+        acceptRequest(target, null, callback);
+    }
+    public void acceptRequest(Player target, UUID requesterId, Consumer<Result> callback) {
+        Optional<TpaRequest> removed = pendingRequests.remove(target.getUniqueId(), requesterId);
+        if (removed.isEmpty()) {
             complete(target, callback, Result.fail("no pending request"));
             return;
         }
+        TpaRequest request = removed.get();
         if (request.expiresAt().isBefore(Instant.now())) {
             complete(target, callback, Result.fail("request expired"));
             return;
@@ -96,23 +104,15 @@ public final class TeleportService {
     public void teleportToLocation(Player actor, Location destination, String successMessage, Consumer<Result> callback) {
         teleportToLocation(actor, destination, successMessage, true, callback);
     }
-    public void teleportToLocation(
-            Player actor,
-            Location destination,
-            String successMessage,
-            boolean applyStabilityDelay,
-            Consumer<Result> callback) {
+    public void teleportToLocation(Player actor, Location destination, String successMessage, boolean applyStabilityDelay,
+                                   Consumer<Result> callback) {
         teleportExecution.teleport(actor, destination, successMessage, applyStabilityDelay, callback);
     }
     public void randomTeleport(Player player, String worldName, boolean bypassCooldown, Consumer<Result> callback) {
         randomTeleport(player, worldName, bypassCooldown, true, callback);
     }
-    public void randomTeleport(
-            Player player,
-            String worldName,
-            boolean bypassCooldown,
-            boolean applyStabilityDelay,
-            Consumer<Result> callback) {
+    public void randomTeleport(Player player, String worldName, boolean bypassCooldown, boolean applyStabilityDelay,
+                               Consumer<Result> callback) {
         if (!bypassCooldown) {
             Instant until = rtpCooldownUntil.getOrDefault(player.getUniqueId(), Instant.EPOCH);
             if (until.isAfter(Instant.now())) {
@@ -128,24 +128,22 @@ public final class TeleportService {
         }
         runRandomTeleportAttempt(player, world, 1, applyStabilityDelay, callback);
     }
-    public Optional<TpaRequest> pendingFor(UUID targetId) {
-        return Optional.ofNullable(pendingByTarget.get(targetId));
+    public List<TpaRequest> pendingFor(UUID targetId) {
+        return pendingRequests.list(targetId);
     }
-    private void moveActorToSource(
-            Player actor,
-            Player source,
-            Player callbackPlayer,
-            String successMessage,
-            boolean applyStabilityDelay,
-            Consumer<Result> callback) {
+    public int pendingCount(UUID targetId) {
+        return pendingFor(targetId).size();
+    }
+    private void moveActorToSource(Player actor, Player source, Player callbackPlayer, String successMessage,
+                                   boolean applyStabilityDelay, Consumer<Result> callback) {
         schedulerBridge.runPlayerTask(source, () -> {
             if (!source.isOnline()) {
                 complete(callbackPlayer, callback, Result.fail("target offline"));
                 return;
             }
             Location sourceLocation = source.getLocation().clone();
-            teleportToLocation(actor, sourceLocation, successMessage, applyStabilityDelay,
-                    result -> complete(callbackPlayer, callback, result));
+            teleportToLocation(
+                    actor, sourceLocation, successMessage, applyStabilityDelay, result -> complete(callbackPlayer, callback, result));
         });
     }
     private World resolveWorld(String worldName) {
@@ -155,12 +153,8 @@ public final class TeleportService {
         }
         return Bukkit.getWorld(name);
     }
-    private void runRandomTeleportAttempt(
-            Player player,
-            World world,
-            int attempt,
-            boolean applyStabilityDelay,
-            Consumer<Result> callback) {
+    private void runRandomTeleportAttempt(Player player, World world, int attempt, boolean applyStabilityDelay,
+                                          Consumer<Result> callback) {
         if (attempt > rtpAttempts) {
             complete(player, callback, Result.fail("no safe random teleport location found"));
             return;
@@ -189,6 +183,7 @@ public final class TeleportService {
         public static Result ok(String message) {
             return new Result(true, message);
         }
+
         public static Result fail(String message) {
             return new Result(false, message);
         }

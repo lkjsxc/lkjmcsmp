@@ -61,8 +61,17 @@ public final class PointsCommand implements CommandExecutor {
             menuService.openShop(player);
             return;
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("buy")) {
-            var result = pointsService.purchase(player, args[1]);
+        if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("buy")) {
+            int units = 1;
+            if (args.length == 3) {
+                try {
+                    units = Integer.parseInt(args[2]);
+                } catch (NumberFormatException ex) {
+                    player.sendMessage("Units must be a number.");
+                    return;
+                }
+            }
+            var result = pointsService.purchase(player, args[1], units);
             player.sendMessage(result.message());
             return;
         }
@@ -76,6 +85,6 @@ public final class PointsCommand implements CommandExecutor {
             player.sendMessage(result.message());
             return;
         }
-        player.sendMessage("Usage: /shop [buy <item>|override <item> <points> <qty>]");
+        player.sendMessage("Usage: /shop [buy <item> [units]|override <item> <points> <qty>]");
     }
 }

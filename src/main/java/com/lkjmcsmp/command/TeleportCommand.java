@@ -1,6 +1,7 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.TeleportService;
+import com.lkjmcsmp.gui.MenuService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,12 +9,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 
 public final class TeleportCommand implements CommandExecutor {
     private final TeleportService teleportService;
+    private final MenuService menuService;
 
-    public TeleportCommand(TeleportService teleportService) {
+    public TeleportCommand(TeleportService teleportService, MenuService menuService) {
         this.teleportService = teleportService;
+        this.menuService = menuService;
     }
 
     @Override
@@ -24,7 +29,7 @@ public final class TeleportCommand implements CommandExecutor {
                     case "tp" -> directTp(player, args);
                     case "tpa" -> requestTp(player, args, false);
                     case "tpahere" -> requestTp(player, args, true);
-                    case "tpaccept" -> acceptRequest(player);
+                    case "tpaccept" -> acceptRequest(player, args);
                     case "tpdeny" -> denyRequest(player);
                     case "rtp" -> {
                         if (!CommandUtil.requirePermission(player, "lkjmcsmp.rtp.use")) {
@@ -90,14 +95,23 @@ public final class TeleportCommand implements CommandExecutor {
         target.sendMessage(direction + " Use /tpaccept or /tpdeny. Expires in " + timeout + ".");
     }
 
-    private void acceptRequest(Player player) {
+    private void acceptRequest(Player player, String[] args) throws Exception {
         if (!CommandUtil.requirePermission(player, "lkjmcsmp.tpa.use")) {
             return;
         }
+        if (args.length > 0) {
+            acceptSpecificRequester(player, args[0]);
+            return;
+        }
         var pending = teleportService.pendingFor(player.getUniqueId());
+        if (pending.size() >= 2) {
+            menuService.openTpAcceptPicker(player);
+            return;
+        }
+        Optional<UUID> requesterId = pending.stream().findFirst().map(request -> request.from());
         teleportService.acceptRequest(player, result -> {
             player.sendMessage(result.message());
-            pending.ifPresent(request -> notifyRequester(player, request.from(), result, "accepted"));
+            requesterId.ifPresent(id -> notifyRequester(player, id, result, "accepted"));
         });
     }
 
@@ -105,13 +119,34 @@ public final class TeleportCommand implements CommandExecutor {
         if (!CommandUtil.requirePermission(player, "lkjmcsmp.tpa.use")) {
             return;
         }
-        var pending = teleportService.pendingFor(player.getUniqueId());
+        Optional<UUID> pending = teleportService.pendingFor(player.getUniqueId()).stream()
+                .findFirst()
+                .map(request -> request.from());
         var result = teleportService.denyRequest(player);
         player.sendMessage(result.message());
         if (!result.success()) {
             return;
         }
-        pending.ifPresent(request -> notifyRequester(player, request.from(), result, "denied"));
+        pending.ifPresent(id -> notifyRequester(player, id, result, "denied"));
+    }
+
+    private void acceptSpecificRequester(Player player, String requesterName) {
+        Player requester = Bukkit.getPlayerExact(requesterName);
+        if (requester == null) {
+            player.sendMessage("Requester is offline.");
+            return;
+        }
+        UUID requesterId = requester.getUniqueId();
+        boolean pendingFromRequester = teleportService.pendingFor(player.getUniqueId()).stream()
+                .anyMatch(request -> request.from().equals(requesterId));
+        if (!pendingFromRequester) {
+            player.sendMessage("No pending request from " + requesterName + ".");
+            return;
+        }
+        teleportService.acceptRequest(player, requesterId, result -> {
+            player.sendMessage(result.message());
+            notifyRequester(player, requesterId, result, "accepted");
+        });
     }
 
     private static void notifyRequester(Player target, java.util.UUID requesterId, TeleportService.Result result, String action) {

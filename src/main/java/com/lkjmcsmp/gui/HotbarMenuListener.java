@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -80,11 +81,7 @@ public final class HotbarMenuListener implements Listener {
             return;
         }
         event.setCancelled(true);
-        if (clickedHotbarSlot || numberKeyOnHotbarSlot || clickedToken) {
-            hotbarMenuService.open(player);
-            return;
-        }
-        hotbarMenuService.ensureInstalled(player);
+        hotbarMenuService.openFromInventoryInteraction(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -106,5 +103,16 @@ public final class HotbarMenuListener implements Listener {
         }
         event.setCancelled(true);
         hotbarMenuService.ensureInstalled(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) {
+            return;
+        }
+        if (!MenuTitles.isPluginMenu(event.getView().getTitle())) {
+            return;
+        }
+        hotbarMenuService.resyncAfterMenuClose(player);
     }
 }

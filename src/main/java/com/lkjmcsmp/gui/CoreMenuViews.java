@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.Comparator;
 import java.util.UUID;
 
 final class CoreMenuViews {
@@ -17,45 +16,85 @@ final class CoreMenuViews {
     private final WarpService warpService;
     private final PartyService partyService;
     private final TeleportService teleportService;
+    private final PlayerPickerMenuView pickerView;
+    private final boolean showManualRefreshControls;
 
-    CoreMenuViews(HomeService homeService, WarpService warpService, PartyService partyService, TeleportService teleportService) {
+    CoreMenuViews(
+            HomeService homeService,
+            WarpService warpService,
+            PartyService partyService,
+            TeleportService teleportService,
+            boolean showManualRefreshControls) {
+        this(homeService, warpService, partyService, teleportService, new PlayerPickerMenuView(), showManualRefreshControls);
+    }
+
+    CoreMenuViews(
+            HomeService homeService,
+            WarpService warpService,
+            PartyService partyService,
+            TeleportService teleportService,
+            PlayerPickerMenuView pickerView,
+            boolean showManualRefreshControls) {
         this.homeService = homeService;
         this.warpService = warpService;
         this.partyService = partyService;
         this.teleportService = teleportService;
+        this.pickerView = pickerView;
+        this.showManualRefreshControls = showManualRefreshControls;
     }
 
     void open(Player player, String title) throws Exception {
         switch (title) {
-            case CoreMenuService.TELEPORT_TITLE -> openTeleport(player);
-            case CoreMenuService.HOMES_TITLE -> openHomes(player);
-            case CoreMenuService.WARPS_TITLE -> openWarps(player);
-            case CoreMenuService.TEAM_TITLE -> openTeam(player);
-            case CoreMenuService.PICK_TPA_TITLE -> openPicker(player, CoreMenuService.PICK_TPA_TITLE, "Run /tpa <player>");
-            case CoreMenuService.PICK_TPA_HERE_TITLE -> openPicker(player, CoreMenuService.PICK_TPA_HERE_TITLE, "Run /tpahere <player>");
-            case CoreMenuService.PICK_TP_TITLE -> openPicker(player, CoreMenuService.PICK_TP_TITLE, "Run /tp <player>");
-            case CoreMenuService.PICK_INVITE_TITLE -> openPicker(player, CoreMenuService.PICK_INVITE_TITLE, "Run /team invite <player>");
+            case MenuTitles.TELEPORT -> openTeleport(player);
+            case MenuTitles.HOMES -> openHomes(player);
+            case MenuTitles.WARPS -> openWarps(player);
+            case MenuTitles.TEAM -> openTeam(player);
+            case MenuTitles.PICK_TPA -> pickerView.openOnlinePlayers(
+                    player, MenuTitles.PICK_TPA, "Run /tpa <player>", showManualRefreshControls);
+            case MenuTitles.PICK_TPA_HERE -> pickerView.openOnlinePlayers(
+                    player, MenuTitles.PICK_TPA_HERE, "Run /tpahere <player>", showManualRefreshControls);
+            case MenuTitles.PICK_TP -> pickerView.openOnlinePlayers(
+                    player, MenuTitles.PICK_TP, "Run /tp <player>", showManualRefreshControls);
+            case MenuTitles.PICK_TP_ACCEPT -> pickerView.openRequesters(
+                    player,
+                    MenuTitles.PICK_TP_ACCEPT,
+                    teleportService.pendingFor(player.getUniqueId()),
+                    showManualRefreshControls);
+            case MenuTitles.PICK_INVITE -> pickerView.openOnlinePlayers(
+                    player, MenuTitles.PICK_INVITE, "Run /team invite <player>", showManualRefreshControls);
             default -> throw new IllegalArgumentException("Unknown menu title: " + title);
         }
     }
 
     private void openTeleport(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, CoreMenuService.TELEPORT_TITLE);
-        boolean pending = teleportService.pendingFor(player.getUniqueId()).isPresent();
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.TELEPORT);
+        int pendingCount = teleportService.pendingCount(player.getUniqueId());
+        boolean pending = pendingCount > 0;
         boolean canDirect = player.hasPermission("lkjmcsmp.tp.use");
         inventory.setItem(10, MenuItems.named(Material.ENDER_PEARL, "Random Teleport", "Runs /rtp"));
         inventory.setItem(11, MenuItems.named(Material.COMPASS, "Request Teleport", "Pick target for /tpa"));
         inventory.setItem(12, MenuItems.named(Material.RECOVERY_COMPASS, "Request Here", "Pick target for /tpahere"));
-        inventory.setItem(13, MenuItems.named(pending ? Material.LIME_DYE : Material.GRAY_DYE, pending ? "Accept Request" : "No Pending Request", "Runs /tpaccept"));
-        inventory.setItem(14, MenuItems.named(pending ? Material.RED_DYE : Material.GRAY_DYE, pending ? "Deny Request" : "No Pending Request", "Runs /tpdeny"));
-        inventory.setItem(15, MenuItems.named(canDirect ? Material.DIAMOND_SWORD : Material.BARRIER, canDirect ? "Direct Teleport" : "Direct Teleport (Locked)", "Runs /tp <player>"));
-        inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+        inventory.setItem(13, MenuItems.named(
+                pending ? Material.LIME_DYE : Material.GRAY_DYE,
+                pending ? "Accept Request" : "No Pending Requests",
+                pendingCount > 1 ? "Runs /tpaccept (opens requester picker)" : "Runs /tpaccept"));
+        inventory.setItem(14, MenuItems.named(
+                pending ? Material.RED_DYE : Material.GRAY_DYE,
+                pending ? "Deny Request" : "No Pending Requests",
+                "Runs /tpdeny"));
+        inventory.setItem(15, MenuItems.named(
+                canDirect ? Material.DIAMOND_SWORD : Material.BARRIER,
+                canDirect ? "Direct Teleport" : "Direct Teleport (Locked)",
+                "Runs /tp <player>"));
+        if (showManualRefreshControls) {
+            inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+        }
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
     private void openHomes(Player player) throws Exception {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, CoreMenuService.HOMES_TITLE);
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.HOMES);
         int slot = 0;
         for (var home : homeService.list(player.getUniqueId())) {
             if (slot >= MenuLayout.CONTENT_LIMIT) {
@@ -72,13 +111,16 @@ final class CoreMenuViews {
         }
         inventory.setItem(45, MenuItems.named(Material.LIME_DYE, "Set Default Home", "Runs /sethome home"));
         inventory.setItem(46, MenuItems.named(Material.RED_DYE, "Delete Default Home", "Runs /delhome home"));
-        inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+        inventory.setItem(47, MenuItems.named(Material.RESPAWN_ANCHOR, "Add Current Location", "Runs /homes addcurrent"));
+        if (showManualRefreshControls) {
+            inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+        }
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
     private void openWarps(Player player) throws Exception {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, CoreMenuService.WARPS_TITLE);
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.WARPS);
         int slot = 0;
         for (var warp : warpService.list()) {
             if (slot >= MenuLayout.CONTENT_LIMIT) {
@@ -89,13 +131,15 @@ final class CoreMenuViews {
         if (slot == 0) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Warps Set"));
         }
-        inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+        if (showManualRefreshControls) {
+            inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+        }
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
     private void openTeam(Player player) throws Exception {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, CoreMenuService.TEAM_TITLE);
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.TEAM);
         UUID playerId = player.getUniqueId();
         var partyId = partyService.getPartyId(playerId);
         boolean leader = partyId.isPresent() && partyService.isLeader(playerId);
@@ -113,26 +157,9 @@ final class CoreMenuViews {
         inventory.setItem(16, MenuItems.named(Material.ENDER_PEARL, "Team Home", "Runs /team home"));
         inventory.setItem(17, MenuItems.named(Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome"));
         inventory.setItem(18, MenuItems.named(Material.TNT, "Disband Team", "Runs /team disband"));
-        inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
-        player.openInventory(inventory);
-    }
-
-    private void openPicker(Player player, String title, String actionHint) {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, title);
-        int slot = 0;
-        for (Player online : Bukkit.getOnlinePlayers().stream()
-                .sorted(Comparator.comparing(Player::getName, String.CASE_INSENSITIVE_ORDER))
-                .toList()) {
-            if (online.getUniqueId().equals(player.getUniqueId()) || slot >= MenuLayout.CONTENT_LIMIT) {
-                continue;
-            }
-            inventory.setItem(slot++, MenuItems.named(Material.PLAYER_HEAD, "Player :: " + online.getName(), actionHint));
+        if (showManualRefreshControls) {
+            inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
         }
-        if (slot == 0) {
-            inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Players Online"));
-        }
-        inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }

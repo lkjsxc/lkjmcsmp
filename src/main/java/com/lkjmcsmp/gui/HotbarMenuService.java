@@ -11,10 +11,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class HotbarMenuService {
     public static final int HOTBAR_SLOT = 8;
     private static final byte TOKEN_VALUE = 1;
+    private final JavaPlugin plugin;
     private final MenuService menuService;
     private final NamespacedKey tokenKey;
 
     public HotbarMenuService(JavaPlugin plugin, MenuService menuService) {
+        this.plugin = plugin;
         this.menuService = menuService;
         this.tokenKey = new NamespacedKey(plugin, "menu-hotbar-token");
     }
@@ -34,12 +36,37 @@ public final class HotbarMenuService {
         menuService.openRoot(player);
     }
 
+    public void openFromInventoryInteraction(Player player) {
+        ensureInstalled(player);
+        clearGhostCursorToken(player);
+        menuService.openRoot(player);
+        resyncNextTick(player);
+    }
+
+    public void resyncAfterMenuClose(Player player) {
+        resyncNextTick(player);
+    }
+
     public boolean isToken(ItemStack item) {
         if (item == null || item.getType() != Material.NETHER_STAR || item.getItemMeta() == null) {
             return false;
         }
         Byte marker = item.getItemMeta().getPersistentDataContainer().get(tokenKey, PersistentDataType.BYTE);
         return marker != null && marker == TOKEN_VALUE;
+    }
+
+    private void resyncNextTick(Player player) {
+        player.getScheduler().runDelayed(plugin, task -> {
+            ensureInstalled(player);
+            clearGhostCursorToken(player);
+            player.updateInventory();
+        }, null, 1L);
+    }
+
+    private void clearGhostCursorToken(Player player) {
+        if (isToken(player.getItemOnCursor())) {
+            player.setItemOnCursor(null);
+        }
     }
 
     private ItemStack createTokenItem() {

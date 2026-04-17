@@ -16,7 +16,7 @@ commands:
     usage: /convert cobblestone <amount>
     permission: lkjmcsmp.points.convert
   shop:
-    usage: /shop
+    usage: /shop [buy <item> [units]|override <item> <points> <qty>]
     permission: lkjmcsmp.shop.use
   adv:
     usage: /adv
@@ -31,7 +31,7 @@ commands:
     usage: /delhome <name>
     permission: lkjmcsmp.home.manage
   homes:
-    usage: /homes
+    usage: /homes [addcurrent]
     permission: lkjmcsmp.home.use
   warp:
     usage: /warp <name>
@@ -58,7 +58,7 @@ commands:
     usage: /tpahere <player>
     permission: lkjmcsmp.tpa.use
   tpaccept:
-    usage: /tpaccept
+    usage: /tpaccept [player]
     permission: lkjmcsmp.tpa.use
   tpdeny:
     usage: /tpdeny

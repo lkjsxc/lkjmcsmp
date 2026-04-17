@@ -38,9 +38,7 @@ public final class HomeCommand implements CommandExecutor {
                         }
                         player.sendMessage(homeService.deleteHome(player.getUniqueId(), args[0]).message());
                     }
-                    case "homes" -> player.sendMessage("Homes: " + homeService.list(player.getUniqueId()).stream()
-                            .map(h -> h.name())
-                            .toList());
+                    case "homes" -> listHomesOrAddCurrent(player, args);
                     case "home" -> teleportHome(player, args);
                     default -> {
                         return false;
@@ -66,5 +64,19 @@ public final class HomeCommand implements CommandExecutor {
             return;
         }
         teleportService.teleportToLocation(player, location.get(), "Teleported home.", result -> player.sendMessage(result.message()));
+    }
+
+    private void listHomesOrAddCurrent(org.bukkit.entity.Player player, String[] args) throws Exception {
+        if (args.length > 0 && (args[0].equalsIgnoreCase("addcurrent") || args[0].equalsIgnoreCase("add-current-location"))) {
+            var result = homeService.setAutoHome(player);
+            if (result.success()) {
+                progressionService.increment(player.getUniqueId(), "home_set", 1);
+            }
+            player.sendMessage(result.message());
+            return;
+        }
+        player.sendMessage("Homes: " + homeService.list(player.getUniqueId()).stream()
+                .map(h -> h.name())
+                .toList());
     }
 }

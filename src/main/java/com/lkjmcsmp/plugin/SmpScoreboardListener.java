@@ -14,7 +14,7 @@ public final class SmpScoreboardListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        scoreboardService.refresh(event.getPlayer());
+        scoreboardService.refreshOnJoin(event.getPlayer());
     }
 
     @EventHandler

@@ -1,16 +1,16 @@
 items:
   oak_log:
     material: OAK_LOG
-    quantity: 16
-    points: 96
+    quantity: 1
+    points: 16
   spruce_log:
     material: SPRUCE_LOG
-    quantity: 16
-    points: 96
+    quantity: 1
+    points: 16
   birch_log:
     material: BIRCH_LOG
-    quantity: 16
-    points: 96
+    quantity: 1
+    points: 16
   dirt:
     material: DIRT
     quantity: 64

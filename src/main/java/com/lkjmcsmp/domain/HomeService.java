@@ -44,6 +44,11 @@ public final class HomeService {
         return Result.ok("home saved: " + normalized);
     }
 
+    public Result setAutoHome(Player player) throws Exception {
+        String nextName = nextHomeName(player.getUniqueId());
+        return setHome(player, nextName);
+    }
+
     public Result deleteHome(UUID playerId, String homeName) throws Exception {
         if (homeDao.delete(playerId, normalize(homeName))) {
             return Result.ok("home deleted");
@@ -55,6 +60,19 @@ public final class HomeService {
         return homeDao.list(playerId).stream()
                 .filter(home -> home.name().equalsIgnoreCase(normalize(homeName)))
                 .findFirst();
+    }
+
+    private String nextHomeName(UUID playerId) throws Exception {
+        List<NamedLocation> homes = homeDao.list(playerId);
+        int index = 1;
+        while (true) {
+            String candidate = "home-" + index;
+            boolean taken = homes.stream().anyMatch(home -> home.name().equalsIgnoreCase(candidate));
+            if (!taken) {
+                return candidate;
+            }
+            index++;
+        }
     }
 
     private static String normalize(String name) {

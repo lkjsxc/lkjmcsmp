@@ -120,7 +120,10 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 homeService,
                 warpService,
                 partyService,
-                teleportService);
+                teleportService,
+                schedulerBridge,
+                config.getInt("menus.auto-refresh-seconds", 1),
+                config.getBoolean("menus.show-manual-refresh-controls", false));
         return new Services(pointsService, homeService, warpService, partyService, teleportService, progressionService, menuService);
     }
 
@@ -138,12 +141,12 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("delwarp", new WarpCommand(services.warps(), services.teleports(), services.progression()));
         register("warps", new WarpCommand(services.warps(), services.teleports(), services.progression()));
         register("team", new TeamCommand(services.parties(), services.teleports(), services.progression()));
-        register("tp", new TeleportCommand(services.teleports()));
-        register("tpa", new TeleportCommand(services.teleports()));
-        register("tpahere", new TeleportCommand(services.teleports()));
-        register("tpaccept", new TeleportCommand(services.teleports()));
-        register("tpdeny", new TeleportCommand(services.teleports()));
-        register("rtp", new TeleportCommand(services.teleports()));
+        register("tp", new TeleportCommand(services.teleports(), services.menus()));
+        register("tpa", new TeleportCommand(services.teleports(), services.menus()));
+        register("tpahere", new TeleportCommand(services.teleports(), services.menus()));
+        register("tpaccept", new TeleportCommand(services.teleports(), services.menus()));
+        register("tpdeny", new TeleportCommand(services.teleports(), services.menus()));
+        register("rtp", new TeleportCommand(services.teleports(), services.menus()));
         register("adv", new AdvCommand(services.progression(), services.menus()));
     }
 
@@ -155,7 +158,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             hotbarMenuService.install(online);
         }
         getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(getLogger()), this);
-        this.scoreboardService = new SmpScoreboardService(this, initialized.points(), getLogger());
+        this.scoreboardService = new SmpScoreboardService(this, schedulerBridge, initialized.points(), getLogger());
         getServer().getPluginManager().registerEvents(new SmpScoreboardListener(scoreboardService), this);
         scoreboardService.start();
         if (getConfig().getBoolean("teleport.first-join.enabled", true)) {
