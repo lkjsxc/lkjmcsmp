@@ -1,28 +1,26 @@
 package com.lkjmcsmp.plugin;
+
 import com.lkjmcsmp.domain.PointsService;
+import com.lkjmcsmp.plugin.scoreboard.SidebarRenderer;
+import com.lkjmcsmp.plugin.scoreboard.SidebarSnapshot;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Criteria;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
+
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 public final class SmpScoreboardService {
-    private static final String OBJECTIVE_NAME = "lkjmcsmp";
-    private static final String TITLE = "lkjmcsmp SMP";
-    private static final int ONLINE_LINE_SCORE = 2;
-    private static final int POINTS_LINE_SCORE = 1;
     private static final long RECONCILE_PERIOD_TICKS = 100L;
     private static final long JOIN_DELAY_TICKS = 20L;
     private static final long[] RETRY_DELAYS_TICKS = {20L, 100L, 200L};
     private final SchedulerBridge schedulerBridge;
     private final PointsService pointsService;
     private final Logger logger;
+    private final SidebarRenderer sidebarRenderer = new SidebarRenderer();
     private final ConcurrentHashMap<UUID, Integer> renderEpochByPlayer = new ConcurrentHashMap<>();
     private final Set<UUID> trackedPlayers = ConcurrentHashMap.newKeySet();
     private final Set<UUID> degradedPlayers = ConcurrentHashMap.newKeySet();
@@ -36,12 +34,12 @@ public final class SmpScoreboardService {
     public void start() {
         stop();
         running = true;
-        int initialOnline = 0;
+        int initialOnlineCount = 0;
         for (Player player : Bukkit.getOnlinePlayers()) {
             trackedPlayers.add(player.getUniqueId());
-            initialOnline++;
+            initialOnlineCount++;
         }
-        onlineCount.set(initialOnline);
+        onlineCount.set(initialOnlineCount);
         for (Player player : Bukkit.getOnlinePlayers()) {
             initializePlayer(player, "startup", false);
         }
@@ -49,15 +47,22 @@ public final class SmpScoreboardService {
     public void stop() {
         running = false;
         for (Player player : Bukkit.getOnlinePlayers()) {
-            clear(player);
+            try {
+                sidebarRenderer.clear(player);
+            } catch (Exception ex) {
+                logger.log(Level.WARNING, "Scoreboard clear failed (trigger=stop playerUuid=" + player.getUniqueId() + ")", ex);
+            }
         }
         renderEpochByPlayer.clear();
         trackedPlayers.clear();
         degradedPlayers.clear();
         onlineCount.set(0);
     }
+
     public void refresh(Player player) {
-        if (player == null || !player.isOnline() || !running) return;
+        if (player == null || !player.isOnline() || !running) {
+            return;
+        }
         UUID playerId = player.getUniqueId();
         if (!trackedPlayers.contains(playerId)) {
             initializePlayer(player, "targeted", false);
@@ -65,32 +70,33 @@ public final class SmpScoreboardService {
         }
         dispatchSnapshot(player, "targeted", 1, renderEpochByPlayer.getOrDefault(playerId, 1), onlineCount.get(), false);
     }
-
     public void refreshOnJoin(Player player) {
-        if (player == null || !running) return;
-        initializePlayer(player, "join", true);
-    }
-
-    public void clear(Player player) {
-        if (player == null) return;
-        UUID playerId = player.getUniqueId();
-        if (trackedPlayers.remove(playerId)) onlineCount.updateAndGet(current -> Math.max(0, current - 1));
-        renderEpochByPlayer.remove(playerId);
-        degradedPlayers.remove(playerId);
-        if (Bukkit.getScoreboardManager() == null) {
-            logger.warning("Scoreboard clear skipped (trigger=clear playerUuid=" + playerId + "): manager unavailable");
+        if (player == null || !running) {
             return;
         }
+        initializePlayer(player, "join", true);
+    }
+    public void clear(Player player) {
+        if (player == null) {
+            return;
+        }
+        UUID playerId = player.getUniqueId();
+        if (trackedPlayers.remove(playerId)) {
+            onlineCount.updateAndGet(current -> Math.max(0, current - 1));
+        }
+        renderEpochByPlayer.remove(playerId);
+        degradedPlayers.remove(playerId);
         try {
-            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+            sidebarRenderer.clear(player);
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Scoreboard clear failed (trigger=clear playerUuid=" + playerId + ")", ex);
         }
     }
-
     private void initializePlayer(Player player, String trigger, boolean delayedJoin) {
         UUID playerId = player.getUniqueId();
-        if (trackedPlayers.add(playerId)) onlineCount.incrementAndGet();
+        if (trackedPlayers.add(playerId)) {
+            onlineCount.incrementAndGet();
+        }
         int epoch = nextEpoch(playerId);
         if (delayedJoin) {
             schedulerBridge.runPlayerDelayedTask(player, JOIN_DELAY_TICKS,
@@ -100,35 +106,44 @@ public final class SmpScoreboardService {
         }
         schedulePeriodic(playerId, epoch);
     }
-
     private void schedulePeriodic(UUID playerId, int epoch) {
-        if (!running || !isCurrent(playerId, epoch)) return;
+        if (!running || !isCurrent(playerId, epoch)) {
+            return;
+        }
         Player player = Bukkit.getPlayer(playerId);
-        if (player == null || !player.isOnline()) return;
+        if (player == null || !player.isOnline()) {
+            return;
+        }
         schedulerBridge.runPlayerDelayedTask(player, RECONCILE_PERIOD_TICKS, () -> {
-            if (!running || !isCurrent(playerId, epoch)) return;
+            if (!running || !isCurrent(playerId, epoch)) {
+                return;
+            }
             dispatchSnapshotIfOnline(playerId, "periodic", 1, epoch, false);
             schedulePeriodic(playerId, epoch);
         });
     }
-
     private void dispatchSnapshotIfOnline(UUID playerId, String trigger, int attempt, int epoch, boolean cleanupFirst) {
-        if (!running || !isCurrent(playerId, epoch)) return;
+        if (!running || !isCurrent(playerId, epoch)) {
+            return;
+        }
         Player player = Bukkit.getPlayer(playerId);
-        if (player == null || !player.isOnline()) return;
+        if (player == null || !player.isOnline()) {
+            return;
+        }
         dispatchSnapshot(player, trigger, attempt, epoch, onlineCount.get(), cleanupFirst);
     }
-
     private void dispatchSnapshot(Player player, String trigger, int attempt, int epoch, int currentOnlineCount, boolean cleanupFirst) {
         UUID playerId = player.getUniqueId();
-        if (!running || !isCurrent(playerId, epoch)) return;
+        if (!running || !isCurrent(playerId, epoch)) {
+            return;
+        }
         schedulerBridge.runAsyncTask(() -> {
             int points = loadPoints(playerId, trigger, attempt);
+            SidebarSnapshot snapshot = new SidebarSnapshot(trigger, attempt, epoch, currentOnlineCount, points, cleanupFirst);
             schedulerBridge.runPlayerTask(player,
-                    () -> render(player, trigger, attempt, epoch, currentOnlineCount, points, cleanupFirst));
+                    () -> renderSnapshot(player, snapshot));
         });
     }
-
     private int loadPoints(UUID playerId, String trigger, int attempt) {
         try {
             return pointsService.getBalance(playerId);
@@ -138,60 +153,42 @@ public final class SmpScoreboardService {
             return 0;
         }
     }
-
-    private void render(Player player, String trigger, int attempt, int epoch, int currentOnlineCount, int points, boolean cleanupFirst) {
+    private void renderSnapshot(Player player, SidebarSnapshot snapshot) {
         UUID playerId = player.getUniqueId();
-        if (!running || !player.isOnline() || !isCurrent(playerId, epoch)) return;
-        if (Bukkit.getScoreboardManager() == null) {
-            handleRenderFailure(player, trigger, attempt, epoch, new IllegalStateException("scoreboard manager unavailable"));
+        if (!running || !player.isOnline() || !isCurrent(playerId, snapshot.epoch())) {
             return;
         }
         try {
-            if (cleanupFirst) player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-            String onlineLine = "Online: " + currentOnlineCount;
-            String pointsLine = "Points: " + points;
-            Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-            Objective objective = board.registerNewObjective(OBJECTIVE_NAME, Criteria.DUMMY, TITLE);
-            objective.getScore(onlineLine).setScore(ONLINE_LINE_SCORE);
-            objective.getScore(pointsLine).setScore(POINTS_LINE_SCORE);
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            player.setScoreboard(board);
-            verifySidebar(player, onlineLine, pointsLine);
-            if (degradedPlayers.remove(playerId)) logger.info("Scoreboard recovered (" + context(trigger, playerId, attempt) + ")");
+            sidebarRenderer.render(player, snapshot);
+            if (degradedPlayers.remove(playerId)) {
+                logger.info("Scoreboard recovered (" + context(snapshot.trigger(), playerId, snapshot.attempt()) + ")");
+            }
         } catch (Exception ex) {
-            handleRenderFailure(player, trigger, attempt, epoch, ex);
+            handleRenderFailure(player, snapshot, ex);
         }
     }
-
-    private void verifySidebar(Player player, String onlineLine, String pointsLine) {
-        Scoreboard board = player.getScoreboard();
-        Objective objective = board.getObjective(OBJECTIVE_NAME);
-        if (objective == null) throw new IllegalStateException("managed objective missing");
-        if (objective.getDisplaySlot() != DisplaySlot.SIDEBAR || board.getObjective(DisplaySlot.SIDEBAR) != objective) {
-            throw new IllegalStateException("sidebar display slot missing");
-        }
-        if (!objective.getScore(onlineLine).isScoreSet() || !objective.getScore(pointsLine).isScoreSet()) {
-            throw new IllegalStateException("required lines missing");
-        }
-        if (objective.getScore(onlineLine).getScore() != ONLINE_LINE_SCORE || objective.getScore(pointsLine).getScore() != POINTS_LINE_SCORE) {
-            throw new IllegalStateException("line ordering mismatch");
-        }
-    }
-
-    private void handleRenderFailure(Player player, String trigger, int attempt, int epoch, Exception failure) {
+    private void handleRenderFailure(Player player, SidebarSnapshot snapshot, Exception failure) {
         UUID playerId = player.getUniqueId();
-        if (!running || !isCurrent(playerId, epoch)) return;
-        logger.log(Level.WARNING, "Scoreboard render failed (" + context(trigger, playerId, attempt) + ")", failure);
-        int retryIndex = attempt - 1;
+        if (!running || !isCurrent(playerId, snapshot.epoch())) {
+            return;
+        }
+        logger.log(Level.WARNING, "Scoreboard render failed ("
+                + context(snapshot.trigger(), playerId, snapshot.attempt()) + ")", failure);
+        int retryIndex = snapshot.attempt() - 1;
         if (retryIndex >= RETRY_DELAYS_TICKS.length) {
             degradedPlayers.add(playerId);
-            logger.severe("Scoreboard retries exhausted (" + context(trigger, playerId, attempt) + ")");
+            logger.severe("Scoreboard retries exhausted ("
+                    + context(snapshot.trigger(), playerId, snapshot.attempt()) + ")");
             return;
         }
         schedulerBridge.runPlayerDelayedTask(player, RETRY_DELAYS_TICKS[retryIndex],
-                () -> dispatchSnapshotIfOnline(playerId, trigger, attempt + 1, epoch, true));
+                () -> dispatchSnapshotIfOnline(
+                        playerId,
+                        snapshot.trigger(),
+                        snapshot.attempt() + 1,
+                        snapshot.epoch(),
+                        true));
     }
-
     private int nextEpoch(UUID playerId) { return renderEpochByPlayer.merge(playerId, 1, Integer::sum); }
     private boolean isCurrent(UUID playerId, int epoch) { return renderEpochByPlayer.getOrDefault(playerId, -1) == epoch; }
     private static String context(String trigger, UUID playerId, int attempt) { return "trigger=" + trigger + " playerUuid=" + playerId + " attempt=" + attempt; }

@@ -90,15 +90,15 @@ final class TopLevelMenuViews {
                 "Receive: " + totalQuantity + "x " + selected.material(),
                 "Price: " + selected.points() + " points each"));
         inventory.setItem(20, MenuItems.named(Material.CLOCK, "Set Quantity 1"));
-        inventory.setItem(22, MenuItems.named(Material.RED_DYE, "Quantity -8"));
-        inventory.setItem(23, MenuItems.named(Material.REDSTONE, "Quantity -1"));
-        inventory.setItem(24, MenuItems.named(
+        inventory.setItem(21, MenuItems.named(Material.RED_DYE, "Quantity -8"));
+        inventory.setItem(22, MenuItems.named(Material.REDSTONE, "Quantity -1"));
+        inventory.setItem(23, MenuItems.named(
                 Material.PAPER,
                 "Quantity :: " + selection.quantity(),
                 "Total cost: " + totalPoints + " points"));
-        inventory.setItem(25, MenuItems.named(Material.LIME_DYE, "Quantity +1"));
-        inventory.setItem(26, MenuItems.named(Material.EMERALD, "Quantity +8"));
-        inventory.setItem(28, MenuItems.named(Material.CLOCK, "Set Quantity 64"));
+        inventory.setItem(24, MenuItems.named(Material.LIME_DYE, "Quantity +1"));
+        inventory.setItem(25, MenuItems.named(Material.EMERALD, "Quantity +8"));
+        inventory.setItem(26, MenuItems.named(Material.CLOCK, "Set Quantity 64"));
         inventory.setItem(31, MenuItems.named(
                 Material.GOLD_INGOT,
                 "Buy Selected",
