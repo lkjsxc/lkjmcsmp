@@ -145,24 +145,27 @@ final class CoreMenuActions {
     void clearPlayerState(UUID playerId) {
         pagesByPlayer.remove(playerId);
     }
-
     private boolean turnPage(Player player, String title, int delta) throws Exception {
         setPage(player, title, page(player, title) + delta);
         return switch (title) {
             case MenuTitles.HOMES -> {
                 views.openHomes(player, page(player, title));
+                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
                 yield true;
             }
             case MenuTitles.HOMES_DELETE -> {
                 views.openHomesDelete(player, page(player, title));
+                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
                 yield true;
             }
             case MenuTitles.WARPS -> {
                 views.openWarps(player, page(player, title));
+                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
                 yield true;
             }
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE -> {
                 views.openPicker(player, title, page(player, title));
+                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
                 yield true;
             }
             default -> false;
@@ -177,7 +180,6 @@ final class CoreMenuActions {
         pagesByPlayer.computeIfAbsent(player.getUniqueId(), ignored -> new ConcurrentHashMap<>())
                 .put(title, Math.max(0, page));
     }
-
     private boolean open(Player player, String title) throws Exception {
         if (MenuTitles.isPagedMenu(title)) {
             setPage(player, title, 0);
@@ -185,7 +187,6 @@ final class CoreMenuActions {
         views.open(player, title);
         return true;
     }
-
     private static boolean tell(Player player, String message) {
         player.sendMessage(message);
         return true;

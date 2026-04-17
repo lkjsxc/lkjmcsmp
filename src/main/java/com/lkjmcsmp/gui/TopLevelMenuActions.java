@@ -68,11 +68,13 @@ final class TopLevelMenuActions {
         if (display.equals("Page Prev")) {
             setShopPage(playerId, Math.max(0, shopPage(playerId) - 1));
             views.openShop(player, shopPage(playerId));
+            setShopPage(playerId, MenuPageStateSync.readCurrentPage(player, shopPage(playerId)));
             return true;
         }
         if (display.equals("Page Next")) {
             setShopPage(playerId, shopPage(playerId) + 1);
             views.openShop(player, shopPage(playerId));
+            setShopPage(playerId, MenuPageStateSync.readCurrentPage(player, shopPage(playerId)));
             return true;
         }
         if (display.startsWith("Item :: ")) {
@@ -122,11 +124,13 @@ final class TopLevelMenuActions {
         if (display.equals("Page Prev")) {
             setProgressPage(playerId, Math.max(0, progressPage(playerId) - 1));
             views.openProgress(player, progressPage(playerId));
+            setProgressPage(playerId, MenuPageStateSync.readCurrentPage(player, progressPage(playerId)));
             return true;
         }
         if (display.equals("Page Next")) {
             setProgressPage(playerId, progressPage(playerId) + 1);
             views.openProgress(player, progressPage(playerId));
+            setProgressPage(playerId, MenuPageStateSync.readCurrentPage(player, progressPage(playerId)));
             return true;
         }
         String milestoneKey = ProgressMenuSupport.extractKey(event.getCurrentItem());
@@ -150,6 +154,7 @@ final class TopLevelMenuActions {
         }
         player.sendMessage(result.message());
         views.openShop(player, shopPage(player.getUniqueId()));
+        setShopPage(player.getUniqueId(), MenuPageStateSync.readCurrentPage(player, shopPage(player.getUniqueId())));
     }
 
     void resetShopSelection(UUID playerId) { state.resetShopSelection(playerId); }
