@@ -7,6 +7,7 @@
 3. Repository calls never run inside inventory click listeners without async handoff.
 4. Never read another player's live location from the wrong player thread.
 5. World/chunk block-state reads for RTP probing run in region-safe tasks.
+6. Scoreboard player mutation tasks never scan online players; cross-player aggregates are precomputed from tracked state.
 
 ## State Rules
 

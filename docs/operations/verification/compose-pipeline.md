@@ -17,12 +17,13 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 3. Non-zero from any step blocks acceptance.
 4. Final `down -v` removes test state.
 5. Verification expectations include:
-   - slot-8 hotbar open reliability in blocked/cancelled interaction contexts
-   - homes add-current and dedicated deletion flow
-   - shop list-to-detail purchase behavior with reset-on-open quantity
-   - pagination behavior in growth-heavy menus
-   - multi-request `/tpaccept` picker behavior
-   - scoreboard visibility and recovery with sidebar ownership reclaim
+    - slot-8 hotbar open reliability in blocked/cancelled interaction contexts
+    - homes add-current and dedicated deletion flow
+    - shop list-to-detail purchase behavior with final-quantity (`1..64`) semantics
+    - pagination behavior in growth-heavy menus
+    - multi-request `/tpaccept` picker behavior
+    - picker-menu manual refresh visibility with no background auto-refresh reopen loop
+    - scoreboard visibility and recovery with sidebar ownership reclaim
 
 ## Stop Rule
 

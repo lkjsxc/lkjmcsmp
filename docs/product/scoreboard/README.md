@@ -13,6 +13,8 @@ Define a deterministic, recoverable sidebar contract so every online player keep
 5. Missing/corrupt objective state is a recoverable fault: retry + rebuild rules must restore visibility deterministically.
 6. Any sustained missing sidebar state for an online player is a regression.
 7. Plugin owns sidebar slot for online players and reclaims `SIDEBAR` during reconcile.
+8. Periodic reconcile is player-scoped and does not rely on a global tick source.
+9. Online count used for rendering is tracked state, not cross-player scans inside player mutation tasks.
 
 ## Assumptions
 

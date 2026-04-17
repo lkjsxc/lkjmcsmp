@@ -3,9 +3,9 @@
 ## Inventory Size Contract
 
 - All plugin menus use 54 slots (large chest layout).
-- Shared navigation row reserves context action, paging controls, and `Back`; manual `Refresh` is hidden by default.
+- Shared navigation row reserves context action, paging controls, and `Back`; picker menus may also expose manual `Refresh`.
 - Menus refresh immediately after state changes.
-- Dynamic menus may use `5`-second fallback refresh.
+- Background auto-refresh reopen loops are disallowed.
 - `Back` control uses `ARROW` material across all menus.
 
 ## Root Menu (`/menu`)
@@ -53,6 +53,7 @@
 - Invite player (target picker)
 - Accept invite / leave / disband
 - Team home and sethome
+- Slot map and role-aware action grouping are defined in `team-layout.md`
 
 ## Points Shop Menu
 
@@ -63,8 +64,8 @@
 
 ## Points Shop Detail Menu
 
-- Selected item description and unit pricing
-- Quantity controls
+- Selected item description and per-item pricing
+- Final quantity controls (`1..64`)
 - Explicit purchase button
 - Purchase executes only when balance is sufficient
 - Selection state resets whenever detail menu is opened

@@ -26,10 +26,11 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Cobblestone conversion command path succeeds for an operator test account.
 - Hotbar slot `8` menu entrypoint opens GUI and cannot be dropped.
 - Hotbar slot `8` menu entrypoint opens from cancelled/blocked interaction contexts.
-- GUI menus refresh state without a manual refresh control.
+- GUI menus refresh state on actions without background auto-refresh reopen loops.
+- Picker menus expose explicit manual refresh control.
 - Homes GUI add-current-location path yields sequential auto names (`home-1`, `home-2`, ...).
 - Homes deletion uses explicit dedicated deletion flow.
-- Shop quantity path honors unit rate (`1` log = `16` points) in total-cost math.
+- Shop quantity path uses final item quantity (`1..64`) and honors per-item rate math (`1` log = `16` points).
 - Shop item list transitions to item detail purchase screen with reset-on-open quantity.
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
 - Scoreboard sidebar appears with online-count and points lines.

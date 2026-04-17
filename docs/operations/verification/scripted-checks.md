@@ -33,14 +33,15 @@ Extended smoke suite:
 - Hotbar slot `8` token cannot be moved by inventory manipulation vectors.
 - Hotbar slot `8` token opens menu from cancelled/blocked interaction contexts.
 - GUI `Back` controls render as arrow items.
-- GUI menus do not render manual `Refresh`; state-changing actions update visible state without manual reopen.
+- GUI menus avoid background auto-refresh reopen loops.
+- Picker menus render explicit manual `Refresh`.
 - Homes deletion uses dedicated explicit deletion flow (not right-click semantic split).
 - Homes GUI `Add Current Location` creates sequential names (`home-1`, `home-2`, ...).
 - Shop item selection opens item detail purchase screen.
 - Shop detail quantity resets to baseline on each detail-open.
 - Pagination controls keep stable ordering across pages.
 - Progression GUI shows milestone status plus numeric progress text.
-- Shop quantity purchase computes deterministic totals; logs use `1 log = 16 points`.
+- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Scoreboard sidebar renders for online player with `online` and `points` lines.
 - Scoreboard implementation dependency set excludes external sidebar libraries.

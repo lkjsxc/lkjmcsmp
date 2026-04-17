@@ -3,18 +3,19 @@
 ## Update Triggers
 
 1. Player join: enqueue immediate player-scoped render.
-2. Plugin enable: run startup reconcile for already-online players before steady-state operation.
-3. Periodic reconcile: refresh online count and points for all online players on fixed `5s` cadence.
+2. Plugin enable: register already-online players and start per-player reconcile loops.
+3. Periodic reconcile: each tracked player runs reconcile on fixed `5s` cadence through player-scoped delayed scheduling.
 4. Targeted refresh: optional data-change refreshes must use the same render pipeline as join/reconcile.
-5. Player quit: detach/reset scoreboard state and clear queued retries for that player.
+5. Player quit: detach/reset scoreboard state, stop player reconcile loop, and drop tracked online state.
 
 ## Folia Context Rules
 
-1. Reconcile orchestration runs on Folia global scheduler context.
+1. Reconcile orchestration is player-scoped; global tick orchestration is not assumed.
 2. All Bukkit scoreboard mutations run on player-safe scheduler context for the target player.
 3. Persistence/data reads run off player thread and return immutable render snapshots.
 4. Player-scoped tasks must re-check player online state before mutating scoreboard.
 5. No cross-player Bukkit entity reads are allowed inside player mutation tasks.
+6. Online-count data is sourced from tracked join/quit state shared as immutable snapshot values.
 
 ## Deterministic Render Pipeline
 
@@ -40,8 +41,9 @@
 4. Data failures must not hide sidebar output.
 5. Sidebar implementation is Bukkit/Paper-native only; no external sidebar library fallback.
 6. Player-scoped scoreboard rendering may run after short join delay to avoid early lifecycle races.
+7. Player reconcile loops stop promptly on quit/disable and must not leak stale retries.
 
 ## Assumptions
 
-- Retry delays are measured in server ticks and scheduled through the same scheduler bridge used by gameplay features.
+- Retry and periodic delays are scheduled through player-safe delayed scheduling.
 - Bukkit/Paper scoreboard APIs may fail transiently during lifecycle races; deterministic retry/rebuild is the required resilience path.

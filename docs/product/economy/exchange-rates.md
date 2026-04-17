@@ -2,36 +2,37 @@
 
 ## Goal
 
-Define strict base rates with optional seasonal overrides controlled by explicit permissions.
+Define strict per-item base rates with optional seasonal point overrides controlled by explicit permissions.
 
 ## Base Rates
 
-| Item | Quantity | Points Cost |
-| --- | --- | --- |
-| Oak Log | 1 | 16 |
-| Spruce Log | 1 | 16 |
-| Birch Log | 1 | 16 |
-| Dirt | 64 | 48 |
-| Sand | 64 | 72 |
-| Gravel | 64 | 72 |
+| Item | Points per Item |
+| --- | --- |
+| Oak Log | 16 |
+| Spruce Log | 16 |
+| Birch Log | 16 |
+| Dirt | 1 |
+| Sand | 2 |
+| Gravel | 2 |
 
 ## Rules
 
 1. Base rates are canonical defaults.
-2. Seasonal override may modify cost and quantity per item.
+2. Seasonal override may modify points per item.
 3. Seasonal override changes require:
    - permission `lkjmcsmp.economy.override`
    - audit log record with actor, before, after, and timestamp
 4. Shop purchase flow is list-to-detail:
    - list view selects target item
-   - detail view controls integer unit quantity
+   - detail view controls final item quantity (`1..64`)
    - detail view executes explicit `Buy`
-5. Opening detail view resets quantity to default baseline (`1` unit).
-6. Total cost is `unit-cost * selected-units`.
-7. Log purchases default to unit pricing (`1` log per unit, `16` points per unit).
-8. Purchase fails when points are insufficient.
-9. Purchase grants items only after points deduction succeeds.
-10. Failed item insertion rolls back points deduction.
+5. Opening detail view resets quantity to default baseline (`1` item).
+6. Total cost is `points-per-item * selected-quantity`.
+7. Purchase succeeds only when points and inventory capacity are sufficient.
+8. Purchase grants items only after points deduction succeeds.
+9. Failed item insertion rolls back points deduction.
+10. Log purchases use per-item semantics (`1` log = `16` points).
+11. Quantity selection is not interpreted as multiplier units.
 
 ## Override Scope
 

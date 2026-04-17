@@ -11,6 +11,7 @@ Define acceptance gates and scripted checks that block regressions.
 3. Scripted checks track contracts in product and architecture docs.
 4. Scoreboard visibility/recovery failures are always blocker failures.
 5. Hotbar entrypoint and menu interaction regressions are blocker failures.
+6. Picker refresh visibility and shop final-quantity (`1..64`) semantics are blocker contracts.
 
 ## Child Index
 

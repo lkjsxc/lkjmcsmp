@@ -25,3 +25,5 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
 7. Completion/failure callbacks must surface explicit player-facing results.
 8. Any player-facing teleport result is emitted only from completion callbacks, never pre-teleport.
 9. Delayed teleport stability checks use player-safe delayed scheduling and must re-check online state.
+10. Scoreboard periodic reconcile uses player-scoped delayed scheduling; do not depend on global tick orchestration.
+11. Scoreboard online-count rendering data is supplied via tracked join/quit state, not cross-player scans in player mutation tasks.
