@@ -24,19 +24,23 @@ public final class SidebarRenderer {
         if (snapshot.cleanupFirst()) {
             player.setScoreboard(manager.getMainScoreboard());
         }
-        String onlineLine = "Online: " + snapshot.onlineCount();
-        String pointsLine = "Points: " + snapshot.points();
-        Scoreboard board = manager.getNewScoreboard();
-        Objective objective = board.registerNewObjective(OBJECTIVE_NAME, Criteria.DUMMY, TITLE);
-        bindLine(board, objective, ONLINE_TEAM, ONLINE_ENTRY, onlineLine, ONLINE_LINE_SCORE);
-        bindLine(board, objective, POINTS_TEAM, POINTS_ENTRY, pointsLine, POINTS_LINE_SCORE);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        player.setScoreboard(board);
-        verify(board, objective, onlineLine, pointsLine);
+        player.setScoreboard(createManagedBoard(snapshot));
     }
 
     public void clear(Player player) {
         player.setScoreboard(scoreboardManager().getMainScoreboard());
+    }
+
+    public Scoreboard createManagedBoard(SidebarSnapshot snapshot) {
+        String onlineLine = "Online: " + snapshot.onlineCount();
+        String pointsLine = "Points: " + snapshot.points();
+        Scoreboard board = scoreboardManager().getNewScoreboard();
+        Objective objective = board.registerNewObjective(OBJECTIVE_NAME, Criteria.DUMMY, TITLE);
+        bindLine(board, objective, ONLINE_TEAM, ONLINE_ENTRY, onlineLine, ONLINE_LINE_SCORE);
+        bindLine(board, objective, POINTS_TEAM, POINTS_ENTRY, pointsLine, POINTS_LINE_SCORE);
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        verify(board, objective, onlineLine, pointsLine);
+        return board;
     }
 
     private static void bindLine(

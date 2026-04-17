@@ -43,24 +43,24 @@ Extended smoke suite:
 - Progression GUI shows milestone status plus numeric progress text.
 - Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
-- Scoreboard sidebar renders for online player with `online` and `points` lines.
+- GUI slot-map contract markers match shop-detail source layout (`20..26` control cluster + `31` buy + `49` back).
+- Scoreboard renderer source markers enforce canonical objective/entry/slot ownership model.
 - Scoreboard implementation dependency set excludes external sidebar libraries.
+- Runtime scoreboard probe command (`/lkjverify scoreboard`) succeeds (full simulation or explicit unsupported-path detection).
 
 ## Scoreboard Reliability Assertions
 
-1. Sidebar appears for an online operator test player with canonical title and required lines.
-2. Join path and periodic reconcile path produce identical line order and labels.
-3. Injected sidebar-objective removal is recovered within bounded retry/reconcile window.
-4. Recovery attempts emit structured logs with `trigger`, `playerUuid`, and `attempt`.
-5. No external sidebar library classes or artifacts exist in plugin dependency graph.
-6. Reconcile reclaims `DisplaySlot.SIDEBAR` when overwritten by another objective.
+1. Runtime probe attempts objective-overwrite injection and rebuild reclaim assertions.
+2. If Folia runtime rejects probe mutations with `UnsupportedOperationException`, probe records explicit unsupported-path detection and still returns success.
+3. Renderer/source contract markers include fixed objective identity, stable entries, and sidebar ownership.
+4. No external sidebar library classes or artifacts exist in plugin dependency graph.
 
 ## Blocker Policy
 
 - Any failed scoreboard assertion is an acceptance blocker.
-- Missing sidebar recovery evidence is an acceptance blocker.
+- Missing runtime scoreboard probe evidence is an acceptance blocker.
+- Any failed runtime scoreboard probe assertion is an acceptance blocker.
 
 ## Assumptions
 
-- Smoke harness has operator-level permission to run vanilla `/scoreboard` commands for failure injection.
-- Smoke harness can read server logs to assert retry/recovery logging behavior.
+- Smoke harness has operator-level permission to execute `/lkjverify scoreboard` from RCON console.

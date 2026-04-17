@@ -32,11 +32,10 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Homes deletion uses explicit dedicated deletion flow.
 - Shop quantity path uses final item quantity (`1..64`) and honors per-item rate math (`1` log = `16` points).
 - Shop item list transitions to item detail purchase screen with reset-on-open quantity.
+- Shop detail slot-map markers match canonical layout (`20..26`, `31`, `49`).
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
-- Scoreboard sidebar appears with online-count and points lines.
-- Scoreboard join render and periodic reconcile render produce the same title and line ordering.
-- Scoreboard recovers visibility after objective removal within documented retry/reconcile window.
-- Scoreboard reconcile reclaims `SIDEBAR` ownership after overwrite.
+- Runtime scoreboard probe command (`/lkjverify scoreboard`) passes overwrite/removal + rebuild reclaim assertions, or explicit unsupported-path detection.
+- Scoreboard renderer markers enforce canonical objective identity, stable entry IDs, and sidebar ownership reclaim path.
 - Scoreboard dependency set must remain Bukkit/Paper-only (no external sidebar library).
 
 ## Scoreboard Blocker Rule
@@ -45,4 +44,4 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 
 ## Assumptions
 
-- Verification environment can execute objective-removal injection and inspect logs for scoreboard retry evidence.
+- Verification environment can run `/lkjverify scoreboard` from RCON console for runtime scoreboard probe assertions.

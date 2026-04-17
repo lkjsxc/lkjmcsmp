@@ -66,6 +66,9 @@ commands:
   rtp:
     usage: /rtp [world]
     permission: lkjmcsmp.rtp.use
+  lkjverify:
+    usage: /lkjverify scoreboard
+    permission: lkjmcsmp.verify.use
 
 permissions:
   lkjmcsmp.menu.use:
@@ -95,4 +98,6 @@ permissions:
   lkjmcsmp.rtp.bypasscooldown:
     default: op
   lkjmcsmp.economy.override:
+    default: op
+  lkjmcsmp.verify.use:
     default: op

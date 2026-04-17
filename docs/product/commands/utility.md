@@ -7,6 +7,7 @@
 - `/convert cobblestone <amount>` converts cobblestone inventory to points.
 - `/shop` opens points exchange GUI.
 - `/adv` opens pseudo-advancement GUI.
+- `/lkjverify scoreboard` runs operator-only runtime scoreboard probe checks.
 
 ## Rules
 
@@ -23,6 +24,7 @@
 11. Utility GUI views avoid background auto-refresh reopen loops.
 12. Picker menus expose explicit manual `Refresh`.
 13. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`, including cancelled/blocked interaction contexts.
+14. `/lkjverify scoreboard` is reserved for verification automation and requires `lkjmcsmp.verify.use`.
 
 ## Failures
 

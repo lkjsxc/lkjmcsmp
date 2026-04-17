@@ -23,7 +23,9 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
     - pagination behavior in growth-heavy menus
     - multi-request `/tpaccept` picker behavior
     - picker-menu manual refresh visibility with no background auto-refresh reopen loop
+    - GUI slot-map alignment markers for shop-detail control cluster
     - scoreboard visibility and recovery with sidebar ownership reclaim
+    - runtime scoreboard overwrite/removal injection probe via `/lkjverify scoreboard`
 
 ## Stop Rule
 

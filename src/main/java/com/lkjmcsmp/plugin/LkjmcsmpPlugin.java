@@ -6,6 +6,7 @@ import com.lkjmcsmp.command.MenuCommand;
 import com.lkjmcsmp.command.PointsCommand;
 import com.lkjmcsmp.command.TeamCommand;
 import com.lkjmcsmp.command.TeleportCommand;
+import com.lkjmcsmp.command.VerifyCommand;
 import com.lkjmcsmp.command.WarpCommand;
 import com.lkjmcsmp.domain.HomeService;
 import com.lkjmcsmp.domain.PartyService;
@@ -146,6 +147,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("tpdeny", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
         register("rtp", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
         register("adv", new AdvCommand(services.progression(), services.menus()));
+        register("lkjverify", new VerifyCommand());
     }
 
     private void registerListeners(Services initialized) {

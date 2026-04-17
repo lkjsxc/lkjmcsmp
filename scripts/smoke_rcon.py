@@ -13,6 +13,9 @@ WORKSPACE = Path("/workspace")
 SOURCE_CONFIG = WORKSPACE / "src" / "main" / "resources" / "config.yml"
 SOURCE_MILESTONES = WORKSPACE / "src" / "main" / "resources" / "milestones.yml"
 SOURCE_MENU_TITLES = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuTitles.java"
+SOURCE_SLOT_MAP = WORKSPACE / "docs" / "product" / "gui" / "slot-maps.md"
+SOURCE_SHOP_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TopLevelMenuViews.java"
+SOURCE_SCOREBOARD_RENDERER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "scoreboard" / "SidebarRenderer.java"
 
 
 def run_cmd(client: RCONClient, command: str, must_contain: str | None = None):
@@ -66,15 +69,61 @@ def assert_progression_and_menu_contract_markers():
     print("[ok] progression/menu contract markers present")
 
 
+def assert_gui_slot_map_alignment_markers():
+    if not SOURCE_SLOT_MAP.exists():
+        raise RuntimeError(f"slot map doc missing: {SOURCE_SLOT_MAP}")
+    slot_map_text = SOURCE_SLOT_MAP.read_text(encoding="utf-8")
+    for expected in (
+        "## Shop Detail Menu",
+        "`20`: Set Quantity 1",
+        "`21`: Quantity -8",
+        "`22`: Quantity -1",
+        "`23`: Quantity Display",
+        "`24`: Quantity +1",
+        "`25`: Quantity +8",
+        "`26`: Set Quantity 64",
+    ):
+        if expected not in slot_map_text:
+            raise RuntimeError(f"slot map missing `{expected}`")
+    if not SOURCE_SHOP_VIEW.exists():
+        raise RuntimeError(f"shop view source missing: {SOURCE_SHOP_VIEW}")
+    shop_view_text = SOURCE_SHOP_VIEW.read_text(encoding="utf-8")
+    for expected in (
+        "inventory.setItem(20, MenuItems.named(Material.CLOCK, \"Set Quantity 1\"));",
+        "inventory.setItem(21, MenuItems.named(Material.RED_DYE, \"Quantity -8\"));",
+        "inventory.setItem(22, MenuItems.named(Material.REDSTONE, \"Quantity -1\"));",
+        "inventory.setItem(23, MenuItems.named(",
+        "inventory.setItem(24, MenuItems.named(Material.LIME_DYE, \"Quantity +1\"));",
+        "inventory.setItem(25, MenuItems.named(Material.EMERALD, \"Quantity +8\"));",
+        "inventory.setItem(26, MenuItems.named(Material.CLOCK, \"Set Quantity 64\"));",
+    ):
+        if expected not in shop_view_text:
+            raise RuntimeError(f"shop detail alignment missing `{expected}`")
+    print("[ok] gui slot-map markers present")
+
+
+def assert_scoreboard_runtime_probe_markers():
+    if not SOURCE_SCOREBOARD_RENDERER.exists():
+        raise RuntimeError(f"scoreboard renderer source missing: {SOURCE_SCOREBOARD_RENDERER}")
+    renderer_text = SOURCE_SCOREBOARD_RENDERER.read_text(encoding="utf-8")
+    for expected in ("ONLINE_ENTRY", "POINTS_ENTRY", "createManagedBoard", "DisplaySlot.SIDEBAR"):
+        if expected not in renderer_text:
+            raise RuntimeError(f"scoreboard renderer missing `{expected}`")
+    print("[ok] scoreboard renderer markers present")
+
+
 def main() -> int:
     client = connect_with_retry()
     try:
         run_cmd(client, "plugins", "lkjmcsmp")
         assert_radius_defaults()
         assert_progression_and_menu_contract_markers()
-        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "adv"):
+        assert_gui_slot_map_alignment_markers()
+        assert_scoreboard_runtime_probe_markers()
+        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "adv", "lkjverify"):
             run_cmd(client, f"help {command}", command)
         run_cmd(client, "help lkjmcsmp:tp", "lkjmcsmp:tp")
+        run_cmd(client, "lkjverify scoreboard", "OK scoreboard probe")
         return 0
     finally:
         client.stop()
