@@ -7,16 +7,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 final class TopLevelMenuActions {
     private final PointsService pointsService;
     private final ProgressionService progressionService;
     private final TopLevelMenuViews views;
     private final CoreMenuService coreMenus;
-    private final Map<UUID, ShopSelection> shopSelections = new ConcurrentHashMap<>();
+    private final TopLevelMenuState state = new TopLevelMenuState();
 
     TopLevelMenuActions(
             PointsService pointsService,
@@ -33,7 +31,8 @@ final class TopLevelMenuActions {
         return switch (title) {
             case MenuTitles.ROOT -> handleRoot(player, display);
             case MenuTitles.SHOP -> handleShop(player, display);
-            case MenuTitles.PROGRESS -> handleProgress(event, player);
+            case MenuTitles.SHOP_DETAIL -> handleShopDetail(player, display);
+            case MenuTitles.PROGRESS -> handleProgress(event, player, display);
             default -> false;
         };
     }
@@ -41,11 +40,13 @@ final class TopLevelMenuActions {
     private boolean handleRoot(Player player, String display) throws Exception {
         if (display.equals("Points Shop")) {
             resetShopSelection(player.getUniqueId());
-            views.openShop(player, shopSelections.get(player.getUniqueId()));
+            setShopPage(player.getUniqueId(), 0);
+            views.openShop(player, shopPage(player.getUniqueId()));
             return true;
         }
         if (display.equals("Progression")) {
-            views.openProgress(player);
+            setProgressPage(player.getUniqueId(), 0);
+            views.openProgress(player, progressPage(player.getUniqueId()));
             return true;
         }
         if (display.equals("Close Menu")) {
@@ -59,22 +60,19 @@ final class TopLevelMenuActions {
     }
 
     private boolean handleShop(Player player, String display) throws Exception {
+        UUID playerId = player.getUniqueId();
         if (display.equals("Convert Cobblestone")) {
             convertAllCobblestone(player);
             return true;
         }
-        if (display.equals("Quantity -1")) {
-            adjustSelection(player.getUniqueId(), -1);
-            views.openShop(player, shopSelections.get(player.getUniqueId()));
+        if (display.equals("Page Prev")) {
+            setShopPage(playerId, Math.max(0, shopPage(playerId) - 1));
+            views.openShop(player, shopPage(playerId));
             return true;
         }
-        if (display.equals("Quantity +1")) {
-            adjustSelection(player.getUniqueId(), 1);
-            views.openShop(player, shopSelections.get(player.getUniqueId()));
-            return true;
-        }
-        if (display.equals("Buy Selected")) {
-            buySelected(player);
+        if (display.equals("Page Next")) {
+            setShopPage(playerId, shopPage(playerId) + 1);
+            views.openShop(player, shopPage(playerId));
             return true;
         }
         if (display.startsWith("Item :: ")) {
@@ -83,20 +81,60 @@ final class TopLevelMenuActions {
                 player.sendMessage("Unknown shop item.");
                 return true;
             }
-            shopSelections.put(player.getUniqueId(), new ShopSelection(key, 1));
-            views.openShop(player, shopSelections.get(player.getUniqueId()));
+            state.setShopSelection(playerId, new ShopSelection(key, 1));
+            views.openShopDetail(player, state.shopSelection(playerId));
             return true;
         }
         return false;
     }
 
-    private boolean handleProgress(InventoryClickEvent event, Player player) throws Exception {
+    private boolean handleShopDetail(Player player, String display) throws Exception {
+        UUID playerId = player.getUniqueId();
+        if (display.equals("Quantity -10")) {
+            adjustSelection(playerId, -10);
+            views.openShopDetail(player, state.shopSelection(playerId));
+            return true;
+        }
+        if (display.equals("Quantity -1")) {
+            adjustSelection(playerId, -1);
+            views.openShopDetail(player, state.shopSelection(playerId));
+            return true;
+        }
+        if (display.equals("Quantity +1")) {
+            adjustSelection(playerId, 1);
+            views.openShopDetail(player, state.shopSelection(playerId));
+            return true;
+        }
+        if (display.equals("Quantity +10")) {
+            adjustSelection(playerId, 10);
+            views.openShopDetail(player, state.shopSelection(playerId));
+            return true;
+        }
+        if (display.equals("Buy Selected")) {
+            buySelected(player);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean handleProgress(InventoryClickEvent event, Player player, String display) throws Exception {
+        UUID playerId = player.getUniqueId();
+        if (display.equals("Page Prev")) {
+            setProgressPage(playerId, Math.max(0, progressPage(playerId) - 1));
+            views.openProgress(player, progressPage(playerId));
+            return true;
+        }
+        if (display.equals("Page Next")) {
+            setProgressPage(playerId, progressPage(playerId) + 1);
+            views.openProgress(player, progressPage(playerId));
+            return true;
+        }
         String milestoneKey = ProgressMenuSupport.extractKey(event.getCurrentItem());
         if (milestoneKey == null) {
             return true;
         }
         player.sendMessage(progressionService.claim(player.getUniqueId(), milestoneKey).message());
-        views.openProgress(player);
+        views.openProgress(player, progressPage(playerId));
         return true;
     }
 
@@ -111,39 +149,34 @@ final class TopLevelMenuActions {
             progressionService.increment(player.getUniqueId(), "convert_amount", result.amount());
         }
         player.sendMessage(result.message());
-        views.openShop(player, shopSelections.get(player.getUniqueId()));
+        views.openShop(player, shopPage(player.getUniqueId()));
     }
 
-    void resetShopSelection(UUID playerId) {
-        shopSelections.remove(playerId);
-    }
-
-    void clearPlayerState(UUID playerId) {
-        shopSelections.remove(playerId);
-    }
-
-    ShopSelection shopSelection(UUID playerId) {
-        return shopSelections.get(playerId);
-    }
+    void resetShopSelection(UUID playerId) { state.resetShopSelection(playerId); }
+    void clearPlayerState(UUID playerId) { state.clear(playerId); }
+    ShopSelection shopSelection(UUID playerId) { return state.shopSelection(playerId); }
+    int shopPage(UUID playerId) { return state.shopPage(playerId); }
+    int progressPage(UUID playerId) { return state.progressPage(playerId); }
+    void setShopPage(UUID playerId, int page) { state.setShopPage(playerId, page); }
+    void setProgressPage(UUID playerId, int page) { state.setProgressPage(playerId, page); }
 
     private void adjustSelection(UUID playerId, int delta) {
-        ShopSelection current = shopSelections.get(playerId);
-        if (current == null) {
-            return;
-        }
-        shopSelections.put(playerId, current.withDelta(delta));
+        state.adjustSelection(playerId, delta);
     }
 
     private void buySelected(Player player) throws Exception {
-        ShopSelection selection = shopSelections.get(player.getUniqueId());
+        ShopSelection selection = state.shopSelection(player.getUniqueId());
         if (selection == null) {
             player.sendMessage("Select a shop item first.");
-            views.openShop(player, null);
+            views.openShop(player, shopPage(player.getUniqueId()));
             return;
         }
         var result = pointsService.purchase(player, selection.itemKey(), selection.units());
+        if (result.success()) {
+            progressionService.increment(player.getUniqueId(), "shop_purchase_units", selection.units());
+        }
         player.sendMessage(result.message());
-        views.openShop(player, shopSelections.get(player.getUniqueId()));
+        views.openShopDetail(player, state.shopSelection(player.getUniqueId()));
     }
 
     private static int countCobblestone(Player player) {

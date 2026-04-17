@@ -54,12 +54,14 @@ public final class MenuService {
 
     public void openShop(Player player) {
         topLevelActions.resetShopSelection(player.getUniqueId());
-        topLevelViews.openShop(player, topLevelActions.shopSelection(player.getUniqueId()));
+        topLevelActions.setShopPage(player.getUniqueId(), 0);
+        topLevelViews.openShop(player, topLevelActions.shopPage(player.getUniqueId()));
         ensureAutoRefresh(player);
     }
 
     public void openProgress(Player player) {
-        topLevelViews.openProgress(player);
+        topLevelActions.setProgressPage(player.getUniqueId(), 0);
+        topLevelViews.openProgress(player, topLevelActions.progressPage(player.getUniqueId()));
         ensureAutoRefresh(player);
     }
 
@@ -77,28 +79,32 @@ public final class MenuService {
             return;
         }
         event.setCancelled(true);
-        Player player = (Player) event.getWhoClicked();
-        String display = displayName(event);
-        try {
+            Player player = (Player) event.getWhoClicked();
+            String display = displayName(event);
+            if (display.startsWith("Page ::")) {
+                return;
+            }
+            try {
             if (MenuTitles.ROOT.equals(title) && topLevelActions.handleClick(event, player, title, display)) {
-                refreshOpenMenu(player);
                 ensureAutoRefresh(player);
                 return;
             }
             if (display.equals("Back")) {
                 if (!coreMenus.openBack(player, title)) {
-                    openRoot(player);
+                    if (MenuTitles.SHOP_DETAIL.equals(title)) {
+                        topLevelViews.openShop(player, topLevelActions.shopPage(player.getUniqueId()));
+                    } else {
+                        openRoot(player);
+                    }
                 }
                 ensureAutoRefresh(player);
                 return;
             }
             if (topLevelActions.handleClick(event, player, title, display)) {
-                refreshOpenMenu(player);
                 ensureAutoRefresh(player);
                 return;
             }
             if (coreMenus.handleClick(event, player, title, display)) {
-                refreshOpenMenu(player);
                 ensureAutoRefresh(player);
                 return;
             }
@@ -119,6 +125,7 @@ public final class MenuService {
             }
             refreshScheduled.remove(player.getUniqueId());
             topLevelActions.clearPlayerState(player.getUniqueId());
+            coreMenus.clearPlayerState(player.getUniqueId());
         });
     }
 
@@ -135,20 +142,26 @@ public final class MenuService {
         }
         switch (title) {
             case MenuTitles.ROOT -> topLevelViews.openRoot(player);
-            case MenuTitles.SHOP -> topLevelViews.openShop(player, topLevelActions.shopSelection(player.getUniqueId()));
-            case MenuTitles.PROGRESS -> topLevelViews.openProgress(player);
+            case MenuTitles.SHOP -> topLevelViews.openShop(player, topLevelActions.shopPage(player.getUniqueId()));
+            case MenuTitles.SHOP_DETAIL -> topLevelViews.openShopDetail(player, topLevelActions.shopSelection(player.getUniqueId()));
+            case MenuTitles.PROGRESS -> topLevelViews.openProgress(player, topLevelActions.progressPage(player.getUniqueId()));
             default -> coreMenus.open(player, title);
         }
     }
 
     private void ensureAutoRefresh(Player player) {
+        if (!requiresFallbackRefresh(player.getOpenInventory().getTitle())) {
+            refreshScheduled.remove(player.getUniqueId());
+            return;
+        }
         UUID playerId = player.getUniqueId();
         if (!refreshScheduled.add(playerId)) {
             return;
         }
         schedulerBridge.runPlayerDelayedTask(player, autoRefreshTicks, () -> {
             refreshScheduled.remove(playerId);
-            if (!player.isOnline() || !MenuTitles.isPluginMenu(player.getOpenInventory().getTitle())) {
+            String openTitle = player.getOpenInventory().getTitle();
+            if (!player.isOnline() || !MenuTitles.isPluginMenu(openTitle) || !requiresFallbackRefresh(openTitle)) {
                 return;
             }
             try {
@@ -158,5 +171,14 @@ public final class MenuService {
             }
             ensureAutoRefresh(player);
         });
+    }
+
+    private static boolean requiresFallbackRefresh(String title) {
+        return MenuTitles.TELEPORT.equals(title)
+                || MenuTitles.PICK_TPA.equals(title)
+                || MenuTitles.PICK_TPA_HERE.equals(title)
+                || MenuTitles.PICK_TP.equals(title)
+                || MenuTitles.PICK_TP_ACCEPT.equals(title)
+                || MenuTitles.PICK_INVITE.equals(title);
     }
 }

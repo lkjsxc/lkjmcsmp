@@ -11,6 +11,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -32,7 +34,7 @@ public final class HotbarMenuListener implements Listener {
         hotbarMenuService.install(event.getPlayer());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent event) {
         hotbarMenuService.ensureInstalled(event.getPlayer());
         if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
@@ -44,7 +46,34 @@ public final class HotbarMenuListener implements Listener {
                 && event.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
         }
-        if (!hotbarMenuService.isToken(event.getItem())) {
+        var held = event.getItem() != null ? event.getItem() : event.getPlayer().getInventory().getItemInMainHand();
+        if (!hotbarMenuService.isToken(held)) {
+            return;
+        }
+        event.setCancelled(true);
+        hotbarMenuService.open(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+        hotbarMenuService.ensureInstalled(event.getPlayer());
+        if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
+            return;
+        }
+        if (!hotbarMenuService.isToken(event.getPlayer().getInventory().getItemInMainHand())) {
+            return;
+        }
+        event.setCancelled(true);
+        hotbarMenuService.open(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        hotbarMenuService.ensureInstalled(event.getPlayer());
+        if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
+            return;
+        }
+        if (!hotbarMenuService.isToken(event.getPlayer().getInventory().getItemInMainHand())) {
             return;
         }
         event.setCancelled(true);

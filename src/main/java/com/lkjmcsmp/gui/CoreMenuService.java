@@ -38,6 +38,10 @@ final class CoreMenuService {
             open(player, MenuTitles.TELEPORT);
             return true;
         }
+        if (title.equals(MenuTitles.HOMES_DELETE)) {
+            open(player, MenuTitles.HOMES);
+            return true;
+        }
         if (handles(title)) {
             openRoot.accept(player);
             return true;
@@ -52,6 +56,7 @@ final class CoreMenuService {
     private static boolean handles(String title) {
         return title.equals(MenuTitles.TELEPORT)
                 || title.equals(MenuTitles.HOMES)
+                || title.equals(MenuTitles.HOMES_DELETE)
                 || title.equals(MenuTitles.WARPS)
                 || title.equals(MenuTitles.TEAM)
                 || title.equals(MenuTitles.PICK_TPA)
@@ -59,6 +64,10 @@ final class CoreMenuService {
                 || title.equals(MenuTitles.PICK_TP)
                 || title.equals(MenuTitles.PICK_TP_ACCEPT)
                 || title.equals(MenuTitles.PICK_INVITE);
+    }
+
+    void clearPlayerState(java.util.UUID playerId) {
+        actions.clearPlayerState(playerId);
     }
 
     boolean open(Player player, String title) throws Exception {

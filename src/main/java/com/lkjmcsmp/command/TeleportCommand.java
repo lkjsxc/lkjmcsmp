@@ -2,6 +2,7 @@ package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.gui.MenuService;
+import com.lkjmcsmp.progression.ProgressionService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,10 +16,12 @@ import java.util.UUID;
 public final class TeleportCommand implements CommandExecutor {
     private final TeleportService teleportService;
     private final MenuService menuService;
+    private final ProgressionService progressionService;
 
-    public TeleportCommand(TeleportService teleportService, MenuService menuService) {
+    public TeleportCommand(TeleportService teleportService, MenuService menuService, ProgressionService progressionService) {
         this.teleportService = teleportService;
         this.menuService = menuService;
+        this.progressionService = progressionService;
     }
 
     @Override
@@ -37,7 +40,16 @@ public final class TeleportCommand implements CommandExecutor {
                         }
                         boolean bypass = player.hasPermission("lkjmcsmp.rtp.bypasscooldown");
                         String world = args.length > 0 ? args[0] : "world";
-                        teleportService.randomTeleport(player, world, bypass, result -> player.sendMessage(result.message()));
+                        teleportService.randomTeleport(player, world, bypass, result -> {
+                            if (result.success()) {
+                                try {
+                                    progressionService.increment(player.getUniqueId(), "random_teleport_use", 1);
+                                } catch (Exception ex) {
+                                    player.sendMessage("Progression update failed: " + ex.getMessage());
+                                }
+                            }
+                            player.sendMessage(result.message());
+                        });
                     }
                     default -> {
                         return false;
@@ -87,6 +99,11 @@ public final class TeleportCommand implements CommandExecutor {
         player.sendMessage(result.success() ? "Request sent to " + target.getName() + "." : result.message());
         if (!result.success()) {
             return;
+        }
+        try {
+            progressionService.increment(player.getUniqueId(), "teleport_request_sent", 1);
+        } catch (Exception ex) {
+            player.sendMessage("Progression update failed: " + ex.getMessage());
         }
         String timeout = teleportService.requestTimeoutSeconds() + "s";
         String direction = summonHere

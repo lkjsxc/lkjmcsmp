@@ -20,6 +20,7 @@ public final class SmpScoreboardService {
     private static final int ONLINE_LINE_SCORE = 2;
     private static final int POINTS_LINE_SCORE = 1;
     private static final long RECONCILE_PERIOD_TICKS = 100L;
+    private static final long JOIN_DELAY_TICKS = 20L;
     private static final long[] RETRY_DELAYS_TICKS = {20L, 100L, 200L};
 
     private final JavaPlugin plugin;
@@ -61,7 +62,8 @@ public final class SmpScoreboardService {
     }
 
     public void refreshOnJoin(Player player) {
-        if (player != null) requestRefresh(player.getUniqueId(), "join");
+        if (player == null) return;
+        schedulerBridge.runPlayerDelayedTask(player, JOIN_DELAY_TICKS, () -> requestRefresh(player.getUniqueId(), "join"));
     }
 
     public void clear(Player player) {
@@ -131,20 +133,22 @@ public final class SmpScoreboardService {
             objective.getScore(onlineLine).setScore(ONLINE_LINE_SCORE);
             objective.getScore(pointsLine).setScore(POINTS_LINE_SCORE);
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            verifySidebar(board, objective, onlineLine, pointsLine);
             player.setScoreboard(board);
+            verifySidebar(player, onlineLine, pointsLine);
             if (degradedPlayers.remove(playerId)) logger.info("Scoreboard recovered (" + context(trigger, playerId, attempt) + ")");
         } catch (Exception ex) {
             handleRenderFailure(player, trigger, attempt, epoch, ex);
         }
     }
 
-    private void verifySidebar(Scoreboard board, Objective objective, String onlineLine, String pointsLine) {
-        if (board.getObjective(OBJECTIVE_NAME) == null) throw new IllegalStateException("managed objective missing");
+    private void verifySidebar(Player player, String onlineLine, String pointsLine) {
+        Scoreboard board = player.getScoreboard();
+        Objective objective = board.getObjective(OBJECTIVE_NAME);
+        if (objective == null) throw new IllegalStateException("managed objective missing");
         if (objective.getDisplaySlot() != DisplaySlot.SIDEBAR || board.getObjective(DisplaySlot.SIDEBAR) != objective) {
             throw new IllegalStateException("sidebar display slot missing");
         }
-        if (!board.getEntries().contains(onlineLine) || !board.getEntries().contains(pointsLine)) {
+        if (!objective.getScore(onlineLine).isScoreSet() || !objective.getScore(pointsLine).isScoreSet()) {
             throw new IllegalStateException("required lines missing");
         }
         if (objective.getScore(onlineLine).getScore() != ONLINE_LINE_SCORE

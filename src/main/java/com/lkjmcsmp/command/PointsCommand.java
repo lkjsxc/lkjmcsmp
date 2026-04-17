@@ -61,20 +61,23 @@ public final class PointsCommand implements CommandExecutor {
             menuService.openShop(player);
             return;
         }
-        if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("buy")) {
-            int units = 1;
-            if (args.length == 3) {
-                try {
-                    units = Integer.parseInt(args[2]);
+            if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("buy")) {
+                int units = 1;
+                if (args.length == 3) {
+                    try {
+                        units = Integer.parseInt(args[2]);
                 } catch (NumberFormatException ex) {
                     player.sendMessage("Units must be a number.");
                     return;
                 }
+                }
+                var result = pointsService.purchase(player, args[1], units);
+                if (result.success()) {
+                    progressionService.increment(player.getUniqueId(), "shop_purchase_units", units);
+                }
+                player.sendMessage(result.message());
+                return;
             }
-            var result = pointsService.purchase(player, args[1], units);
-            player.sendMessage(result.message());
-            return;
-        }
         if (args.length == 4 && args[0].equalsIgnoreCase("override")) {
             if (!CommandUtil.requirePermission(player, "lkjmcsmp.economy.override")) {
                 return;

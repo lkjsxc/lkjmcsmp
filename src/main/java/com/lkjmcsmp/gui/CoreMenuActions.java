@@ -3,8 +3,13 @@ package com.lkjmcsmp.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 final class CoreMenuActions {
     private final CoreMenuViews views;
+    private final Map<UUID, Map<String, Integer>> pagesByPlayer = new ConcurrentHashMap<>();
 
     CoreMenuActions(CoreMenuViews views) {
         this.views = views;
@@ -13,7 +18,8 @@ final class CoreMenuActions {
     boolean handleClick(InventoryClickEvent event, Player player, String title, String display) throws Exception {
         return switch (title) {
             case MenuTitles.TELEPORT -> handleTeleport(player, display);
-            case MenuTitles.HOMES -> handleHomes(event, player, display);
+            case MenuTitles.HOMES -> handleHomes(player, display);
+            case MenuTitles.HOMES_DELETE -> handleHomesDelete(player, display);
             case MenuTitles.WARPS -> handleWarps(player, display);
             case MenuTitles.TEAM -> handleTeam(player, display);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
@@ -32,22 +38,47 @@ final class CoreMenuActions {
             case "Direct Teleport" -> open(player, MenuTitles.PICK_TP);
             case "Direct Teleport (Locked)" -> tell(player, "Missing permission: lkjmcsmp.tp.use");
             case "No Pending Requests" -> tell(player, "No pending teleport request.");
-            case "Refresh" -> open(player, MenuTitles.TELEPORT);
             default -> false;
         };
     }
 
-    private boolean handleHomes(InventoryClickEvent event, Player player, String display) throws Exception {
+    private boolean handleHomes(Player player, String display) throws Exception {
         if (display.startsWith("Home :: ")) {
-            String name = display.substring("Home :: ".length());
-            return command(player, (event.getClick().isRightClick() ? "delhome " : "home ") + name);
+            return command(player, "home " + display.substring("Home :: ".length()));
         }
         return switch (display) {
-            case "Set Default Home" -> command(player, "sethome home");
-            case "Delete Default Home" -> command(player, "delhome home");
-            case "Add Current Location" -> command(player, "homes addcurrent");
+            case "Add Current Location" -> {
+                command(player, "homes addcurrent");
+                views.openHomes(player, page(player, MenuTitles.HOMES));
+                yield true;
+            }
+            case "Delete Homes" -> {
+                setPage(player, MenuTitles.HOMES_DELETE, 0);
+                views.openHomesDelete(player, 0);
+                yield true;
+            }
             case "No Homes Set" -> tell(player, "No homes set.");
-            case "Refresh" -> open(player, MenuTitles.HOMES);
+            case "Page Prev" -> turnPage(player, MenuTitles.HOMES, -1);
+            case "Page Next" -> turnPage(player, MenuTitles.HOMES, 1);
+            default -> false;
+        };
+    }
+
+    private boolean handleHomesDelete(Player player, String display) throws Exception {
+        if (display.startsWith("Delete Home :: ")) {
+            String name = display.substring("Delete Home :: ".length());
+            command(player, "delhome " + name);
+            views.openHomesDelete(player, page(player, MenuTitles.HOMES_DELETE));
+            return true;
+        }
+        return switch (display) {
+            case "Cancel Deletion" -> {
+                views.openHomes(player, page(player, MenuTitles.HOMES));
+                yield true;
+            }
+            case "No Homes Set" -> tell(player, "No homes set.");
+            case "Page Prev" -> turnPage(player, MenuTitles.HOMES_DELETE, -1);
+            case "Page Next" -> turnPage(player, MenuTitles.HOMES_DELETE, 1);
             default -> false;
         };
     }
@@ -58,7 +89,8 @@ final class CoreMenuActions {
         }
         return switch (display) {
             case "No Warps Set" -> tell(player, "No warps set.");
-            case "Refresh" -> open(player, MenuTitles.WARPS);
+            case "Page Prev" -> turnPage(player, MenuTitles.WARPS, -1);
+            case "Page Next" -> turnPage(player, MenuTitles.WARPS, 1);
             default -> false;
         };
     }
@@ -73,20 +105,26 @@ final class CoreMenuActions {
             case "Team Home" -> command(player, "team home");
             case "Set Team Home" -> command(player, "team sethome");
             case "Disband Team" -> command(player, "team disband");
-            case "Refresh" -> open(player, MenuTitles.TEAM);
             default -> false;
         };
     }
 
     private boolean handlePicker(Player player, String title, String display) throws Exception {
+        if (display.equals("Refresh")) {
+            views.openPicker(player, title, page(player, title));
+            return true;
+        }
+        if (display.equals("Page Prev")) {
+            return turnPage(player, title, -1);
+        }
+        if (display.equals("Page Next")) {
+            return turnPage(player, title, 1);
+        }
         if (display.equals("No Players Online")) {
             return tell(player, "No other players online.");
         }
         if (display.equals("No Pending Requests")) {
             return tell(player, "No pending teleport request.");
-        }
-        if (display.equals("Refresh")) {
-            return open(player, title);
         }
         if (!(display.startsWith("Player :: ") || display.startsWith("Requester :: "))) {
             return false;
@@ -104,7 +142,46 @@ final class CoreMenuActions {
         };
     }
 
+    void clearPlayerState(UUID playerId) {
+        pagesByPlayer.remove(playerId);
+    }
+
+    private boolean turnPage(Player player, String title, int delta) throws Exception {
+        setPage(player, title, page(player, title) + delta);
+        return switch (title) {
+            case MenuTitles.HOMES -> {
+                views.openHomes(player, page(player, title));
+                yield true;
+            }
+            case MenuTitles.HOMES_DELETE -> {
+                views.openHomesDelete(player, page(player, title));
+                yield true;
+            }
+            case MenuTitles.WARPS -> {
+                views.openWarps(player, page(player, title));
+                yield true;
+            }
+            case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE -> {
+                views.openPicker(player, title, page(player, title));
+                yield true;
+            }
+            default -> false;
+        };
+    }
+
+    private int page(Player player, String title) {
+        return pagesByPlayer.getOrDefault(player.getUniqueId(), Map.of()).getOrDefault(title, 0);
+    }
+
+    private void setPage(Player player, String title, int page) {
+        pagesByPlayer.computeIfAbsent(player.getUniqueId(), ignored -> new ConcurrentHashMap<>())
+                .put(title, Math.max(0, page));
+    }
+
     private boolean open(Player player, String title) throws Exception {
+        if (MenuTitles.isPagedMenu(title)) {
+            setPage(player, title, 0);
+        }
         views.open(player, title);
         return true;
     }

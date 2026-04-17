@@ -19,7 +19,7 @@ economy:
 party:
   invite-timeout-seconds: 60
 menus:
-  auto-refresh-seconds: 1
+  auto-refresh-seconds: 5
   show-manual-refresh-controls: false
 database:
   file: plugins/lkjmcsmp/lkjmcsmp.db

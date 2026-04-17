@@ -6,37 +6,46 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.List;
 import java.util.Comparator;
+import java.util.List;
 
 final class PlayerPickerMenuView {
-    void openOnlinePlayers(Player player, String title, String actionHint, boolean showManualRefresh) {
+    void openOnlinePlayers(Player player, String title, String actionHint, int page, boolean showManualRefresh) {
+        List<Player> players = Bukkit.getOnlinePlayers().stream()
+                .filter(online -> !online.getUniqueId().equals(player.getUniqueId()))
+                .map(online -> (Player) online)
+                .sorted(Comparator.comparing(Player::getName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+        int bounded = MenuPagination.clampPage(page, players.size());
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, title);
         int slot = 0;
-        for (Player online : Bukkit.getOnlinePlayers().stream()
-                .sorted(Comparator.comparing(Player::getName, String.CASE_INSENSITIVE_ORDER))
-                .toList()) {
-            if (online.getUniqueId().equals(player.getUniqueId()) || slot >= MenuLayout.CONTENT_LIMIT) {
-                continue;
-            }
+        for (Player online : MenuPagination.pageSlice(players, bounded)) {
             inventory.setItem(slot++, MenuItems.named(Material.PLAYER_HEAD, "Player :: " + online.getName(), actionHint));
         }
-        if (slot == 0) {
+        if (players.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Players Online"));
         }
         if (showManualRefresh) {
-            inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
         }
+        MenuPagination.renderControls(inventory, bounded, players.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
-    void openRequesters(Player player, String title, List<TpaRequest> requests, boolean showManualRefresh) {
+    void openRequesters(Player player, String title, List<TpaRequest> requests, int page, boolean showManualRefresh) {
+        List<TpaRequest> onlineRequests = requests.stream()
+                .filter(request -> {
+                    Player requester = Bukkit.getPlayer(request.from());
+                    return requester != null && requester.isOnline();
+                })
+                .toList();
+        int bounded = MenuPagination.clampPage(page, onlineRequests.size());
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, title);
         int slot = 0;
-        for (TpaRequest request : requests) {
+        for (TpaRequest request : MenuPagination.pageSlice(onlineRequests, bounded)) {
             Player requester = Bukkit.getPlayer(request.from());
-            if (requester == null || !requester.isOnline() || slot >= MenuLayout.CONTENT_LIMIT) {
+            if (requester == null) {
                 continue;
             }
             inventory.setItem(slot++, MenuItems.named(
@@ -44,12 +53,13 @@ final class PlayerPickerMenuView {
                     "Requester :: " + requester.getName(),
                     request.summonHere() ? "Requested /tpahere" : "Requested /tpa"));
         }
-        if (slot == 0) {
+        if (onlineRequests.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Pending Requests"));
         }
         if (showManualRefresh) {
-            inventory.setItem(MenuLayout.REFRESH_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
         }
+        MenuPagination.renderControls(inventory, bounded, onlineRequests.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }

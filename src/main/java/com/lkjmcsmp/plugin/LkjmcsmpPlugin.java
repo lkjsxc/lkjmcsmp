@@ -141,12 +141,12 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("delwarp", new WarpCommand(services.warps(), services.teleports(), services.progression()));
         register("warps", new WarpCommand(services.warps(), services.teleports(), services.progression()));
         register("team", new TeamCommand(services.parties(), services.teleports(), services.progression()));
-        register("tp", new TeleportCommand(services.teleports(), services.menus()));
-        register("tpa", new TeleportCommand(services.teleports(), services.menus()));
-        register("tpahere", new TeleportCommand(services.teleports(), services.menus()));
-        register("tpaccept", new TeleportCommand(services.teleports(), services.menus()));
-        register("tpdeny", new TeleportCommand(services.teleports(), services.menus()));
-        register("rtp", new TeleportCommand(services.teleports(), services.menus()));
+        register("tp", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
+        register("tpa", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
+        register("tpahere", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
+        register("tpaccept", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
+        register("tpdeny", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
+        register("rtp", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
         register("adv", new AdvCommand(services.progression(), services.menus()));
     }
 
