@@ -2,7 +2,8 @@ package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.gui.MenuService;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
+import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,12 +11,18 @@ import org.bukkit.command.CommandSender;
 public final class PointsCommand implements CommandExecutor {
     private final PointsService pointsService;
     private final MenuService menuService;
-    private final ProgressionService progressionService;
+    private final AchievementService achievementService;
+    private final ActionBarHudService actionBarHudService;
 
-    public PointsCommand(PointsService pointsService, MenuService menuService, ProgressionService progressionService) {
+    public PointsCommand(
+            PointsService pointsService,
+            MenuService menuService,
+            AchievementService achievementService,
+            ActionBarHudService actionBarHudService) {
         this.pointsService = pointsService;
         this.menuService = menuService;
-        this.progressionService = progressionService;
+        this.achievementService = achievementService;
+        this.actionBarHudService = actionBarHudService;
     }
 
     @Override
@@ -51,7 +58,8 @@ public final class PointsCommand implements CommandExecutor {
         }
         var result = pointsService.convertCobblestone(player, amount);
         if (result.success() && result.amount() > 0) {
-            progressionService.increment(player.getUniqueId(), "convert_amount", result.amount());
+            achievementService.increment(player.getUniqueId(), "convert_amount", result.amount());
+            actionBarHudService.refreshIdle(player);
         }
         player.sendMessage(result.message());
     }
@@ -73,7 +81,8 @@ public final class PointsCommand implements CommandExecutor {
             }
             var result = pointsService.purchase(player, args[1], quantity);
             if (result.success()) {
-                progressionService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
+                achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
+                actionBarHudService.refreshIdle(player);
             }
             player.sendMessage(result.message());
             return;

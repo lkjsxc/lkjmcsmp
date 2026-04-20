@@ -83,9 +83,9 @@
 
 ## Achievement Menu
 
-- Milestone list (paginated)
-- Progress ratio and percent per milestone
-- Detailed milestone explanation text
+- Achievement list (paginated)
+- Progress ratio and percent per achievement
+- Detailed achievement explanation text
 - Reward preview
 - Claim actions for `COMPLETED_UNCLAIMED`
 - Back (`ARROW`)

@@ -46,6 +46,7 @@ final class CoreMenuViews {
             case MenuTitles.HOMES_DELETE -> openHomesDelete(player, 0);
             case MenuTitles.WARPS -> openWarps(player, 0);
             case MenuTitles.TEAM -> teamMenuView.open(player);
+            case MenuTitles.TEAM_DISBAND_CONFIRM -> teamMenuView.openDisbandConfirm(player);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     openPicker(player, title, 0);
             default -> throw new IllegalArgumentException("Unknown menu title: " + title);
@@ -163,6 +164,14 @@ final class CoreMenuViews {
                 "Runs /tp <player>"));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
+    }
+
+    void openTeam(Player player) throws Exception {
+        teamMenuView.open(player);
+    }
+
+    void openTeamDisbandConfirm(Player player) throws Exception {
+        teamMenuView.openDisbandConfirm(player);
     }
 
 }

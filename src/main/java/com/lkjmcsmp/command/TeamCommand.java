@@ -3,7 +3,7 @@ package com.lkjmcsmp.command;
 import com.lkjmcsmp.domain.PartyService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.plugin.Locations;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,12 +16,12 @@ import java.util.UUID;
 public final class TeamCommand implements CommandExecutor {
     private final PartyService partyService;
     private final TeleportService teleportService;
-    private final ProgressionService progressionService;
+    private final AchievementService achievementService;
 
-    public TeamCommand(PartyService partyService, TeleportService teleportService, ProgressionService progressionService) {
+    public TeamCommand(PartyService partyService, TeleportService teleportService, AchievementService achievementService) {
         this.partyService = partyService;
         this.teleportService = teleportService;
-        this.progressionService = progressionService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -47,7 +47,7 @@ public final class TeamCommand implements CommandExecutor {
             case "accept" -> {
                 var result = partyService.accept(player.getUniqueId());
                 if (result.success()) {
-                    progressionService.increment(player.getUniqueId(), "party_join", 1);
+                    achievementService.increment(player.getUniqueId(), "party_join", 1);
                 }
                 player.sendMessage(result.message());
             }

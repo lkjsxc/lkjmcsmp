@@ -3,7 +3,7 @@ package com.lkjmcsmp.command;
 import com.lkjmcsmp.domain.HomeService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.plugin.Locations;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,12 +11,12 @@ import org.bukkit.command.CommandSender;
 public final class HomeCommand implements CommandExecutor {
     private final HomeService homeService;
     private final TeleportService teleportService;
-    private final ProgressionService progressionService;
+    private final AchievementService achievementService;
 
-    public HomeCommand(HomeService homeService, TeleportService teleportService, ProgressionService progressionService) {
+    public HomeCommand(HomeService homeService, TeleportService teleportService, AchievementService achievementService) {
         this.homeService = homeService;
         this.teleportService = teleportService;
-        this.progressionService = progressionService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -27,7 +27,7 @@ public final class HomeCommand implements CommandExecutor {
                     case "sethome" -> {
                         var result = homeService.setHome(player, args.length == 0 ? "home" : args[0]);
                         if (result.success()) {
-                            progressionService.increment(player.getUniqueId(), "home_set", 1);
+                            achievementService.increment(player.getUniqueId(), "home_set", 1);
                         }
                         player.sendMessage(result.message());
                     }
@@ -70,7 +70,7 @@ public final class HomeCommand implements CommandExecutor {
         if (args.length > 0 && (args[0].equalsIgnoreCase("addcurrent") || args[0].equalsIgnoreCase("add-current-location"))) {
             var result = homeService.setAutoHome(player);
             if (result.success()) {
-                progressionService.increment(player.getUniqueId(), "home_set", 1);
+                achievementService.increment(player.getUniqueId(), "home_set", 1);
             }
             player.sendMessage(result.message());
             return;

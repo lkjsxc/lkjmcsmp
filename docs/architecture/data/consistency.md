@@ -16,7 +16,7 @@
 1. Points balance cannot drop below zero.
 2. Party membership cardinality is max one party per player.
 3. Home and warp names are normalized lowercase for keys.
-4. Milestone status transitions are monotonic unless explicitly reset by admin command.
+4. Achievement status transitions are monotonic unless explicitly reset by admin command.
 
 ## Retry Rules
 

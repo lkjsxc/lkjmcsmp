@@ -22,12 +22,12 @@ final class CoreMenuActions {
             case MenuTitles.HOMES_DELETE -> handleHomesDelete(player, display);
             case MenuTitles.WARPS -> handleWarps(player, display);
             case MenuTitles.TEAM -> handleTeam(player, display);
+            case MenuTitles.TEAM_DISBAND_CONFIRM -> handleTeamDisbandConfirm(player, display);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     handlePicker(player, title, display);
             default -> false;
         };
     }
-
     private boolean handleTeleport(Player player, String display) throws Exception {
         return switch (display) {
             case "Random Teleport" -> command(player, "rtp");
@@ -41,7 +41,6 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-
     private boolean handleHomes(Player player, String display) throws Exception {
         if (display.startsWith("Home :: ")) {
             return command(player, "home " + display.substring("Home :: ".length()));
@@ -63,7 +62,6 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-
     private boolean handleHomesDelete(Player player, String display) throws Exception {
         if (display.startsWith("Delete Home :: ")) {
             String name = display.substring("Delete Home :: ".length());
@@ -82,7 +80,6 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-
     private boolean handleWarps(Player player, String display) throws Exception {
         if (display.startsWith("Warp :: ")) {
             return command(player, "warp " + display.substring("Warp :: ".length()));
@@ -94,24 +91,29 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-
     private boolean handleTeam(Player player, String display) throws Exception {
         if (display.endsWith("(Locked)")) {
             return tell(player, "Action is locked. Read the item description for details.");
         }
         return switch (display) {
             case "Team Info" -> open(player, MenuTitles.TEAM);
-            case "Create Team" -> command(player, "team create");
+            case "Create Team" -> commandAndRefreshTeam(player, "team create");
             case "Invite Player" -> open(player, MenuTitles.PICK_INVITE);
-            case "Accept Invite" -> command(player, "team accept");
-            case "Leave Team" -> command(player, "team leave");
+            case "Accept Invite" -> commandAndRefreshTeam(player, "team accept");
+            case "Leave Team" -> commandAndRefreshTeam(player, "team leave");
             case "Team Home" -> command(player, "team home");
-            case "Set Team Home" -> command(player, "team sethome");
-            case "Disband Team" -> command(player, "team disband");
+            case "Set Team Home" -> commandAndRefreshTeam(player, "team sethome");
+            case "Disband Team" -> open(player, MenuTitles.TEAM_DISBAND_CONFIRM);
             default -> false;
         };
     }
-
+    private boolean handleTeamDisbandConfirm(Player player, String display) throws Exception {
+        return switch (display) {
+            case "Confirm Disband" -> commandAndRefreshTeam(player, "team disband");
+            case "Cancel", "Disband Unavailable" -> open(player, MenuTitles.TEAM);
+            default -> false;
+        };
+    }
     private boolean handlePicker(Player player, String title, String display) throws Exception {
         if (display.equals("Refresh")) {
             views.openPicker(player, title, page(player, title));
@@ -144,7 +146,6 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-
     void clearPlayerState(UUID playerId) { pagesByPlayer.remove(playerId); }
     private boolean turnPage(Player player, String title, int delta) throws Exception {
         setPage(player, title, page(player, title) + delta);
@@ -172,14 +173,9 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-
-    private int page(Player player, String title) {
-        return pagesByPlayer.getOrDefault(player.getUniqueId(), Map.of()).getOrDefault(title, 0);
-    }
-
+    private int page(Player player, String title) { return pagesByPlayer.getOrDefault(player.getUniqueId(), Map.of()).getOrDefault(title, 0); }
     private void setPage(Player player, String title, int page) {
-        pagesByPlayer.computeIfAbsent(player.getUniqueId(), ignored -> new ConcurrentHashMap<>())
-                .put(title, Math.max(0, page));
+        pagesByPlayer.computeIfAbsent(player.getUniqueId(), ignored -> new ConcurrentHashMap<>()).put(title, Math.max(0, page));
     }
     private boolean open(Player player, String title) throws Exception {
         if (MenuTitles.isPagedMenu(title)) {
@@ -188,12 +184,11 @@ final class CoreMenuActions {
         views.open(player, title);
         return true;
     }
-    private static boolean tell(Player player, String message) {
-        player.sendMessage(message);
-        return true;
-    }
-    private static boolean command(Player player, String command) {
+    private static boolean tell(Player player, String message) { player.sendMessage(message); return true; }
+    private static boolean command(Player player, String command) { player.performCommand(command); return true; }
+    private boolean commandAndRefreshTeam(Player player, String command) throws Exception {
         player.performCommand(command);
+        views.openTeam(player);
         return true;
     }
 }

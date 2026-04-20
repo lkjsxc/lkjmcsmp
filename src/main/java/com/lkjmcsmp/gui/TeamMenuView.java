@@ -41,6 +41,33 @@ final class TeamMenuView {
         player.openInventory(inventory);
     }
 
+    void openDisbandConfirm(Player player) throws Exception {
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.TEAM_DISBAND_CONFIRM);
+        UUID playerId = player.getUniqueId();
+        var partyId = partyService.getPartyId(playerId);
+        boolean leader = partyService.isLeader(playerId);
+        if (partyId.isEmpty() || !leader) {
+            inventory.setItem(22, MenuItems.named(
+                    Material.BARRIER,
+                    "Disband Unavailable",
+                    "Only current team leaders can disband."));
+            inventory.setItem(32, MenuItems.named(Material.RED_DYE, "Cancel"));
+            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+            player.openInventory(inventory);
+            return;
+        }
+        inventory.setItem(22, MenuItems.named(
+                Material.PAPER,
+                "Confirm Team Disband",
+                "Team: " + partyId.get(),
+                "This removes all team memberships and team home.",
+                "This action cannot be undone."));
+        inventory.setItem(30, MenuItems.named(Material.TNT, "Confirm Disband"));
+        inventory.setItem(32, MenuItems.named(Material.RED_DYE, "Cancel"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        player.openInventory(inventory);
+    }
+
     private static ItemStack actionItem(boolean enabled, Material material, String name, String commandLore, String lockedReason) {
         return enabled
                 ? MenuItems.named(material, name, commandLore)

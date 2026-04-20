@@ -25,6 +25,7 @@ public final class TeleportService {
     private final List<String> worldWhitelist;
     private final RtpLocationSelector rtpSelector;
     private final TeleportExecutionService teleportExecution;
+    private final TeleportHudSink teleportHudSink;
     private final PendingTeleportRequests pendingRequests = new PendingTeleportRequests();
     private final Map<UUID, Instant> rtpCooldownUntil = new ConcurrentHashMap<>();
     private final Random random = new Random();
@@ -38,12 +39,14 @@ public final class TeleportService {
             int rtpMinRadius,
             int rtpMaxRadius,
             int rtpAttempts,
-            List<String> worldWhitelist) {
+            List<String> worldWhitelist,
+            TeleportHudSink teleportHudSink) {
         this.schedulerBridge = schedulerBridge;
         this.requestTimeout = requestTimeout;
         this.rtpCooldown = rtpCooldown;
         this.rtpAttempts = rtpAttempts;
         this.worldWhitelist = worldWhitelist.stream().map(String::toLowerCase).toList();
+        this.teleportHudSink = teleportHudSink == null ? TeleportHudSink.NO_OP : teleportHudSink;
         if (rtpMinRadius < 0 || rtpMaxRadius < rtpMinRadius) {
             throw new IllegalArgumentException("Invalid RTP radius range.");
         }
@@ -57,7 +60,11 @@ public final class TeleportService {
             throw new IllegalArgumentException("teleport.stability-radius-blocks must be >= 0");
         }
         this.rtpSelector = new RtpLocationSelector(rtpMinRadius, rtpMaxRadius, random);
-        this.teleportExecution = new TeleportExecutionService(schedulerBridge, stabilityDelay, stabilityRadiusBlocks);
+        this.teleportExecution = new TeleportExecutionService(
+                schedulerBridge,
+                stabilityDelay,
+                stabilityRadiusBlocks,
+                this.teleportHudSink);
     }
 
     public long requestTimeoutSeconds() {

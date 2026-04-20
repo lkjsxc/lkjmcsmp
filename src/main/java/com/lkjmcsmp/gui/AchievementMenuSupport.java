@@ -1,17 +1,17 @@
 package com.lkjmcsmp.gui;
 
-import com.lkjmcsmp.progression.MilestoneStatus;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementStatus;
+import com.lkjmcsmp.achievement.AchievementService;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-final class ProgressMenuSupport {
+final class AchievementMenuSupport {
     private static final String KEY_PREFIX = "Key: ";
 
-    private ProgressMenuSupport() {
+    private AchievementMenuSupport() {
     }
 
-    static ItemStack toItem(ProgressionService.MilestoneView view) {
+    static ItemStack toItem(AchievementService.AchievementView view) {
         int target = Math.max(1, view.definition().target());
         int current = Math.max(0, view.progress());
         int percent = Math.min(100, (int) Math.round((current * 100.0D) / target));
@@ -23,7 +23,7 @@ final class ProgressMenuSupport {
                 "Progress: " + current + "/" + target + " (" + percent + "%)",
                 "Reward: " + view.definition().rewardPoints() + " points",
                 view.definition().description(),
-                view.status() == MilestoneStatus.COMPLETED_UNCLAIMED ? "Click to claim reward" : "Claim unavailable");
+                view.status() == AchievementStatus.COMPLETED_UNCLAIMED ? "Click to claim reward" : "Claim unavailable");
     }
 
     static String extractKey(ItemStack item) {
@@ -38,7 +38,7 @@ final class ProgressMenuSupport {
         return null;
     }
 
-    private static Material statusMaterial(MilestoneStatus status) {
+    private static Material statusMaterial(AchievementStatus status) {
         return switch (status) {
             case LOCKED -> Material.GRAY_DYE;
             case IN_PROGRESS -> Material.CLOCK;

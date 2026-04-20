@@ -18,9 +18,12 @@ commands:
   shop:
     usage: /shop [buy <item> [quantity]|override <item> <points>]
     permission: lkjmcsmp.shop.use
-  adv:
-    usage: /adv
-    permission: lkjmcsmp.menu.use
+  achievement:
+    usage: /achievement [list|claim <key>]
+    permission: lkjmcsmp.achievement.use
+  ach:
+    usage: /ach [list|claim <key>]
+    permission: lkjmcsmp.achievement.use
   home:
     usage: /home [name]
     permission: lkjmcsmp.home.use
@@ -66,10 +69,6 @@ commands:
   rtp:
     usage: /rtp [world]
     permission: lkjmcsmp.rtp.use
-  lkjverify:
-    usage: /lkjverify scoreboard
-    permission: lkjmcsmp.verify.use
-
 permissions:
   lkjmcsmp.menu.use:
     default: true
@@ -78,6 +77,8 @@ permissions:
   lkjmcsmp.points.convert:
     default: true
   lkjmcsmp.shop.use:
+    default: true
+  lkjmcsmp.achievement.use:
     default: true
   lkjmcsmp.home.use:
     default: true
@@ -98,6 +99,4 @@ permissions:
   lkjmcsmp.rtp.bypasscooldown:
     default: op
   lkjmcsmp.economy.override:
-    default: op
-  lkjmcsmp.verify.use:
     default: op

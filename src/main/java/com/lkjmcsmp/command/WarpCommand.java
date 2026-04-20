@@ -3,7 +3,7 @@ package com.lkjmcsmp.command;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.plugin.Locations;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,12 +11,12 @@ import org.bukkit.command.CommandSender;
 public final class WarpCommand implements CommandExecutor {
     private final WarpService warpService;
     private final TeleportService teleportService;
-    private final ProgressionService progressionService;
+    private final AchievementService achievementService;
 
-    public WarpCommand(WarpService warpService, TeleportService teleportService, ProgressionService progressionService) {
+    public WarpCommand(WarpService warpService, TeleportService teleportService, AchievementService achievementService) {
         this.warpService = warpService;
         this.teleportService = teleportService;
-        this.progressionService = progressionService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -75,9 +75,9 @@ public final class WarpCommand implements CommandExecutor {
         teleportService.teleportToLocation(player, location.get(), "Teleported to warp.", result -> {
             if (result.success()) {
                 try {
-                    progressionService.increment(player.getUniqueId(), "warp_use", 1);
+                    achievementService.increment(player.getUniqueId(), "warp_use", 1);
                 } catch (Exception ex) {
-                    player.sendMessage("Progression update failed: " + ex.getMessage());
+                    player.sendMessage("Achievement update failed: " + ex.getMessage());
                 }
             }
             player.sendMessage(result.message());

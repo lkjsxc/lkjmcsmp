@@ -11,11 +11,12 @@ PORT = int(os.environ.get("RCON_PORT", "25575"))
 PASSWORD = os.environ.get("RCON_PASSWORD", "lkjmcsmp-rcon")
 WORKSPACE = Path("/workspace")
 SOURCE_CONFIG = WORKSPACE / "src" / "main" / "resources" / "config.yml"
-SOURCE_MILESTONES = WORKSPACE / "src" / "main" / "resources" / "milestones.yml"
+SOURCE_ACHIEVEMENTS = WORKSPACE / "src" / "main" / "resources" / "achievements.yml"
 SOURCE_MENU_TITLES = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuTitles.java"
 SOURCE_SLOT_MAP = WORKSPACE / "docs" / "product" / "gui" / "slot-maps.md"
 SOURCE_SHOP_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TopLevelMenuViews.java"
-SOURCE_SCOREBOARD_RENDERER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "scoreboard" / "SidebarRenderer.java"
+SOURCE_TEAM_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TeamMenuView.java"
+SOURCE_ACTIONBAR_HUD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarHudService.java"
 
 
 def run_cmd(client: RCONClient, command: str, must_contain: str | None = None):
@@ -47,26 +48,27 @@ def assert_radius_defaults():
     print("[ok] source config defaults for RTP radius")
 
 
-def assert_progression_and_menu_contract_markers():
-    if not SOURCE_MILESTONES.exists():
-        raise RuntimeError(f"source milestones missing: {SOURCE_MILESTONES}")
-    milestones_text = SOURCE_MILESTONES.read_text(encoding="utf-8")
-    required_milestones = (
+def assert_achievement_and_menu_contract_markers():
+    if not SOURCE_ACHIEVEMENTS.exists():
+        raise RuntimeError(f"source achievements missing: {SOURCE_ACHIEVEMENTS}")
+    achievements_text = SOURCE_ACHIEVEMENTS.read_text(encoding="utf-8")
+    required_achievements = (
         "first_shop_purchase:",
         "shop_bulk_buyer:",
         "first_tpa_request:",
         "first_rtp:",
+        "cobblestone_legend:",
     )
-    for expected in required_milestones:
-        if expected not in milestones_text:
-            raise RuntimeError(f"milestones missing `{expected}`")
+    for expected in required_achievements:
+        if expected not in achievements_text:
+            raise RuntimeError(f"achievements missing `{expected}`")
     if not SOURCE_MENU_TITLES.exists():
         raise RuntimeError(f"menu titles source missing: {SOURCE_MENU_TITLES}")
     menu_titles_text = SOURCE_MENU_TITLES.read_text(encoding="utf-8")
-    for expected in ("SHOP_DETAIL", "HOMES_DELETE"):
+    for expected in ("SHOP_DETAIL", "HOMES_DELETE", "TEAM_DISBAND_CONFIRM"):
         if expected not in menu_titles_text:
             raise RuntimeError(f"menu titles missing `{expected}`")
-    print("[ok] progression/menu contract markers present")
+    print("[ok] achievement/menu contract markers present")
 
 
 def assert_gui_slot_map_alignment_markers():
@@ -75,13 +77,16 @@ def assert_gui_slot_map_alignment_markers():
     slot_map_text = SOURCE_SLOT_MAP.read_text(encoding="utf-8")
     for expected in (
         "## Shop Detail Menu",
-        "`20`: Set Quantity 1",
-        "`21`: Quantity -8",
-        "`22`: Quantity -1",
-        "`23`: Quantity Display",
-        "`24`: Quantity +1",
-        "`25`: Quantity +8",
-        "`26`: Set Quantity 64",
+        "`20`: Buy x1",
+        "`21`: Buy x2",
+        "`22`: Buy x4",
+        "`23`: Buy x8",
+        "`24`: Buy x16",
+        "`25`: Buy x32",
+        "`26`: Buy x64",
+        "## Team Disband Confirm Menu",
+        "`30`: Confirm Disband",
+        "`32`: Cancel",
     ):
         if expected not in slot_map_text:
             raise RuntimeError(f"slot map missing `{expected}`")
@@ -89,27 +94,33 @@ def assert_gui_slot_map_alignment_markers():
         raise RuntimeError(f"shop view source missing: {SOURCE_SHOP_VIEW}")
     shop_view_text = SOURCE_SHOP_VIEW.read_text(encoding="utf-8")
     for expected in (
-        "inventory.setItem(20, MenuItems.named(Material.CLOCK, \"Set Quantity 1\"));",
-        "inventory.setItem(21, MenuItems.named(Material.RED_DYE, \"Quantity -8\"));",
-        "inventory.setItem(22, MenuItems.named(Material.REDSTONE, \"Quantity -1\"));",
-        "inventory.setItem(23, MenuItems.named(",
-        "inventory.setItem(24, MenuItems.named(Material.LIME_DYE, \"Quantity +1\"));",
-        "inventory.setItem(25, MenuItems.named(Material.EMERALD, \"Quantity +8\"));",
-        "inventory.setItem(26, MenuItems.named(Material.CLOCK, \"Set Quantity 64\"));",
+        "quantityItem(selected.points(), points, 1)",
+        "quantityItem(selected.points(), points, 2)",
+        "quantityItem(selected.points(), points, 4)",
+        "quantityItem(selected.points(), points, 8)",
+        "quantityItem(selected.points(), points, 16)",
+        "quantityItem(selected.points(), points, 32)",
+        "quantityItem(selected.points(), points, 64)",
     ):
         if expected not in shop_view_text:
             raise RuntimeError(f"shop detail alignment missing `{expected}`")
+    if not SOURCE_TEAM_VIEW.exists():
+        raise RuntimeError(f"team view source missing: {SOURCE_TEAM_VIEW}")
+    team_view_text = SOURCE_TEAM_VIEW.read_text(encoding="utf-8")
+    for expected in ("MenuTitles.TEAM_DISBAND_CONFIRM", "\"Confirm Disband\"", "\"Cancel\""):
+        if expected not in team_view_text:
+            raise RuntimeError(f"team disband confirmation missing `{expected}`")
     print("[ok] gui slot-map markers present")
 
 
-def assert_scoreboard_runtime_probe_markers():
-    if not SOURCE_SCOREBOARD_RENDERER.exists():
-        raise RuntimeError(f"scoreboard renderer source missing: {SOURCE_SCOREBOARD_RENDERER}")
-    renderer_text = SOURCE_SCOREBOARD_RENDERER.read_text(encoding="utf-8")
-    for expected in ("ONLINE_ENTRY", "POINTS_ENTRY", "createManagedBoard", "DisplaySlot.SIDEBAR"):
-        if expected not in renderer_text:
-            raise RuntimeError(f"scoreboard renderer missing `{expected}`")
-    print("[ok] scoreboard renderer markers present")
+def assert_actionbar_hud_markers():
+    if not SOURCE_ACTIONBAR_HUD.exists():
+        raise RuntimeError(f"actionbar hud source missing: {SOURCE_ACTIONBAR_HUD}")
+    hud_text = SOURCE_ACTIONBAR_HUD.read_text(encoding="utf-8")
+    for expected in ("COMBAT_TTL_TICKS", "onTeleportCountdown", "onTeleportResult", "refreshIdle"):
+        if expected not in hud_text:
+            raise RuntimeError(f"actionbar hud source missing `{expected}`")
+    print("[ok] actionbar hud markers present")
 
 
 def main() -> int:
@@ -117,13 +128,12 @@ def main() -> int:
     try:
         run_cmd(client, "plugins", "lkjmcsmp")
         assert_radius_defaults()
-        assert_progression_and_menu_contract_markers()
+        assert_achievement_and_menu_contract_markers()
         assert_gui_slot_map_alignment_markers()
-        assert_scoreboard_runtime_probe_markers()
-        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "adv", "lkjverify"):
+        assert_actionbar_hud_markers()
+        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach"):
             run_cmd(client, f"help {command}", command)
         run_cmd(client, "help lkjmcsmp:tp", "lkjmcsmp:tp")
-        run_cmd(client, "lkjverify scoreboard", "OK scoreboard probe")
         return 0
     finally:
         client.stop()

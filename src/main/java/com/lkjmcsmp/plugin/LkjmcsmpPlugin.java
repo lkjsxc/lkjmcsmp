@@ -1,12 +1,11 @@
 package com.lkjmcsmp.plugin;
 
-import com.lkjmcsmp.command.AdvCommand;
+import com.lkjmcsmp.command.AchievementCommand;
 import com.lkjmcsmp.command.HomeCommand;
 import com.lkjmcsmp.command.MenuCommand;
 import com.lkjmcsmp.command.PointsCommand;
 import com.lkjmcsmp.command.TeamCommand;
 import com.lkjmcsmp.command.TeleportCommand;
-import com.lkjmcsmp.command.VerifyCommand;
 import com.lkjmcsmp.command.WarpCommand;
 import com.lkjmcsmp.domain.HomeService;
 import com.lkjmcsmp.domain.PartyService;
@@ -21,12 +20,14 @@ import com.lkjmcsmp.persistence.AuditDao;
 import com.lkjmcsmp.persistence.EconomyOverrideDao;
 import com.lkjmcsmp.persistence.FirstJoinDao;
 import com.lkjmcsmp.persistence.HomeDao;
-import com.lkjmcsmp.persistence.MilestoneDao;
+import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.SqliteDatabase;
 import com.lkjmcsmp.persistence.WarpDao;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
+import com.lkjmcsmp.plugin.hud.ActionBarHudListener;
+import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -40,14 +41,14 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
     private SchedulerBridge schedulerBridge;
     private FirstJoinDao firstJoinDao;
-    private SmpScoreboardService scoreboardService;
+    private ActionBarHudService actionBarHudService;
 
     @Override
     public void onEnable() {
         try {
             saveDefaultConfig();
             saveResource("shop.yml", false);
-            saveResource("milestones.yml", false);
+            saveResource("achievements.yml", false);
             Services initialized = initializeServices();
             registerCommands(initialized);
             registerListeners(initialized);
@@ -62,8 +63,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (scoreboardService != null) {
-            scoreboardService.stop();
+        if (actionBarHudService != null) {
+            actionBarHudService.stop();
         }
         getLogger().info("lkjmcsmp disabled");
     }
@@ -79,11 +80,11 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         HomeDao homeDao = new HomeDao(database);
         WarpDao warpDao = new WarpDao(database);
         PartyDao partyDao = new PartyDao(database);
-        MilestoneDao milestoneDao = new MilestoneDao(database);
+        AchievementDao achievementDao = new AchievementDao(database);
         AuditDao auditDao = new AuditDao(database);
 
         FileConfiguration shopConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
-        FileConfiguration milestonesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "milestones.yml"));
+        FileConfiguration achievementsConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "achievements.yml"));
 
         this.schedulerBridge = new FoliaSchedulerBridge(this);
         PointsService pointsService = new PointsService(
@@ -93,10 +94,11 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 shopConfig.getConfigurationSection("items"),
                 config.getBoolean("economy.allow-partial-convert", false),
                 config.getInt("economy.max-convert-per-op", 4096));
-        ProgressionService progressionService = new ProgressionService(
-                milestoneDao,
+        this.actionBarHudService = new ActionBarHudService(schedulerBridge, pointsService);
+        AchievementService achievementService = new AchievementService(
+                achievementDao,
                 pointsDao,
-                milestonesConfig.getConfigurationSection("milestones"));
+                achievementsConfig.getConfigurationSection("achievements"));
 
         HomeService homeService = new HomeService(homeDao, config.getInt("homes.max-per-player", 3));
         WarpService warpService = new WarpService(warpDao);
@@ -112,42 +114,52 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 config.getInt("teleport.rtp-min-radius", 1000),
                 config.getInt("teleport.rtp-max-radius", 100000),
                 config.getInt("teleport.rtp-attempts", 10),
-                Objects.requireNonNull(config.getStringList("teleport.rtp-world-whitelist")));
+                Objects.requireNonNull(config.getStringList("teleport.rtp-world-whitelist")),
+                actionBarHudService);
         this.firstJoinDao = new FirstJoinDao(database);
 
         MenuService menuService = new MenuService(
                 pointsService,
-                progressionService,
+                achievementService,
+                actionBarHudService,
                 homeService,
                 warpService,
                 partyService,
                 teleportService,
                 schedulerBridge);
-        return new Services(pointsService, homeService, warpService, partyService, teleportService, progressionService, menuService);
+        return new Services(
+                pointsService,
+                homeService,
+                warpService,
+                partyService,
+                teleportService,
+                achievementService,
+                actionBarHudService,
+                menuService);
     }
 
     private void registerCommands(Services services) {
         register("menu", new MenuCommand(services.menus()));
-        register("points", new PointsCommand(services.points(), services.menus(), services.progression()));
-        register("convert", new PointsCommand(services.points(), services.menus(), services.progression()));
-        register("shop", new PointsCommand(services.points(), services.menus(), services.progression()));
-        register("home", new HomeCommand(services.homes(), services.teleports(), services.progression()));
-        register("sethome", new HomeCommand(services.homes(), services.teleports(), services.progression()));
-        register("delhome", new HomeCommand(services.homes(), services.teleports(), services.progression()));
-        register("homes", new HomeCommand(services.homes(), services.teleports(), services.progression()));
-        register("warp", new WarpCommand(services.warps(), services.teleports(), services.progression()));
-        register("setwarp", new WarpCommand(services.warps(), services.teleports(), services.progression()));
-        register("delwarp", new WarpCommand(services.warps(), services.teleports(), services.progression()));
-        register("warps", new WarpCommand(services.warps(), services.teleports(), services.progression()));
-        register("team", new TeamCommand(services.parties(), services.teleports(), services.progression()));
-        register("tp", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
-        register("tpa", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
-        register("tpahere", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
-        register("tpaccept", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
-        register("tpdeny", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
-        register("rtp", new TeleportCommand(services.teleports(), services.menus(), services.progression()));
-        register("adv", new AdvCommand(services.progression(), services.menus()));
-        register("lkjverify", new VerifyCommand());
+        register("points", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
+        register("convert", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
+        register("shop", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
+        register("home", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
+        register("sethome", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
+        register("delhome", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
+        register("homes", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
+        register("warp", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
+        register("setwarp", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
+        register("delwarp", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
+        register("warps", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
+        register("team", new TeamCommand(services.parties(), services.teleports(), services.achievement()));
+        register("tp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        register("tpa", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        register("tpahere", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        register("tpaccept", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        register("tpdeny", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        register("rtp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        register("achievement", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
+        register("ach", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
     }
 
     private void registerListeners(Services initialized) {
@@ -157,10 +169,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         for (var online : getServer().getOnlinePlayers()) {
             hotbarMenuService.install(online);
         }
+        getServer().getPluginManager().registerEvents(new ActionBarHudListener(initialized.hud()), this);
+        initialized.hud().refreshIdleAllOnline();
         getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(getLogger()), this);
-        this.scoreboardService = new SmpScoreboardService(schedulerBridge, initialized.points(), getLogger());
-        getServer().getPluginManager().registerEvents(new SmpScoreboardListener(scoreboardService), this);
-        scoreboardService.start();
         if (getConfig().getBoolean("teleport.first-join.enabled", true)) {
             String firstJoinWorld = Objects.requireNonNull(getConfig().getString("teleport.first-join.world", ""));
             getServer().getPluginManager().registerEvents(

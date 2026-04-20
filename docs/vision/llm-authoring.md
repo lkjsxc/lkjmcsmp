@@ -22,4 +22,4 @@
 
 - Use `points` for currency generated from cobblestone conversion.
 - Use `party` for the lightweight team system.
-- Use `achievement` for plugin-managed achievement milestones.
+- Use `achievement` for plugin-managed achievement state and contracts.

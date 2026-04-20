@@ -9,7 +9,7 @@ Capture high-impact economy and social mutations for traceability.
 - Economy seasonal override create/update/delete
 - Operator point balance adjustments
 - Party disband events
-- Milestone reward claim failures
+- Achievement reward claim failures
 
 ## Required Fields
 

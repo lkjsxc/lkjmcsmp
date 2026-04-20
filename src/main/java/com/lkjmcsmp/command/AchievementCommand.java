@@ -1,18 +1,24 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.gui.MenuService;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
+import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public final class AdvCommand implements CommandExecutor {
-    private final ProgressionService progressionService;
+public final class AchievementCommand implements CommandExecutor {
+    private final AchievementService achievementService;
     private final MenuService menuService;
+    private final ActionBarHudService actionBarHudService;
 
-    public AdvCommand(ProgressionService progressionService, MenuService menuService) {
-        this.progressionService = progressionService;
+    public AchievementCommand(
+            AchievementService achievementService,
+            MenuService menuService,
+            ActionBarHudService actionBarHudService) {
+        this.achievementService = achievementService;
         this.menuService = menuService;
+        this.actionBarHudService = actionBarHudService;
     }
 
     @Override
@@ -20,11 +26,15 @@ public final class AdvCommand implements CommandExecutor {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
                 if (args.length == 2 && args[0].equalsIgnoreCase("claim")) {
-                    player.sendMessage(progressionService.claim(player.getUniqueId(), args[1]).message());
+                    var result = achievementService.claim(player.getUniqueId(), args[1]);
+                    if (result.success()) {
+                        actionBarHudService.refreshIdle(player);
+                    }
+                    player.sendMessage(result.message());
                     return true;
                 }
                 if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
-                    for (var entry : progressionService.getViews(player.getUniqueId()).entrySet()) {
+                    for (var entry : achievementService.getViews(player.getUniqueId()).entrySet()) {
                         var view = entry.getValue();
                         player.sendMessage(
                                 entry.getKey()
@@ -34,9 +44,9 @@ public final class AdvCommand implements CommandExecutor {
                     }
                     return true;
                 }
-                menuService.openProgress(player);
+                menuService.openAchievement(player);
             } catch (Exception ex) {
-                player.sendMessage("Adv command failed: " + ex.getMessage());
+                player.sendMessage("Achievement command failed: " + ex.getMessage());
             }
             return true;
         }).orElse(true);

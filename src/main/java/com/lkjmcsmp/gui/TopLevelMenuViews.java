@@ -2,7 +2,7 @@ package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.model.ShopEntry;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,11 +16,11 @@ import java.util.Map;
 
 final class TopLevelMenuViews {
     private final PointsService pointsService;
-    private final ProgressionService progressionService;
+    private final AchievementService achievementService;
 
-    TopLevelMenuViews(PointsService pointsService, ProgressionService progressionService) {
+    TopLevelMenuViews(PointsService pointsService, AchievementService achievementService) {
         this.pointsService = pointsService;
-        this.progressionService = progressionService;
+        this.achievementService = achievementService;
     }
 
     void openRoot(Player player) {
@@ -30,7 +30,7 @@ final class TopLevelMenuViews {
         inventory.setItem(21, MenuItems.named(Material.COMPASS, "Warps"));
         inventory.setItem(22, MenuItems.named(Material.PLAYER_HEAD, "Team"));
         inventory.setItem(23, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
-        inventory.setItem(24, MenuItems.named(Material.BOOK, "Progression"));
+        inventory.setItem(24, MenuItems.named(Material.BOOK, "Achievement"));
         inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.BARRIER, "Close Menu"));
         player.openInventory(inventory);
     }
@@ -62,6 +62,7 @@ final class TopLevelMenuViews {
                 Material.COBBLESTONE,
                 "Convert Cobblestone",
                 "Converts all cobblestone in inventory to points"));
+        inventory.setItem(50, playerPointsItem(player));
         MenuPagination.renderControls(inventory, bounded, sorted.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
@@ -82,52 +83,71 @@ final class TopLevelMenuViews {
             player.openInventory(inventory);
             return;
         }
-        int totalPoints = selected.points() * selection.quantity();
-        int totalQuantity = selection.quantity();
+        int points = safePoints(player);
         inventory.setItem(13, MenuItems.named(
                 selected.material(),
                 "Selected :: " + selected.key(),
-                "Receive: " + totalQuantity + "x " + selected.material(),
-                "Price: " + selected.points() + " points each"));
-        inventory.setItem(20, MenuItems.named(Material.CLOCK, "Set Quantity 1"));
-        inventory.setItem(21, MenuItems.named(Material.RED_DYE, "Quantity -8"));
-        inventory.setItem(22, MenuItems.named(Material.REDSTONE, "Quantity -1"));
-        inventory.setItem(23, MenuItems.named(
-                Material.PAPER,
-                "Quantity :: " + selection.quantity(),
-                "Total cost: " + totalPoints + " points"));
-        inventory.setItem(24, MenuItems.named(Material.LIME_DYE, "Quantity +1"));
-        inventory.setItem(25, MenuItems.named(Material.EMERALD, "Quantity +8"));
-        inventory.setItem(26, MenuItems.named(Material.CLOCK, "Set Quantity 64"));
+                "Price: " + selected.points() + " points each",
+                "Direct buy amounts: 1, 2, 4, 8, 16, 32, 64",
+                "Click a quantity button to purchase immediately."));
         inventory.setItem(31, MenuItems.named(
-                Material.GOLD_INGOT,
-                "Buy Selected",
-                "Quantity: " + selection.quantity(),
-                "Total: " + totalPoints + " points"));
+                Material.SUNFLOWER,
+                "Your Points",
+                "Balance: " + points,
+                "Price: " + selected.points() + " points each"));
+        inventory.setItem(20, quantityItem(selected.points(), points, 1));
+        inventory.setItem(21, quantityItem(selected.points(), points, 2));
+        inventory.setItem(22, quantityItem(selected.points(), points, 4));
+        inventory.setItem(23, quantityItem(selected.points(), points, 8));
+        inventory.setItem(24, quantityItem(selected.points(), points, 16));
+        inventory.setItem(25, quantityItem(selected.points(), points, 32));
+        inventory.setItem(26, quantityItem(selected.points(), points, 64));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
     }
 
-    void openProgress(Player player, int page) {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.PROGRESS);
+    void openAchievement(Player player, int page) {
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.ACHIEVEMENT);
         try {
-            List<ProgressionService.MilestoneView> views = progressionService.getViews(player.getUniqueId())
+            List<AchievementService.AchievementView> views = achievementService.getViews(player.getUniqueId())
                     .values()
                     .stream()
                     .toList();
             int bounded = MenuPagination.clampPage(page, views.size());
             int slot = 0;
             for (var view : MenuPagination.pageSlice(views, bounded)) {
-                inventory.setItem(slot++, ProgressMenuSupport.toItem(view));
+                inventory.setItem(slot++, AchievementMenuSupport.toItem(view));
             }
             if (views.isEmpty()) {
-                inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Milestones"));
+                inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Achievements"));
             }
             MenuPagination.renderControls(inventory, bounded, views.size());
         } catch (Exception ex) {
-            player.sendMessage("Failed to load progression: " + ex.getMessage());
+            player.sendMessage("Failed to load achievement: " + ex.getMessage());
         }
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         player.openInventory(inventory);
+    }
+
+    private ItemStack playerPointsItem(Player player) {
+        return MenuItems.named(Material.SUNFLOWER, "Your Points", "Balance: " + safePoints(player));
+    }
+
+    private static ItemStack quantityItem(int pointsPerItem, int balance, int quantity) {
+        int total = pointsPerItem * quantity;
+        boolean affordable = balance >= total;
+        return MenuItems.named(
+                affordable ? Material.LIME_DYE : Material.BARRIER,
+                "Buy x" + quantity,
+                "Cost: " + total + " points",
+                affordable ? "Click to purchase now" : "Not enough points");
+    }
+
+    private int safePoints(Player player) {
+        try {
+            return pointsService.getBalance(player.getUniqueId());
+        } catch (Exception ex) {
+            return 0;
+        }
     }
 }

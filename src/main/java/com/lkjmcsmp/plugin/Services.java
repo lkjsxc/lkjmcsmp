@@ -6,7 +6,8 @@ import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.gui.MenuService;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.achievement.AchievementService;
 
 public record Services(
         PointsService points,
@@ -14,6 +15,7 @@ public record Services(
         WarpService warps,
         PartyService parties,
         TeleportService teleports,
-        ProgressionService progression,
+        AchievementService achievement,
+        ActionBarHudService hud,
         MenuService menus) {
 }

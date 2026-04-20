@@ -93,13 +93,13 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
-                CREATE TABLE IF NOT EXISTS milestone_state (
+                CREATE TABLE IF NOT EXISTS achievement_state (
                   player_uuid TEXT NOT NULL,
-                  milestone_key TEXT NOT NULL,
+                  achievement_key TEXT NOT NULL,
                   status TEXT NOT NULL,
                   progress_value INTEGER NOT NULL,
                   updated_at TEXT NOT NULL,
-                  PRIMARY KEY (player_uuid, milestone_key)
+                  PRIMARY KEY (player_uuid, achievement_key)
                 );
                 """);
             statement.execute("""

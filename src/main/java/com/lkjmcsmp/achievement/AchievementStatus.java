@@ -1,6 +1,6 @@
-package com.lkjmcsmp.progression;
+package com.lkjmcsmp.achievement;
 
-public enum MilestoneStatus {
+public enum AchievementStatus {
     LOCKED,
     IN_PROGRESS,
     COMPLETED_UNCLAIMED,

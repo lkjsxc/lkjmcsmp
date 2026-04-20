@@ -6,7 +6,8 @@ import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.plugin.SchedulerBridge;
-import com.lkjmcsmp.progression.ProgressionService;
+import com.lkjmcsmp.achievement.AchievementService;
+import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,21 +21,27 @@ public final class MenuService {
 
     public MenuService(
             PointsService pointsService,
-            ProgressionService progressionService,
+            AchievementService achievementService,
+            ActionBarHudService actionBarHudService,
             HomeService homeService,
             WarpService warpService,
             PartyService partyService,
             TeleportService teleportService,
             SchedulerBridge schedulerBridge) {
         this.schedulerBridge = schedulerBridge;
-        this.topLevelViews = new TopLevelMenuViews(pointsService, progressionService);
+        this.topLevelViews = new TopLevelMenuViews(pointsService, achievementService);
         CoreMenuViews coreViews = new CoreMenuViews(
                 homeService,
                 warpService,
                 partyService,
                 teleportService);
         this.coreMenus = new CoreMenuService(coreViews, this::openRoot);
-        this.topLevelActions = new TopLevelMenuActions(pointsService, progressionService, topLevelViews, coreMenus);
+        this.topLevelActions = new TopLevelMenuActions(
+                pointsService,
+                achievementService,
+                actionBarHudService,
+                topLevelViews,
+                coreMenus);
     }
 
     public void openRoot(Player player) {
@@ -47,9 +54,9 @@ public final class MenuService {
         topLevelViews.openShop(player, topLevelActions.shopPage(player.getUniqueId()));
     }
 
-    public void openProgress(Player player) {
-        topLevelActions.setProgressPage(player.getUniqueId(), 0);
-        topLevelViews.openProgress(player, topLevelActions.progressPage(player.getUniqueId()));
+    public void openAchievement(Player player) {
+        topLevelActions.setAchievementPage(player.getUniqueId(), 0);
+        topLevelViews.openAchievement(player, topLevelActions.achievementPage(player.getUniqueId()));
     }
 
     public void openTpAcceptPicker(Player player) throws Exception {

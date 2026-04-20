@@ -42,6 +42,10 @@ final class CoreMenuService {
             open(player, MenuTitles.HOMES);
             return true;
         }
+        if (title.equals(MenuTitles.TEAM_DISBAND_CONFIRM)) {
+            open(player, MenuTitles.TEAM);
+            return true;
+        }
         if (handles(title)) {
             openRoot.accept(player);
             return true;
@@ -59,6 +63,7 @@ final class CoreMenuService {
                 || title.equals(MenuTitles.HOMES_DELETE)
                 || title.equals(MenuTitles.WARPS)
                 || title.equals(MenuTitles.TEAM)
+                || title.equals(MenuTitles.TEAM_DISBAND_CONFIRM)
                 || title.equals(MenuTitles.PICK_TPA)
                 || title.equals(MenuTitles.PICK_TPA_HERE)
                 || title.equals(MenuTitles.PICK_TP)

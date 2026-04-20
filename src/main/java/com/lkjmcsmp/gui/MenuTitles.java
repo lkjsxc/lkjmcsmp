@@ -5,12 +5,13 @@ final class MenuTitles {
     static final String ROOT = PREFIX + " menu";
     static final String SHOP = PREFIX + " shop";
     static final String SHOP_DETAIL = PREFIX + " shop-detail";
-    static final String PROGRESS = PREFIX + " progression";
+    static final String ACHIEVEMENT = PREFIX + " achievement";
     static final String TELEPORT = PREFIX + " teleport";
     static final String HOMES = PREFIX + " homes";
     static final String HOMES_DELETE = PREFIX + " homes-delete";
     static final String WARPS = PREFIX + " warps";
     static final String TEAM = PREFIX + " team";
+    static final String TEAM_DISBAND_CONFIRM = PREFIX + " team-disband-confirm";
     static final String PICK_TPA = PREFIX + " pick-tpa";
     static final String PICK_TPA_HERE = PREFIX + " pick-tpahere";
     static final String PICK_TP = PREFIX + " pick-tp";
@@ -34,6 +35,6 @@ final class MenuTitles {
                 || PICK_TP_ACCEPT.equals(title)
                 || PICK_INVITE.equals(title)
                 || SHOP.equals(title)
-                || PROGRESS.equals(title);
+                || ACHIEVEMENT.equals(title);
     }
 }

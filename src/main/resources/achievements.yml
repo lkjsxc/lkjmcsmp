@@ -1,4 +1,4 @@
-milestones:
+achievements:
   first_convert:
     title: First Conversion
     description: Convert cobblestone into points to bootstrap your economy.
@@ -17,6 +17,12 @@ milestones:
     kind: convert_amount
     target: 4096
     reward-points: 128
+  cobblestone_legend:
+    title: Cobblestone Legend
+    description: Convert 10000 cobblestone in total.
+    kind: convert_amount
+    target: 10000
+    reward-points: 256
   first_home_set:
     title: Settled Down
     description: Set your first home so you always have a safe return point.

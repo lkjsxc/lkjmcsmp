@@ -8,7 +8,7 @@ Define change sequencing, batching, and commit cadence expectations.
 
 1. Change flow is docs -> code -> verification -> commit.
 2. Batches stay coherent and purpose-scoped.
-3. Commit cadence favors small verified milestones.
+3. Commit cadence favors small verified checkpoints.
 
 ## Child Index
 
