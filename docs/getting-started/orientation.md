@@ -8,7 +8,7 @@ Establish a docs-first Folia plugin repository where all contracts are explicit 
 
 - Project name: `lkjmcsmp`
 - Runtime target: Folia-compatible Minecraft server line at `1.21.11` (as provided)
-- Feature scope: SMP essentials plus custom progression
+- Feature scope: SMP essentials plus custom achievement
 - Interface policy: GUI-first for core operations, commands remain supported
 
 ## Contract Priorities
@@ -23,4 +23,5 @@ Establish a docs-first Folia plugin repository where all contracts are explicit 
 - Commands and GUIs are both defined and implemented.
 - Economy uses cobblestone-backed points with strict exchange contracts.
 - Team system is lightweight party-oriented.
-- Advancement system is plugin-managed pseudo-advancement progression.
+- Achievement system is plugin-managed and deterministic.
+- Runtime HUD uses action bar instead of scoreboard.

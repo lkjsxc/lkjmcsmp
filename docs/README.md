@@ -31,7 +31,7 @@ Define the canonical behavior and maintenance contracts for the plugin in an LLM
 4. [repository/workflow/change-sequence.md](repository/workflow/change-sequence.md)
 5. [product/commands/teleport.md](product/commands/teleport.md)
 6. [product/gui/hotbar-entrypoint.md](product/gui/hotbar-entrypoint.md)
-7. [product/scoreboard/update-lifecycle.md](product/scoreboard/update-lifecycle.md)
+7. [product/actionbar/hud-priority.md](product/actionbar/hud-priority.md)
 8. [architecture/runtime/module-map.md](architecture/runtime/module-map.md)
 9. [architecture/folia/scheduler-contract.md](architecture/folia/scheduler-contract.md)
 10. [operations/verification/compose-pipeline.md](operations/verification/compose-pipeline.md)

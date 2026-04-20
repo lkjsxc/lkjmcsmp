@@ -2,7 +2,7 @@
 
 ## Goal
 
-Define player-facing behavior for commands, menus, progression, economy, social systems, and HUD output.
+Define player-facing behavior for commands, menus, achievements, economy, social systems, and HUD output.
 
 ## Rules
 
@@ -18,6 +18,6 @@ Define player-facing behavior for commands, menus, progression, economy, social 
 - [commands/README.md](commands/README.md): command contracts and failure semantics
 - [gui/README.md](gui/README.md): inventory menus, navigation, and interaction policy
 - [economy/README.md](economy/README.md): points generation and exchange rules
-- [advancements/README.md](advancements/README.md): pseudo-advancement milestone model
-- [scoreboard/README.md](scoreboard/README.md): scoreboard content and lifecycle
+- [achievements/README.md](achievements/README.md): achievement model and reward claim rules
+- [actionbar/README.md](actionbar/README.md): action-bar HUD contracts and priority rules
 - [social/README.md](social/README.md): party permissions and audit expectations

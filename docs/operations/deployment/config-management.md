@@ -4,7 +4,7 @@
 
 - `config.yml`: gameplay defaults, cooldowns, limits, and proxy-aware teleport behavior
 - `shop.yml`: base exchange rates
-- `milestones.yml`: pseudo-advancement definitions
+- `achievements.yml`: achievement definitions
 
 ## Rules
 

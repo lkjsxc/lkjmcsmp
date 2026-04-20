@@ -16,7 +16,7 @@
 3. Warps
 4. Team
 5. Points Shop
-6. Progression
+6. Achievement
 7. Close Menu
 
 ## Teleport Menu
@@ -53,8 +53,16 @@
 - Create team
 - Invite player (target picker)
 - Accept invite / leave / disband
+- Disband opens confirm screen before execution
 - Team home and sethome
 - Canonical slot mapping is defined in `team-layout.md` and `slot-maps.md`
+
+## Team Disband Confirm Menu
+
+- Warning summary
+- Confirm disband
+- Cancel/back
+- Returns to Team menu after completion or cancel
 
 ## Points Shop Menu
 
@@ -66,14 +74,14 @@
 ## Points Shop Detail Menu
 
 - Selected item description and per-item pricing
-- Final quantity controls (`1..64`)
-- Explicit purchase button
+- Current points balance indicator
+- Direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`)
+- No separate quantity-setting or buy-confirm button
 - Purchase executes only when balance is sufficient
-- Selection state resets whenever detail menu is opened
-- Quantity control cluster uses deterministic center-row slots from `slot-maps.md`
+- Detail view stays open after purchase and refreshes affordability state
 - Back (`ARROW`)
 
-## Progression Menu
+## Achievement Menu
 
 - Milestone list (paginated)
 - Progress ratio and percent per milestone

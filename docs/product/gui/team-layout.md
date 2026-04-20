@@ -22,6 +22,7 @@ Define a predictable and high-signal team menu layout that prioritizes common ac
 2. Frequent actions (create, invite, accept, home) stay in the center-left cluster (`19..24`).
 3. Exit/destructive actions (`Leave Team`, `Disband Team`) are visually separated from the primary cluster.
 4. `Disband Team` remains isolated and never adjacent to `Create Team`.
+5. Clicking `Disband Team` opens a dedicated confirmation screen before command execution.
 
 ## Role-Aware Rendering Rules
 
@@ -29,3 +30,10 @@ Define a predictable and high-signal team menu layout that prioritizes common ac
 2. Players outside a team see in-team actions as locked with explicit join/create guidance.
 3. Invite acceptance remains visible even when not in a team, with clear availability text.
 4. Locked actions keep stable slots to preserve muscle memory.
+
+## Disband Confirmation Rules
+
+1. Confirm view must display explicit destructive warning text.
+2. `Confirm Disband` is separated from `Cancel` by at least one slot.
+3. Cancel returns to Team menu without side effects.
+4. After confirm success/failure, Team menu state refreshes immediately.

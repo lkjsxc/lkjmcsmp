@@ -30,5 +30,6 @@
 8. Menus refresh immediately after state-changing actions.
 9. Automatic background refresh reopen loops are disallowed.
 10. Picker menus expose explicit manual `Refresh`; non-picker menus do not.
-11. Shop quantity selection uses final item counts (`1..64`), updates preview totals only, and requires explicit `Buy`.
-12. `/tpaccept`-linked accept flows open requester picker only when two or more requests are pending.
+11. Shop detail uses direct-buy final quantities (`1`, `2`, `4`, `8`, `16`, `32`, `64`) with no separate buy button.
+12. Team disband from GUI requires explicit confirm screen before execution.
+13. `/tpaccept`-linked accept flows open requester picker only when two or more requests are pending.

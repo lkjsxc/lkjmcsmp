@@ -10,7 +10,7 @@ Define operational runbooks for deployment, verification, and acceptance gates.
 2. Local runtime guidance stays aligned with deployment contracts.
 3. Operational docs use command-first, copy-paste-friendly steps.
 4. Smoke assertions must match documented blocker contracts.
-5. Verification assertions must track shop quantity semantics, picker refresh policy, and scoreboard recovery guarantees.
+5. Verification assertions must track shop quantity semantics, picker refresh policy, and action-bar HUD guarantees.
 
 ## Child Index
 

@@ -7,14 +7,14 @@
 - `com.lkjmcsmp.gui`
 - `com.lkjmcsmp.domain`
 - `com.lkjmcsmp.persistence`
-- `com.lkjmcsmp.progression`
+- `com.lkjmcsmp.achievement`
 
 ## Resource Files
 
 - `plugin.yml`
 - `config.yml`
 - `shop.yml`
-- `milestones.yml`
+- `achievements.yml`
 
 ## Test Layout
 

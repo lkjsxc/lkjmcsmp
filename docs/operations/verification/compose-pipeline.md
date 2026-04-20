@@ -19,13 +19,14 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 5. Verification expectations include:
     - slot-8 hotbar open reliability in blocked/cancelled interaction contexts
     - homes add-current and dedicated deletion flow
-    - shop list-to-detail purchase behavior with final-quantity (`1..64`) semantics
+    - shop list-to-detail purchase behavior with direct final-quantity (`1`, `2`, `4`, `8`, `16`, `32`, `64`) semantics
+    - in-menu points balance visibility on shop detail
     - pagination behavior in growth-heavy menus
     - multi-request `/tpaccept` picker behavior
     - picker-menu manual refresh visibility with no background auto-refresh reopen loop
-    - GUI slot-map alignment markers for shop-detail control cluster
-    - scoreboard visibility and recovery with sidebar ownership reclaim
-    - runtime scoreboard overwrite/removal injection probe via `/lkjverify scoreboard`
+    - team disband confirm screen flow and post-action refresh
+    - GUI slot-map alignment markers for shop-detail direct-buy cluster
+    - action-bar idle/teleport/combat contract markers
 
 ## Stop Rule
 

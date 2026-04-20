@@ -14,9 +14,9 @@ Extended smoke suite:
 - Homes and warps
 - Party operations
 - Points conversion and shop purchase
-- Pseudo-advancement claim flow
+- Achievement claim flow
 - GUI root menu open
-- Scoreboard sidebar lifecycle and recovery
+- Action bar HUD lifecycle and overlays
 
 ## Minimum Assertions
 
@@ -38,29 +38,24 @@ Extended smoke suite:
 - Homes deletion uses dedicated explicit deletion flow (not right-click semantic split).
 - Homes GUI `Add Current Location` creates sequential names (`home-1`, `home-2`, ...).
 - Shop item selection opens item detail purchase screen.
-- Shop detail quantity resets to baseline on each detail-open.
+- Shop detail shows current points balance.
+- Shop detail renders direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`).
 - Pagination controls keep stable ordering across pages.
-- Progression GUI shows milestone status plus numeric progress text.
+- Achievement GUI shows achievement status plus numeric progress text.
 - Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
-- GUI slot-map contract markers match shop-detail source layout (`20..26` control cluster + `31` buy + `49` back).
-- Scoreboard renderer source markers enforce canonical objective/entry/slot ownership model.
-- Scoreboard implementation dependency set excludes external sidebar libraries.
-- Runtime scoreboard probe command (`/lkjverify scoreboard`) succeeds (full simulation or explicit unsupported-path detection).
+- Team disband action from GUI opens explicit confirm screen before execution.
+- GUI slot-map contract markers match shop-detail source layout (`20..26` direct-buy + `31` balance + `49` back).
+- Action-bar source markers enforce deterministic state priority (teleport > combat > idle).
+- Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
 
-## Scoreboard Reliability Assertions
+## Action Bar Assertions
 
-1. Runtime probe attempts objective-overwrite injection and rebuild reclaim assertions.
-2. If Folia runtime rejects probe mutations with `UnsupportedOperationException`, probe records explicit unsupported-path detection and still returns success.
-3. Renderer/source contract markers include fixed objective identity, stable entries, and sidebar ownership.
-4. No external sidebar library classes or artifacts exist in plugin dependency graph.
+1. Teleport countdown overlays include remaining seconds and expire cleanly on completion/cancel/failure.
+2. Combat overlays include target name plus two-tone HP bar and expire after `3` seconds.
+3. Idle HUD renders points and online count when no overlay is active.
+4. No scoreboard probe path or sidebar dependency remains in runtime or smoke checks.
 
 ## Blocker Policy
 
-- Any failed scoreboard assertion is an acceptance blocker.
-- Missing runtime scoreboard probe evidence is an acceptance blocker.
-- Any failed runtime scoreboard probe assertion is an acceptance blocker.
-
-## Assumptions
-
-- Smoke harness has operator-level permission to execute `/lkjverify scoreboard` from RCON console.
+- Any failed action-bar assertion is an acceptance blocker.

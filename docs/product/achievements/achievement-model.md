@@ -1,19 +1,20 @@
-# Pseudo-Advancement Model
+# Achievement Model
 
 ## Goal
 
-Maintain progression milestones in plugin state without datapack dependency.
+Maintain achievement progress in plugin state without datapack dependency.
 
-## Milestone States
+## States
 
 - `LOCKED`
 - `IN_PROGRESS`
 - `COMPLETED_UNCLAIMED`
 - `COMPLETED_CLAIMED`
 
-## Milestone Examples
+## Achievement Examples
 
 - First conversion (`convert 64 cobblestone`)
+- Cumulative conversion (`convert 10000 cobblestone`)
 - First home set
 - First warp use
 - First party join
@@ -25,7 +26,7 @@ Maintain progression milestones in plugin state without datapack dependency.
 - Shop purchase quantity thresholds
 - Party participation thresholds
 
-## Milestone Metadata Contract
+## Metadata Contract
 
 - `title`: short player-facing name
 - `description`: detailed explanation of completion criteria and intent
@@ -35,11 +36,11 @@ Maintain progression milestones in plugin state without datapack dependency.
 
 ## Rules
 
-1. Milestones are deterministic and recomputable from events.
+1. Achievements are deterministic and recomputable from events.
 2. Completion is idempotent.
-3. Claim is one-time unless milestone is explicitly repeatable.
-4. GUI and command surfaces show same milestone status.
+3. Claim is one-time unless an achievement is explicitly repeatable.
+4. GUI and command surfaces show the same achievement status.
 5. GUI must show numeric progress (`current/target`) and percentage.
-6. `LOCKED` milestones still show description and target for forward planning.
-7. `COMPLETED_UNCLAIMED` milestones must render with clear claim affordance.
-8. Growth strategy should prefer many small deterministic milestones over a single sparse chain.
+6. `LOCKED` achievements still show description and target for forward planning.
+7. `COMPLETED_UNCLAIMED` achievements must render with clear claim affordance.
+8. Growth strategy should prefer many small deterministic achievements over a single sparse chain.

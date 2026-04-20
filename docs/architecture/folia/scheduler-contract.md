@@ -25,8 +25,6 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
 7. Completion/failure callbacks must surface explicit player-facing results.
 8. Any player-facing teleport result is emitted only from completion callbacks, never pre-teleport.
 9. Delayed teleport stability checks use player-safe delayed scheduling and must re-check online state.
-10. Scoreboard periodic reconcile uses player-scoped delayed scheduling; do not depend on global tick orchestration.
-11. Scoreboard online-count rendering data is supplied via tracked join/quit state, not cross-player scans in player mutation tasks.
-12. Scoreboard retry scheduling uses the same player-scoped delayed scheduling as periodic reconcile.
-13. Scoreboard render attempts verify player online state and render epoch freshness before mutation work.
-14. Scoreboard snapshot loading runs async; only snapshot application mutates Bukkit scoreboard state.
+10. Action-bar overlay expiry uses player-scoped delayed scheduling; do not depend on global tick orchestration.
+11. Idle HUD inputs (points and online count) are refreshed from explicit state-change events.
+12. HUD state transitions verify player online state before mutation work.

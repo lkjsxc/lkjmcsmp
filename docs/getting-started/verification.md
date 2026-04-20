@@ -15,13 +15,13 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 1. `verify` returns zero only when build/tests/docs/line checks all pass.
 2. `smoke` returns zero only when plugin startup and scripted command checks pass.
 3. Non-zero from any step blocks acceptance.
-4. Teleport, menu lock, and scoreboard regressions are treated as acceptance blockers.
-5. Scoreboard regressions include missing sidebar visibility, non-deterministic line output, failed recovery, or illegal external sidebar dependency usage.
+4. Teleport, menu lock, and action-bar regressions are treated as acceptance blockers.
+5. HUD regressions include missing teleport countdown/completion feedback and missing combat overlay behavior.
 
 ## Minimal Smoke Assertions
 
 - Plugin appears in server plugin list.
-- Core command registrations exist (`tp`, `rtp`, `tpa`, `home`, `team`, `warp`).
+- Core command registrations exist (`tp`, `rtp`, `tpa`, `home`, `team`, `warp`, `achievement`, `ach`).
 - GUI root menu can be opened by command.
 - Cobblestone conversion command path succeeds for an operator test account.
 - Hotbar slot `8` menu entrypoint opens GUI and cannot be dropped.
@@ -30,18 +30,9 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Picker menus expose explicit manual refresh control.
 - Homes GUI add-current-location path yields sequential auto names (`home-1`, `home-2`, ...).
 - Homes deletion uses explicit dedicated deletion flow.
-- Shop quantity path uses final item quantity (`1..64`) and honors per-item rate math (`1` log = `16` points).
-- Shop item list transitions to item detail purchase screen with reset-on-open quantity.
+- Team disband GUI flow requires explicit confirm screen.
+- Shop detail exposes points balance indicator.
+- Shop detail direct-buy path uses final item quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`) and honors per-item rate math (`1` log = `16` points).
 - Shop detail slot-map markers match canonical layout (`20..26`, `31`, `49`).
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
-- Runtime scoreboard probe command (`/lkjverify scoreboard`) passes overwrite/removal + rebuild reclaim assertions, or explicit unsupported-path detection.
-- Scoreboard renderer markers enforce canonical objective identity, stable entry IDs, and sidebar ownership reclaim path.
-- Scoreboard dependency set must remain Bukkit/Paper-only (no external sidebar library).
-
-## Scoreboard Blocker Rule
-
-- Treat any scoreboard smoke failure as merge-blocking, even when other smoke checks pass.
-
-## Assumptions
-
-- Verification environment can run `/lkjverify scoreboard` from RCON console for runtime scoreboard probe assertions.
+- Action-bar markers enforce idle HUD (`points+online`), teleport countdown/completion states, and 3-second combat target HP bar overlay.

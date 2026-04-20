@@ -7,10 +7,10 @@
 3. Repository calls never run inside inventory click listeners without async handoff.
 4. Never read another player's live location from the wrong player thread.
 5. World/chunk block-state reads for RTP probing run in region-safe tasks.
-6. Scoreboard player mutation tasks never scan online players; cross-player aggregates are precomputed from tracked state.
-7. Scoreboard object mutation (`Objective`, `Score`, `DisplaySlot`) happens only in target player-safe context.
-8. Scoreboard retry/periodic callbacks validate player online state and render epoch before mutation.
-9. Scoreboard snapshots are immutable handoff objects from async loaders to player mutation tasks.
+6. HUD player mutation tasks never scan online players from unsafe context; cross-player aggregates are event-fed.
+7. Action bar mutation happens only in target player-safe context.
+8. HUD overlay expiry callbacks validate player online state before mutation.
+9. HUD snapshots are immutable handoff objects from async loaders to player mutation tasks.
 
 ## State Rules
 

@@ -22,7 +22,7 @@ For 54-slot menus, bottom-row control slots are:
 3. `21`: Warps
 4. `22`: Team
 5. `23`: Points Shop
-6. `24`: Progression
+6. `24`: Achievement
 7. `50`: Close Menu
 
 ## Teleport Menu (`lkjmcsmp :: teleport`)
@@ -74,6 +74,13 @@ For 54-slot menus, bottom-row control slots are:
 8. `31`: Disband Team
 9. `49`: Back
 
+## Team Disband Confirm Menu (`lkjmcsmp :: team-disband-confirm`)
+
+1. `22`: Confirmation Summary
+2. `30`: Confirm Disband
+3. `32`: Cancel
+4. `49`: Back
+
 ## Shop List Menu (`lkjmcsmp :: shop`)
 
 1. `0..44`: paged shop entries
@@ -86,19 +93,19 @@ For 54-slot menus, bottom-row control slots are:
 ## Shop Detail Menu (`lkjmcsmp :: shop-detail`)
 
 1. `13`: Selected Item Summary
-2. `20`: Set Quantity 1
-3. `21`: Quantity -8
-4. `22`: Quantity -1
-5. `23`: Quantity Display
-6. `24`: Quantity +1
-7. `25`: Quantity +8
-8. `26`: Set Quantity 64
-9. `31`: Buy Selected
+2. `31`: Points Balance
+3. `20`: Buy x1
+4. `21`: Buy x2
+5. `22`: Buy x4
+6. `23`: Buy x8
+7. `24`: Buy x16
+8. `25`: Buy x32
+9. `26`: Buy x64
 10. `49`: Back
 
-## Progression Menu (`lkjmcsmp :: progression`)
+## Achievement Menu (`lkjmcsmp :: achievement`)
 
-1. `0..44`: paged milestone entries
+1. `0..44`: paged achievement entries
 2. `46`: Page Prev
 3. `47`: Page Next
 4. `48`: Page Info

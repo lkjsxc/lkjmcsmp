@@ -6,8 +6,8 @@
 - `/points` shows current points.
 - `/convert cobblestone <amount>` converts cobblestone inventory to points.
 - `/shop` opens points exchange GUI.
-- `/adv` opens pseudo-advancement GUI.
-- `/lkjverify scoreboard` runs operator-only runtime scoreboard probe checks.
+- `/achievement` opens the achievement GUI.
+- `/ach` is a short alias for `/achievement`.
 
 ## Rules
 
@@ -16,18 +16,19 @@
 3. Negative and zero amounts are rejected.
 4. Conversion amount may be capped by config per operation.
 5. `/points` reflects committed ledger state, not temporary calculations.
-6. GUI points shop list opens an item detail purchase screen when an item is selected.
-7. Detail purchase screen resets quantity configuration on each open.
-8. GUI points shop purchases use final item quantity selection (`1..64`) with deterministic rate math (`points-per-item * quantity`).
-9. Quantity selection only updates preview totals; purchase executes only on explicit `Buy`.
+6. Shop list opens item detail and displays the player's current points balance in-menu.
+7. Shop detail provides direct purchase buttons for final quantity `1`, `2`, `4`, `8`, `16`, `32`, and `64`.
+8. Shop detail has no separate "set quantity then buy" workflow.
+9. Purchases use deterministic rate math (`points-per-item * quantity`).
 10. Logs use per-item pricing by default (`1` log = `16` points).
 11. Utility GUI views avoid background auto-refresh reopen loops.
 12. Picker menus expose explicit manual `Refresh`.
 13. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`, including cancelled/blocked interaction contexts.
-14. `/lkjverify scoreboard` is reserved for verification automation and requires `lkjmcsmp.verify.use`.
+14. Achievement claims from GUI and `/achievement claim <key>` use the same service path.
 
 ## Failures
 
 - Insufficient cobblestone: reject with missing amount.
 - Overflow/invalid amount: reject and log.
 - Exchange without sufficient points: reject with deficit.
+- Unknown achievement key: reject with explicit key-missing result.

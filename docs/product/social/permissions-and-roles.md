@@ -19,6 +19,7 @@
 - `lkjmcsmp.points.view`
 - `lkjmcsmp.points.convert`
 - `lkjmcsmp.shop.use`
+- `lkjmcsmp.achievement.use`
 - `lkjmcsmp.economy.override`
 - `lkjmcsmp.admin.audit.view`
 

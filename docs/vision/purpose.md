@@ -2,13 +2,13 @@
 
 ## Goal
 
-Deliver a survival-focused Folia plugin that raises SMP quality through reliable utilities, guided progression, and low-friction GUI operations.
+Deliver a survival-focused Folia plugin that raises SMP quality through reliable utilities, guided achievement, and low-friction GUI operations.
 
 ## Outcomes
 
 - Standard SMP tools are predictable and fast.
 - Players can navigate most systems through menus rather than memorizing syntax.
-- Progression incentives remain active through custom pseudo-advancements.
+- Achievement incentives remain active through plugin-managed achievements.
 - Economy retains strict sinks and sources under automation assumptions.
 
 ## Non-Goals

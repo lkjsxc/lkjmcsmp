@@ -19,4 +19,4 @@ Specify canonical command behavior, permissions, side effects, and error outputs
 - [teleport.md](teleport.md): direct/request/random teleport contracts and routing
 - [homes-warps.md](homes-warps.md): home and warp lifecycle contracts
 - [party.md](party.md): party command behavior and ownership rules
-- [utility.md](utility.md): `/menu`, `/points`, `/convert`, `/shop`, and `/adv`
+- [utility.md](utility.md): `/menu`, `/points`, `/convert`, `/shop`, `/achievement`, and `/ach`

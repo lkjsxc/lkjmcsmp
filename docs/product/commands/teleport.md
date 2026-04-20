@@ -59,7 +59,7 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
    - no pending requests: explicit failure
    - one pending request: accept immediately without picker
    - two or more pending requests: open requester-picker GUI (from command or Teleport menu) and accept selected request
-   - requester picker lists pending requesters in stable order and auto-refreshes every `1` second by default
+   - requester picker lists pending requesters in stable order and exposes manual `Refresh`
 5. Request deny/expire/accept outcomes send explicit feedback to all affected players.
 6. `rtp` requires world whitelist membership.
 7. `rtp` enforces cooldown unless bypass permission is present.
@@ -70,6 +70,9 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 12. Success messages are emitted only after teleport completion is confirmed.
 13. Failed teleports must return explicit reason; no success-shaped fallback responses.
 14. `/home`, `/warp`, and `/team home` teleport outcomes follow the same completion/failure semantics as `/tp` and `/rtp`.
+15. Action bar emits teleport state changes in parallel with chat messaging.
+16. Action bar countdown text includes remaining seconds during stability delay.
+17. Action bar completion/cancellation/failure events are explicit and state-change-driven.
 
 ## First-Join RTP Rules
 
@@ -95,6 +98,7 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 6. If movement exceeds radius before delay completion, teleport is cancelled with explicit message.
 7. Stability countdown messages include remaining seconds.
 8. Zero delay disables waiting but still uses normal completion/failure messaging.
+9. Countdown action-bar updates are event-driven on second transitions, not global periodic idle ticks.
 
 ## Failures
 

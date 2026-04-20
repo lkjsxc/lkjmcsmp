@@ -30,6 +30,7 @@ Provide lightweight social grouping with low operational overhead.
 4. Party chat is isolated to online party members.
 5. Party home is optional and can be unset.
 6. Team command namespace remains `/team` for user familiarity.
+7. GUI disband flow requires explicit confirmation before `/team disband` is dispatched.
 
 ## Failures
 

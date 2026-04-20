@@ -14,11 +14,13 @@ Define deterministic menu topology, navigation semantics, pagination behavior, a
 6. Primary action behavior must not depend on left-click vs right-click.
 7. Destructive operations use explicit dedicated flows (page or confirm step), not alternate click types.
 8. Menus refresh on state change only; automatic background reopen loops are disallowed.
-9. Growth-heavy menus (homes, shop, progression, picker lists) use deterministic pagination.
+9. Growth-heavy menus (homes, shop, achievement, picker lists) use deterministic pagination.
 10. Shop uses list-to-detail navigation for purchase execution.
-11. Teleport accept UX mirrors `/tpaccept`: fail on none, accept directly on one, requester picker on many.
-12. All menus follow canonical slot maps; action placement must stay deterministic across releases.
-13. Team menu slot mapping follows the canonical layout contract.
+11. Shop detail purchases are direct-buy quantity actions (`1`, `2`, `4`, `8`, `16`, `32`, `64`).
+12. Team disband from menu requires dedicated confirm screen.
+13. Teleport accept UX mirrors `/tpaccept`: fail on none, accept directly on one, requester picker on many.
+14. All menus follow canonical slot maps; action placement must stay deterministic across releases.
+15. Team menu slot mapping follows the canonical layout contract.
 
 ## Child Index
 
