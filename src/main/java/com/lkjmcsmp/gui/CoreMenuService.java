@@ -1,7 +1,5 @@
 package com.lkjmcsmp.gui;
 
-import com.lkjmcsmp.domain.PointsService;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -12,9 +10,9 @@ final class CoreMenuService {
     private final CoreMenuActions actions;
     private final Consumer<Player> openRoot;
 
-    CoreMenuService(CoreMenuViews views, Consumer<Player> openRoot, PointsService pointsService, TemporaryEndManager temporaryEndManager) {
+    CoreMenuService(CoreMenuViews views, Consumer<Player> openRoot) {
         this.views = views;
-        this.actions = new CoreMenuActions(views, pointsService, temporaryEndManager);
+        this.actions = new CoreMenuActions(views);
         this.openRoot = openRoot;
     }
 
@@ -24,7 +22,6 @@ final class CoreMenuService {
             case "Homes" -> open(player, MenuTitles.HOMES);
             case "Warps" -> open(player, MenuTitles.WARPS);
             case "Team", "Party" -> open(player, MenuTitles.TEAM);
-            case "Temporary End" -> open(player, MenuTitles.TEMPORARY_END);
             default -> false;
         };
     }
@@ -67,7 +64,6 @@ final class CoreMenuService {
                 || title.equals(MenuTitles.WARPS)
                 || title.equals(MenuTitles.TEAM)
                 || title.equals(MenuTitles.TEAM_DISBAND_CONFIRM)
-                || title.equals(MenuTitles.TEMPORARY_END)
                 || title.equals(MenuTitles.PICK_TPA)
                 || title.equals(MenuTitles.PICK_TPA_HERE)
                 || title.equals(MenuTitles.PICK_TP)

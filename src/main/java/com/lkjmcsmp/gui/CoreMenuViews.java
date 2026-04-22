@@ -2,10 +2,8 @@ package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.HomeService;
 import com.lkjmcsmp.domain.PartyService;
-import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,19 +13,17 @@ final class CoreMenuViews {
     private final TeleportService teleportService;
     private final PlayerPickerMenuView pickerView;
     private final TeamMenuView teamMenuView;
-    private final TemporaryEndMenuView temporaryEndMenuView;
     private final HomeWarpViews homeWarpViews;
 
     CoreMenuViews(
             HomeService homeService,
             WarpService warpService,
             PartyService partyService,
-            TeleportService teleportService,
-            TemporaryEndManager temporaryEndManager,
-            PointsService pointsService) {
-        this(homeService, warpService, partyService, teleportService,
-                new PlayerPickerMenuView(),
-                new TemporaryEndMenuView(pointsService, temporaryEndManager));
+            TeleportService teleportService) {
+        this.teleportService = teleportService;
+        this.pickerView = new PlayerPickerMenuView();
+        this.teamMenuView = new TeamMenuView(partyService);
+        this.homeWarpViews = new HomeWarpViews(homeService, warpService);
     }
 
     CoreMenuViews(
@@ -36,12 +32,12 @@ final class CoreMenuViews {
             PartyService partyService,
             TeleportService teleportService,
             PlayerPickerMenuView pickerView,
-            TemporaryEndMenuView temporaryEndMenuView) {
+            TeamMenuView teamMenuView,
+            HomeWarpViews homeWarpViews) {
         this.teleportService = teleportService;
         this.pickerView = pickerView;
-        this.teamMenuView = new TeamMenuView(partyService);
-        this.temporaryEndMenuView = temporaryEndMenuView;
-        this.homeWarpViews = new HomeWarpViews(homeService, warpService);
+        this.teamMenuView = teamMenuView;
+        this.homeWarpViews = homeWarpViews;
     }
 
     void open(Player player, String title) throws Exception {
@@ -52,7 +48,6 @@ final class CoreMenuViews {
             case MenuTitles.WARPS -> homeWarpViews.openWarps(player, 0);
             case MenuTitles.TEAM -> teamMenuView.open(player);
             case MenuTitles.TEAM_DISBAND_CONFIRM -> teamMenuView.openDisbandConfirm(player);
-            case MenuTitles.TEMPORARY_END -> temporaryEndMenuView.open(player);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     openPicker(player, title, 0);
             default -> throw new IllegalArgumentException("Unknown menu title: " + title);
@@ -124,5 +119,4 @@ final class CoreMenuViews {
     void openTeamDisbandConfirm(Player player) throws Exception {
         teamMenuView.openDisbandConfirm(player);
     }
-
 }

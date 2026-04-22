@@ -12,7 +12,6 @@ final class MenuTitles {
     static final String WARPS = PREFIX + " warps";
     static final String TEAM = PREFIX + " team";
     static final String TEAM_DISBAND_CONFIRM = PREFIX + " team-disband-confirm";
-    static final String TEMPORARY_END = PREFIX + " temporary-end";
     static final String PICK_TPA = PREFIX + " pick-tpa";
     static final String PICK_TPA_HERE = PREFIX + " pick-tpahere";
     static final String PICK_TP = PREFIX + " pick-tp";

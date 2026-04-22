@@ -36,10 +36,8 @@ public final class MenuService {
                 homeService,
                 warpService,
                 partyService,
-                teleportService,
-                temporaryEndManager,
-                pointsService);
-        this.coreMenus = new CoreMenuService(coreViews, this::openRoot, pointsService, temporaryEndManager);
+                teleportService);
+        this.coreMenus = new CoreMenuService(coreViews, this::openRoot);
         this.topLevelActions = new TopLevelMenuActions(
                 pointsService,
                 achievementService,

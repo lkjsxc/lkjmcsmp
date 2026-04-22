@@ -58,10 +58,6 @@ final class TopLevelMenuActions {
             player.closeInventory();
             return true;
         }
-        if (display.equals("Temporary End")) {
-            coreMenus.open(player, MenuTitles.TEMPORARY_END);
-            return true;
-        }
         if (!coreMenus.openFromRoot(player, display)) {
             player.sendMessage("Unknown menu action.");
         }

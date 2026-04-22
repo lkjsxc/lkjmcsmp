@@ -1,6 +1,7 @@
 package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.PointsService;
+import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
@@ -35,7 +36,7 @@ final class ShopActions {
 
     boolean handleShop(Player player, String display) throws Exception {
         UUID playerId = player.getUniqueId();
-        if (display.equals("Convert Cobblestone")) {
+        if (display.equals("Convert Cobblestone") && eventMaterialIs(player, Material.COBBLESTONE)) {
             convertAllCobblestone(player);
             return true;
         }
@@ -65,6 +66,10 @@ final class ShopActions {
     }
 
     boolean handleShopDetail(Player player, String display) throws Exception {
+        if (display.equals("Purchase")) {
+            buySelected(player, 1);
+            return true;
+        }
         if (!display.startsWith("Buy x")) {
             return false;
         }
@@ -101,16 +106,26 @@ final class ShopActions {
             views.openShop(player, state.shopPage(player.getUniqueId()));
             return;
         }
-        var result = pointsService.purchase(player, selection.itemKey(), quantity);
+        ShopEntry entry = pointsService.getShopItems().get(selection.itemKey());
+        boolean isService = entry != null && entry.service();
+        int actualQuantity = isService ? 1 : quantity;
+        var result = pointsService.purchase(player, selection.itemKey(), actualQuantity);
         if (result.success()) {
-            achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
+            achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", actualQuantity);
+            int cost = entry != null ? entry.points() * actualQuantity : 0;
+            actionBarHudService.onShopPurchase(player, selection.itemKey(), cost);
             actionBarHudService.refreshIdle(player);
             if ("temporary_end".equals(selection.itemKey()) && temporaryEndManager != null) {
                 temporaryEndManager.createInstance(player, player.getLocation());
             }
         }
         player.sendMessage(result.message());
-        views.openShopDetail(player, state.shopSelection(player.getUniqueId()));
+        if (isService) {
+            views.openShop(player, state.shopPage(player.getUniqueId()));
+            state.setShopPage(player.getUniqueId(), MenuPageStateSync.readCurrentPage(player, state.shopPage(player.getUniqueId())));
+        } else {
+            views.openShopDetail(player, state.shopSelection(player.getUniqueId()));
+        }
     }
 
     private static int countCobblestone(Player player) {
@@ -121,5 +136,11 @@ final class ShopActions {
             }
         }
         return count;
+    }
+
+    private static boolean eventMaterialIs(Player player, Material material) {
+        var event = player.getOpenInventory();
+        var cursor = event.getCursor();
+        return cursor == null || cursor.getType() == material;
     }
 }

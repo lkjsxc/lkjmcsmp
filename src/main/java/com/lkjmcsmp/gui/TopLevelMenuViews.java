@@ -26,13 +26,12 @@ final class TopLevelMenuViews {
     void openRoot(Player player) {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.ROOT);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("lkjmcsmp Menu"));
-        inventory.setItem(19, MenuItems.named(Material.ENDER_PEARL, "Teleport"));
-        inventory.setItem(20, MenuItems.named(Material.RED_BED, "Homes"));
-        inventory.setItem(21, MenuItems.named(Material.COMPASS, "Warps"));
-        inventory.setItem(22, MenuItems.named(Material.PLAYER_HEAD, "Team"));
-        inventory.setItem(23, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
-        inventory.setItem(24, MenuItems.named(Material.BOOK, "Achievement"));
-        inventory.setItem(25, MenuItems.named(Material.DRAGON_EGG, "Temporary End"));
+        inventory.setItem(10, MenuItems.named(Material.ENDER_PEARL, "Teleport"));
+        inventory.setItem(12, MenuItems.named(Material.RED_BED, "Homes"));
+        inventory.setItem(14, MenuItems.named(Material.COMPASS, "Warps"));
+        inventory.setItem(16, MenuItems.named(Material.PLAYER_HEAD, "Team"));
+        inventory.setItem(20, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
+        inventory.setItem(22, MenuItems.named(Material.BOOK, "Achievement"));
         inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.BARRIER, "Close Menu"));
         MenuDecor.fillBorder(inventory, MenuDecor.ROOT_BORDER);
         player.openInventory(inventory);
@@ -54,9 +53,9 @@ final class TopLevelMenuViews {
             ItemStack item = new ItemStack(value.material(), 1);
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName("Item :: " + entry.getKey());
-            meta.setLore(java.util.List.of(
-                    "Price: " + value.points() + " points per item",
-                    "Selectable quantity: 1..64",
+            meta.setLore(List.of(
+                    "Price: " + value.points() + " points",
+                    value.service() ? "\u00A7dService Item — executes on purchase" : "Selectable quantity: 1..64",
                     "Click to open purchase details"));
             item.setItemMeta(meta);
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
@@ -97,25 +96,35 @@ final class TopLevelMenuViews {
         }
         int points = safePoints(player);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
-                "Buying: " + selected.key(), "Price: " + selected.points() + " points each"));
+                "Buying: " + selected.key(), "Price: " + selected.points() + " points"));
         inventory.setItem(13, MenuItems.named(
                 selected.material(),
                 "Selected :: " + selected.key(),
-                "Price: " + selected.points() + " points each",
-                "Direct buy amounts: 1, 2, 4, 8, 16, 32, 64",
-                "Click a quantity button to purchase immediately."));
+                "Price: " + selected.points() + " points",
+                selected.service() ? "\u00A7dService — executes on purchase" : "Direct buy amounts: 1, 2, 4, 8, 16, 32, 64",
+                "Click a button to purchase immediately."));
         inventory.setItem(31, MenuItems.named(
                 Material.SUNFLOWER,
                 "Your Points",
                 "Balance: " + points,
-                "Price: " + selected.points() + " points each"));
-        inventory.setItem(19, quantityItem(selected.points(), points, 1));
-        inventory.setItem(20, quantityItem(selected.points(), points, 2));
-        inventory.setItem(21, quantityItem(selected.points(), points, 4));
-        inventory.setItem(22, quantityItem(selected.points(), points, 8));
-        inventory.setItem(23, quantityItem(selected.points(), points, 16));
-        inventory.setItem(24, quantityItem(selected.points(), points, 32));
-        inventory.setItem(25, quantityItem(selected.points(), points, 64));
+                "Price: " + selected.points() + " points"));
+        if (selected.service()) {
+            int total = selected.points();
+            boolean affordable = points >= total;
+            inventory.setItem(22, MenuItems.named(
+                    affordable ? Material.LIME_DYE : Material.BARRIER,
+                    affordable ? "Purchase" : "Purchase (Locked)",
+                    "Cost: " + total + " points",
+                    affordable ? "Click to purchase now" : "Not enough points"));
+        } else {
+            inventory.setItem(19, quantityItem(selected.points(), points, 1));
+            inventory.setItem(20, quantityItem(selected.points(), points, 2));
+            inventory.setItem(21, quantityItem(selected.points(), points, 4));
+            inventory.setItem(22, quantityItem(selected.points(), points, 8));
+            inventory.setItem(23, quantityItem(selected.points(), points, 16));
+            inventory.setItem(24, quantityItem(selected.points(), points, 32));
+            inventory.setItem(25, quantityItem(selected.points(), points, 64));
+        }
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.SHOP_BORDER);
         player.openInventory(inventory);

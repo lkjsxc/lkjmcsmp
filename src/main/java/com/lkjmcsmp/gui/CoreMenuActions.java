@@ -1,7 +1,5 @@
 package com.lkjmcsmp.gui;
 
-import com.lkjmcsmp.domain.PointsService;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -9,15 +7,11 @@ import java.util.UUID;
 
 final class CoreMenuActions {
     private final CoreMenuViews views;
-    private final PointsService pointsService;
-    private final TemporaryEndManager temporaryEndManager;
     private final PageTracker tracker = new PageTracker();
     private final PickerActions pickerActions;
 
-    CoreMenuActions(CoreMenuViews views, PointsService pointsService, TemporaryEndManager temporaryEndManager) {
+    CoreMenuActions(CoreMenuViews views) {
         this.views = views;
-        this.pointsService = pointsService;
-        this.temporaryEndManager = temporaryEndManager;
         this.pickerActions = new PickerActions(views, tracker);
     }
 
@@ -29,7 +23,6 @@ final class CoreMenuActions {
             case MenuTitles.WARPS -> handleWarps(player, display);
             case MenuTitles.TEAM -> handleTeam(player, display);
             case MenuTitles.TEAM_DISBAND_CONFIRM -> handleTeamDisbandConfirm(player, display);
-            case MenuTitles.TEMPORARY_END -> handleTemporaryEnd(player, display);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     pickerActions.handle(player, title, display);
             default -> false;
@@ -126,26 +119,6 @@ final class CoreMenuActions {
             case "Cancel", "Disband Unavailable" -> open(player, MenuTitles.TEAM);
             default -> false;
         };
-    }
-
-    private boolean handleTemporaryEnd(Player player, String display) throws Exception {
-        if (!display.equals("Purchase")) {
-            return false;
-        }
-        if (temporaryEndManager == null) {
-            player.sendMessage("Temporary End is not available.");
-            return true;
-        }
-        var result = pointsService.purchase(player, "temporary_end", 1);
-        if (!result.success()) {
-            player.sendMessage(result.message());
-            views.open(player, MenuTitles.TEMPORARY_END);
-            return true;
-        }
-        temporaryEndManager.createInstance(player, player.getLocation());
-        player.sendMessage("\u00A7aTemporary End purchased! Nearby players will be transferred.");
-        views.open(player, MenuTitles.TEMPORARY_END);
-        return true;
     }
 
     void clearPlayerState(UUID playerId) {
