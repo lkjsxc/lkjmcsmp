@@ -51,7 +51,7 @@ public final class PointsService {
                 continue;
             }
             items.put(key.toLowerCase(), new ShopEntry(
-                    key.toLowerCase(), material, entry.getInt("points", 1)));
+                    key.toLowerCase(), material, entry.getInt("points", 1), entry.getBoolean("service", false)));
         }
         return items;
     }
@@ -65,7 +65,8 @@ public final class PointsService {
             baseItems.put(itemKey, new ShopEntry(
                     base.key(),
                     base.material(),
-                    override.pointsCost()));
+                    override.pointsCost(),
+                    base.service()));
         }
     }
     public int getBalance(UUID playerId) throws Exception {
@@ -109,12 +110,14 @@ public final class PointsService {
         if (balance < totalPoints) {
             return Result.fail("insufficient points");
         }
-        if (!hasInventoryCapacity(player, entry.material(), quantity)) {
+        if (!entry.service() && !hasInventoryCapacity(player, entry.material(), quantity)) {
             return Result.fail("not enough inventory space");
         }
         pointsDao.addPoints(player.getUniqueId(), -totalPoints, "SHOP_PURCHASE", "{\"item\":\"" + entry.key() + "\",\"quantity\":" + quantity + "}");
-        addMaterial(player, entry.material(), quantity);
-        return Result.ok("purchased " + quantity + "x " + entry.material() + " for " + totalPoints + " points");
+        if (!entry.service()) {
+            addMaterial(player, entry.material(), quantity);
+        }
+        return Result.ok("purchased " + quantity + "x " + entry.key() + " for " + totalPoints + " points");
     }
     public Result applyOverride(Player actor, String itemKey, int newPoints) throws Exception {
         if (newPoints <= 0) {
@@ -126,7 +129,7 @@ public final class PointsService {
         }
         String normalizedItemKey = itemKey.toLowerCase();
         economyOverrideDao.upsert(normalizedItemKey, newPoints, 1, actor.getUniqueId());
-        ShopEntry next = new ShopEntry(current.key(), current.material(), newPoints);
+        ShopEntry next = new ShopEntry(current.key(), current.material(), newPoints, current.service());
         shopItems.put(normalizedItemKey, next);
         auditDao.log(actor.getUniqueId(), null, "SEASONAL_OVERRIDE_APPLIED",
                 "{\"item\":\"" + itemKey + "\",\"points\":" + current.points() + "}",
@@ -184,14 +187,8 @@ public final class PointsService {
         }
     }
     public record Result(boolean success, String message, int amount) {
-        public static Result ok(String message) {
-            return new Result(true, message, 0);
-        }
-        public static Result ok(String message, int amount) {
-            return new Result(true, message, amount);
-        }
-        public static Result fail(String message) {
-            return new Result(false, message, 0);
-        }
+        public static Result ok(String message) { return new Result(true, message, 0); }
+        public static Result ok(String message, int amount) { return new Result(true, message, amount); }
+        public static Result fail(String message) { return new Result(false, message, 0); }
     }
 }

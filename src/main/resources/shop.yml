@@ -20,3 +20,4 @@ items:
   temporary_end:
     material: DRAGON_EGG
     points: 10000
+    service: true

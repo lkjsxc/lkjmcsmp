@@ -133,7 +133,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 warpService,
                 partyService,
                 teleportService,
-                schedulerBridge);
+                schedulerBridge,
+                temporaryEndManager);
         return new Services(
                 pointsService,
                 homeService,
@@ -147,9 +148,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
 
     private void registerCommands(Services services) {
         register("menu", new MenuCommand(services.menus()));
-        register("points", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
-        register("convert", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
-        register("shop", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
+        register("points", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud(), temporaryEndManager));
+        register("convert", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud(), temporaryEndManager));
+        register("shop", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud(), temporaryEndManager));
         register("home", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
         register("sethome", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
         register("delhome", new HomeCommand(services.homes(), services.teleports(), services.achievement()));

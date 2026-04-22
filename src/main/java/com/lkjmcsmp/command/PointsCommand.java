@@ -4,6 +4,7 @@ import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,16 +14,19 @@ public final class PointsCommand implements CommandExecutor {
     private final MenuService menuService;
     private final AchievementService achievementService;
     private final ActionBarHudService actionBarHudService;
+    private final TemporaryEndManager temporaryEndManager;
 
     public PointsCommand(
             PointsService pointsService,
             MenuService menuService,
             AchievementService achievementService,
-            ActionBarHudService actionBarHudService) {
+            ActionBarHudService actionBarHudService,
+            TemporaryEndManager temporaryEndManager) {
         this.pointsService = pointsService;
         this.menuService = menuService;
         this.achievementService = achievementService;
         this.actionBarHudService = actionBarHudService;
+        this.temporaryEndManager = temporaryEndManager;
     }
 
     @Override
@@ -83,6 +87,9 @@ public final class PointsCommand implements CommandExecutor {
             if (result.success()) {
                 achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
                 actionBarHudService.refreshIdle(player);
+                if (args[1].equalsIgnoreCase("temporary_end") && temporaryEndManager != null) {
+                    temporaryEndManager.purchase(player, player.getLocation());
+                }
             }
             player.sendMessage(result.message());
             return;
