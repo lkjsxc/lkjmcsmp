@@ -1,0 +1,106 @@
+package com.lkjmcsmp.command;
+
+import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.time.Duration;
+
+public final class TemporaryEndCommand implements CommandExecutor {
+    private final TemporaryEndManager manager;
+
+    public TemporaryEndCommand(TemporaryEndManager manager) {
+        this.manager = manager;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage("Usage: /tempend purchase | /tempend list | /tempend info <id> | /tempend forceclose <id>");
+            return true;
+        }
+        return switch (args[0].toLowerCase()) {
+            case "purchase" -> handlePurchase(sender);
+            case "list" -> handleList(sender);
+            case "info" -> handleInfo(sender, args);
+            case "forceclose" -> handleForceClose(sender, args);
+            default -> {
+                sender.sendMessage("Unknown subcommand.");
+                yield true;
+            }
+        };
+    }
+
+    private boolean handlePurchase(CommandSender sender) {
+        var opt = CommandUtil.requirePlayer(sender);
+        if (opt.isEmpty()) {
+            return true;
+        }
+        Player player = opt.get();
+        if (!player.hasPermission("lkjmcsmp.temporaryend.use")) {
+            player.sendMessage("Missing permission.");
+            return true;
+        }
+        manager.purchase(player, player.getLocation());
+        return true;
+    }
+
+    private boolean handleList(CommandSender sender) {
+        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) {
+            return true;
+        }
+        var instances = manager.activeInstances();
+        if (instances.isEmpty()) {
+            sender.sendMessage("No active temporary End instances.");
+            return true;
+        }
+        sender.sendMessage("Active temporary End instances:");
+        for (var instance : instances) {
+            long remaining = Duration.between(java.time.Instant.now(), instance.expirationTime()).toMinutes();
+            sender.sendMessage(instance.instanceId().substring(0, 8) + " | " + instance.worldName()
+                    + " | " + instance.state() + " | " + Math.max(0, remaining) + "m left");
+        }
+        return true;
+    }
+
+    private boolean handleInfo(CommandSender sender, String[] args) {
+        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) {
+            return true;
+        }
+        if (args.length < 2) {
+            sender.sendMessage("Usage: /tempend info <id>");
+            return true;
+        }
+        var instance = manager.findInstance(args[1]);
+        if (instance == null) {
+            sender.sendMessage("Instance not found.");
+            return true;
+        }
+        long remaining = Duration.between(java.time.Instant.now(), instance.expirationTime()).toMinutes();
+        sender.sendMessage("ID: " + instance.instanceId());
+        sender.sendMessage("World: " + instance.worldName());
+        sender.sendMessage("State: " + instance.state());
+        sender.sendMessage("Remaining: " + Math.max(0, remaining) + " minutes");
+        return true;
+    }
+
+    private boolean handleForceClose(CommandSender sender, String[] args) {
+        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) {
+            return true;
+        }
+        if (args.length < 2) {
+            sender.sendMessage("Usage: /tempend forceclose <id>");
+            return true;
+        }
+        var instance = manager.findInstance(args[1]);
+        if (instance == null) {
+            sender.sendMessage("Instance not found.");
+            return true;
+        }
+        manager.expireInstance(instance.instanceId());
+        sender.sendMessage("Instance " + instance.instanceId() + " forced to close.");
+        return true;
+    }
+}

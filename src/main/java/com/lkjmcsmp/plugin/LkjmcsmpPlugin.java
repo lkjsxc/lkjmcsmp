@@ -6,6 +6,7 @@ import com.lkjmcsmp.command.MenuCommand;
 import com.lkjmcsmp.command.PointsCommand;
 import com.lkjmcsmp.command.TeamCommand;
 import com.lkjmcsmp.command.TeleportCommand;
+import com.lkjmcsmp.command.TemporaryEndCommand;
 import com.lkjmcsmp.command.WarpCommand;
 import com.lkjmcsmp.domain.HomeService;
 import com.lkjmcsmp.domain.PartyService;
@@ -24,10 +25,13 @@ import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.SqliteDatabase;
+import com.lkjmcsmp.persistence.TemporaryEndDao;
 import com.lkjmcsmp.persistence.WarpDao;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarHudListener;
 import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
+import com.lkjmcsmp.plugin.temporaryend.TemporaryEndBootstrap;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -41,7 +45,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
     private SchedulerBridge schedulerBridge;
     private FirstJoinDao firstJoinDao;
-    private ActionBarHudService actionBarHudService;
+    private TemporaryEndManager temporaryEndManager;
 
     @Override
     public void onEnable() {
@@ -63,8 +67,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (actionBarHudService != null) {
-            actionBarHudService.stop();
+        if (services != null && services.hud() != null) {
+            services.hud().stop();
         }
         getLogger().info("lkjmcsmp disabled");
     }
@@ -94,7 +98,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 shopConfig.getConfigurationSection("items"),
                 config.getBoolean("economy.allow-partial-convert", false),
                 config.getInt("economy.max-convert-per-op", 4096));
-        this.actionBarHudService = new ActionBarHudService(schedulerBridge, pointsService);
+        ActionBarHudService actionBarHudService = new ActionBarHudService(schedulerBridge, pointsService);
         AchievementService achievementService = new AchievementService(
                 achievementDao,
                 pointsDao,
@@ -117,6 +121,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 Objects.requireNonNull(config.getStringList("teleport.rtp-world-whitelist")),
                 actionBarHudService);
         this.firstJoinDao = new FirstJoinDao(database);
+
+        this.temporaryEndManager = TemporaryEndBootstrap.bootstrap(
+                this, schedulerBridge, pointsDao, new TemporaryEndDao(database), config);
 
         MenuService menuService = new MenuService(
                 pointsService,
@@ -160,6 +167,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("rtp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
         register("achievement", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
         register("ach", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
+        register("tempend", new TemporaryEndCommand(temporaryEndManager));
     }
 
     private void registerListeners(Services initialized) {

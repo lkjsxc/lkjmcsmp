@@ -18,5 +18,9 @@ economy:
   max-convert-per-op: 4096
 party:
   invite-timeout-seconds: 60
+temporary-end:
+  cost: 10000
+  transfer-radius: 10
+  duration-minutes: 180
 database:
   file: plugins/lkjmcsmp/lkjmcsmp.db
