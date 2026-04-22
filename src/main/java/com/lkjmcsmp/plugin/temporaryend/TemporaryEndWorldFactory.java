@@ -1,0 +1,63 @@
+package com.lkjmcsmp.plugin.temporaryend;
+
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.logging.Logger;
+
+public final class TemporaryEndWorldFactory {
+    private final Logger logger;
+
+    public TemporaryEndWorldFactory(Logger logger) {
+        this.logger = logger;
+    }
+
+    public World createEndWorld(String worldName) {
+        WorldCreator creator = new WorldCreator(worldName);
+        creator.environment(World.Environment.THE_END);
+        World world = creator.createWorld();
+        if (world != null) {
+            world.setAutoSave(false);
+        }
+        return world;
+    }
+
+    public boolean unloadAndDelete(String worldName) {
+        World world = Bukkit.getWorld(worldName);
+        if (world != null) {
+            Bukkit.unloadWorld(world, false);
+        }
+        Path worldFolder = Bukkit.getWorldContainer().toPath().resolve(worldName);
+        if (Files.exists(worldFolder)) {
+            try {
+                deleteRecursive(worldFolder);
+                return true;
+            } catch (IOException e) {
+                logger.warning("Failed to delete world folder " + worldName + ": " + e.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void deleteRecursive(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            try (var entries = Files.list(path)) {
+                entries.sorted(Comparator.reverseOrder())
+                        .forEach(child -> {
+                            try {
+                                deleteRecursive(child);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+        }
+        Files.delete(path);
+    }
+}

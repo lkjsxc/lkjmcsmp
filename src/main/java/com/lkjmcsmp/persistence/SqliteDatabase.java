@@ -128,6 +128,35 @@ public final class SqliteDatabase {
                   completed_at TEXT NOT NULL
                 );
                 """);
+            statement.execute("""
+                CREATE TABLE IF NOT EXISTS temporary_end_instances (
+                  instance_id TEXT PRIMARY KEY,
+                  world_name TEXT NOT NULL UNIQUE,
+                  creator_uuid TEXT NOT NULL,
+                  origin_world TEXT NOT NULL,
+                  origin_x REAL NOT NULL,
+                  origin_y REAL NOT NULL,
+                  origin_z REAL NOT NULL,
+                  origin_yaw REAL NOT NULL,
+                  origin_pitch REAL NOT NULL,
+                  creation_time TEXT NOT NULL,
+                  expiration_time TEXT NOT NULL,
+                  state TEXT NOT NULL
+                );
+                """);
+            statement.execute("""
+                CREATE TABLE IF NOT EXISTS temporary_end_participants (
+                  instance_id TEXT NOT NULL,
+                  player_uuid TEXT NOT NULL,
+                  return_world TEXT NOT NULL,
+                  return_x REAL NOT NULL,
+                  return_y REAL NOT NULL,
+                  return_z REAL NOT NULL,
+                  return_yaw REAL NOT NULL,
+                  return_pitch REAL NOT NULL,
+                  PRIMARY KEY (instance_id, player_uuid)
+                );
+                """);
         }
     }
 }
