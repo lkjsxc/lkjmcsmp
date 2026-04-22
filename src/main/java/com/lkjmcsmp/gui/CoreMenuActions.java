@@ -1,18 +1,24 @@
 package com.lkjmcsmp.gui;
 
+import com.lkjmcsmp.domain.PointsService;
+import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 final class CoreMenuActions {
     private final CoreMenuViews views;
-    private final Map<UUID, Map<String, Integer>> pagesByPlayer = new ConcurrentHashMap<>();
+    private final PointsService pointsService;
+    private final TemporaryEndManager temporaryEndManager;
+    private final PageTracker tracker = new PageTracker();
+    private final PickerActions pickerActions;
 
-    CoreMenuActions(CoreMenuViews views) {
+    CoreMenuActions(CoreMenuViews views, PointsService pointsService, TemporaryEndManager temporaryEndManager) {
         this.views = views;
+        this.pointsService = pointsService;
+        this.temporaryEndManager = temporaryEndManager;
+        this.pickerActions = new PickerActions(views, tracker);
     }
 
     boolean handleClick(InventoryClickEvent event, Player player, String title, String display) throws Exception {
@@ -23,11 +29,13 @@ final class CoreMenuActions {
             case MenuTitles.WARPS -> handleWarps(player, display);
             case MenuTitles.TEAM -> handleTeam(player, display);
             case MenuTitles.TEAM_DISBAND_CONFIRM -> handleTeamDisbandConfirm(player, display);
+            case MenuTitles.TEMPORARY_END -> handleTemporaryEnd(player, display);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
-                    handlePicker(player, title, display);
+                    pickerActions.handle(player, title, display);
             default -> false;
         };
     }
+
     private boolean handleTeleport(Player player, String display) throws Exception {
         return switch (display) {
             case "Random Teleport" -> command(player, "rtp");
@@ -41,6 +49,7 @@ final class CoreMenuActions {
             default -> false;
         };
     }
+
     private boolean handleHomes(Player player, String display) throws Exception {
         if (display.startsWith("Home :: ")) {
             return command(player, "home " + display.substring("Home :: ".length()));
@@ -48,11 +57,11 @@ final class CoreMenuActions {
         return switch (display) {
             case "Add Current Location" -> {
                 command(player, "homes addcurrent");
-                views.openHomes(player, page(player, MenuTitles.HOMES));
+                views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
                 yield true;
             }
             case "Delete Homes" -> {
-                setPage(player, MenuTitles.HOMES_DELETE, 0);
+                tracker.setPage(player.getUniqueId(), MenuTitles.HOMES_DELETE, 0);
                 views.openHomesDelete(player, 0);
                 yield true;
             }
@@ -62,16 +71,17 @@ final class CoreMenuActions {
             default -> false;
         };
     }
+
     private boolean handleHomesDelete(Player player, String display) throws Exception {
         if (display.startsWith("Delete Home :: ")) {
             String name = display.substring("Delete Home :: ".length());
             command(player, "delhome " + name);
-            views.openHomesDelete(player, page(player, MenuTitles.HOMES_DELETE));
+            views.openHomesDelete(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES_DELETE));
             return true;
         }
         return switch (display) {
             case "Cancel Deletion" -> {
-                views.openHomes(player, page(player, MenuTitles.HOMES));
+                views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
                 yield true;
             }
             case "No Homes Set" -> tell(player, "No homes set.");
@@ -80,6 +90,7 @@ final class CoreMenuActions {
             default -> false;
         };
     }
+
     private boolean handleWarps(Player player, String display) throws Exception {
         if (display.startsWith("Warp :: ")) {
             return command(player, "warp " + display.substring("Warp :: ".length()));
@@ -91,6 +102,7 @@ final class CoreMenuActions {
             default -> false;
         };
     }
+
     private boolean handleTeam(Player player, String display) throws Exception {
         if (display.endsWith("(Locked)")) {
             return tell(player, "Action is locked. Read the item description for details.");
@@ -107,6 +119,7 @@ final class CoreMenuActions {
             default -> false;
         };
     }
+
     private boolean handleTeamDisbandConfirm(Player player, String display) throws Exception {
         return switch (display) {
             case "Confirm Disband" -> commandAndRefreshTeam(player, "team disband");
@@ -114,76 +127,61 @@ final class CoreMenuActions {
             default -> false;
         };
     }
-    private boolean handlePicker(Player player, String title, String display) throws Exception {
-        if (display.equals("Refresh")) {
-            views.openPicker(player, title, page(player, title));
-            return true;
-        }
-        if (display.equals("Page Prev")) {
-            return turnPage(player, title, -1);
-        }
-        if (display.equals("Page Next")) {
-            return turnPage(player, title, 1);
-        }
-        if (display.equals("No Players Online")) {
-            return tell(player, "No other players online.");
-        }
-        if (display.equals("No Pending Requests")) {
-            return tell(player, "No pending teleport request.");
-        }
-        if (!(display.startsWith("Player :: ") || display.startsWith("Requester :: "))) {
+
+    private boolean handleTemporaryEnd(Player player, String display) throws Exception {
+        if (!display.equals("Purchase")) {
             return false;
         }
-        String target = display.startsWith("Player :: ")
-                ? display.substring("Player :: ".length())
-                : display.substring("Requester :: ".length());
-        return switch (title) {
-            case MenuTitles.PICK_TPA -> command(player, "tpa " + target);
-            case MenuTitles.PICK_TPA_HERE -> command(player, "tpahere " + target);
-            case MenuTitles.PICK_TP -> command(player, "tp " + target);
-            case MenuTitles.PICK_TP_ACCEPT -> command(player, "tpaccept " + target);
-            case MenuTitles.PICK_INVITE -> command(player, "team invite " + target);
-            default -> false;
-        };
+        if (temporaryEndManager == null) {
+            player.sendMessage("Temporary End is not available.");
+            return true;
+        }
+        var result = pointsService.purchase(player, "temporary_end", 1);
+        if (!result.success()) {
+            player.sendMessage(result.message());
+            views.open(player, MenuTitles.TEMPORARY_END);
+            return true;
+        }
+        temporaryEndManager.purchase(player, player.getLocation());
+        player.sendMessage("\u00A7aTemporary End purchased! Nearby players will be transferred.");
+        views.open(player, MenuTitles.TEMPORARY_END);
+        return true;
     }
-    void clearPlayerState(UUID playerId) { pagesByPlayer.remove(playerId); }
+
+    void clearPlayerState(UUID playerId) {
+        tracker.clear(playerId);
+    }
+
     private boolean turnPage(Player player, String title, int delta) throws Exception {
-        setPage(player, title, page(player, title) + delta);
+        tracker.setPage(player.getUniqueId(), title, tracker.page(player.getUniqueId(), title) + delta);
         return switch (title) {
             case MenuTitles.HOMES -> {
-                views.openHomes(player, page(player, title));
-                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
+                views.openHomes(player, tracker.page(player.getUniqueId(), title));
+                tracker.setPage(player.getUniqueId(), title, MenuPageStateSync.readCurrentPage(player, tracker.page(player.getUniqueId(), title)));
                 yield true;
             }
             case MenuTitles.HOMES_DELETE -> {
-                views.openHomesDelete(player, page(player, title));
-                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
+                views.openHomesDelete(player, tracker.page(player.getUniqueId(), title));
+                tracker.setPage(player.getUniqueId(), title, MenuPageStateSync.readCurrentPage(player, tracker.page(player.getUniqueId(), title)));
                 yield true;
             }
             case MenuTitles.WARPS -> {
-                views.openWarps(player, page(player, title));
-                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
-                yield true;
-            }
-            case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE -> {
-                views.openPicker(player, title, page(player, title));
-                setPage(player, title, MenuPageStateSync.readCurrentPage(player, page(player, title)));
+                views.openWarps(player, tracker.page(player.getUniqueId(), title));
+                tracker.setPage(player.getUniqueId(), title, MenuPageStateSync.readCurrentPage(player, tracker.page(player.getUniqueId(), title)));
                 yield true;
             }
             default -> false;
         };
     }
-    private int page(Player player, String title) { return pagesByPlayer.getOrDefault(player.getUniqueId(), Map.of()).getOrDefault(title, 0); }
-    private void setPage(Player player, String title, int page) {
-        pagesByPlayer.computeIfAbsent(player.getUniqueId(), ignored -> new ConcurrentHashMap<>()).put(title, Math.max(0, page));
-    }
+
     private boolean open(Player player, String title) throws Exception {
         if (MenuTitles.isPagedMenu(title)) {
-            setPage(player, title, 0);
+            tracker.setPage(player.getUniqueId(), title, 0);
         }
         views.open(player, title);
         return true;
     }
+
     private static boolean tell(Player player, String message) { player.sendMessage(message); return true; }
     private static boolean command(Player player, String command) { player.performCommand(command); return true; }
     private boolean commandAndRefreshTeam(Player player, String command) throws Exception {

@@ -17,3 +17,6 @@ items:
   gravel:
     material: GRAVEL
     points: 2
+  temporary_end:
+    material: DRAGON_EGG
+    points: 10000

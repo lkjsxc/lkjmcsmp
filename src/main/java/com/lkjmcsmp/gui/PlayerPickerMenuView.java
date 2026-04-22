@@ -18,9 +18,13 @@ final class PlayerPickerMenuView {
                 .toList();
         int bounded = MenuPagination.clampPage(page, players.size());
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, title);
-        int slot = 0;
+        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Select Player"));
+        int slotIdx = 0;
         for (Player online : MenuPagination.pageSlice(players, bounded)) {
-            inventory.setItem(slot++, MenuItems.named(Material.PLAYER_HEAD, "Player :: " + online.getName(), actionHint));
+            if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(Material.PLAYER_HEAD, "Player :: " + online.getName(), actionHint));
+            }
+            slotIdx++;
         }
         if (players.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Players Online"));
@@ -30,6 +34,7 @@ final class PlayerPickerMenuView {
         }
         MenuPagination.renderControls(inventory, bounded, players.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        MenuDecor.fillBorder(inventory, MenuDecor.PICKER_BORDER);
         player.openInventory(inventory);
     }
 
@@ -42,16 +47,20 @@ final class PlayerPickerMenuView {
                 .toList();
         int bounded = MenuPagination.clampPage(page, onlineRequests.size());
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, title);
-        int slot = 0;
+        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Select Requester"));
+        int slotIdx = 0;
         for (TpaRequest request : MenuPagination.pageSlice(onlineRequests, bounded)) {
             Player requester = Bukkit.getPlayer(request.from());
             if (requester == null) {
                 continue;
             }
-            inventory.setItem(slot++, MenuItems.named(
-                    Material.PLAYER_HEAD,
-                    "Requester :: " + requester.getName(),
-                    request.summonHere() ? "Requested /tpahere" : "Requested /tpa"));
+            if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(
+                        Material.PLAYER_HEAD,
+                        "Requester :: " + requester.getName(),
+                        request.summonHere() ? "Requested /tpahere" : "Requested /tpa"));
+            }
+            slotIdx++;
         }
         if (onlineRequests.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Pending Requests"));
@@ -61,6 +70,7 @@ final class PlayerPickerMenuView {
         }
         MenuPagination.renderControls(inventory, bounded, onlineRequests.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        MenuDecor.fillBorder(inventory, MenuDecor.PICKER_BORDER);
         player.openInventory(inventory);
     }
 }

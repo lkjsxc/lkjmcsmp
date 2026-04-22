@@ -24,6 +24,9 @@ final class TeamMenuView {
         boolean leader = inTeam && partyService.isLeader(playerId);
         int members = inTeam ? partyService.listMembers(playerId).size() : 0;
 
+        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
+                "Team", "Party: " + partyId.orElse("<none>")));
+
         inventory.setItem(10, MenuItems.named(
                 Material.PLAYER_HEAD,
                 "Team Info",
@@ -38,6 +41,7 @@ final class TeamMenuView {
         inventory.setItem(25, actionItem(inTeam, Material.BARRIER, "Leave Team", "Runs /team leave", "Join or create a team first."));
         inventory.setItem(31, actionItem(leader, Material.TNT, "Disband Team", "Runs /team disband", inTeam ? "Only leaders can disband teams." : "Join or create a team first."));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        MenuDecor.fillBorder(inventory, MenuDecor.TEAM_BORDER);
         player.openInventory(inventory);
     }
 
@@ -46,6 +50,7 @@ final class TeamMenuView {
         UUID playerId = player.getUniqueId();
         var partyId = partyService.getPartyId(playerId);
         boolean leader = partyService.isLeader(playerId);
+        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Confirm Disband"));
         if (partyId.isEmpty() || !leader) {
             inventory.setItem(22, MenuItems.named(
                     Material.BARRIER,
@@ -53,6 +58,7 @@ final class TeamMenuView {
                     "Only current team leaders can disband."));
             inventory.setItem(32, MenuItems.named(Material.RED_DYE, "Cancel"));
             inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+            MenuDecor.fillBorder(inventory, MenuDecor.TEAM_BORDER);
             player.openInventory(inventory);
             return;
         }
@@ -65,6 +71,7 @@ final class TeamMenuView {
         inventory.setItem(30, MenuItems.named(Material.TNT, "Confirm Disband"));
         inventory.setItem(32, MenuItems.named(Material.RED_DYE, "Cancel"));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        MenuDecor.fillBorder(inventory, MenuDecor.TEAM_BORDER);
         player.openInventory(inventory);
     }
 
