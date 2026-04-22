@@ -21,3 +21,4 @@ Define player-facing behavior for commands, menus, achievements, economy, social
 - [achievements/README.md](achievements/README.md): achievement model and reward claim rules
 - [actionbar/README.md](actionbar/README.md): action-bar HUD contracts and priority rules
 - [social/README.md](social/README.md): party permissions and audit expectations
+- [temporary-end/README.md](temporary-end/README.md): temporary End dimension purchase and lifecycle

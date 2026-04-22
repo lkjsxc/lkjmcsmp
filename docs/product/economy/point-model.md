@@ -28,3 +28,4 @@ Provide a strict, auditable points economy where cobblestone conversion is the p
 - `SHOP_PURCHASE`
 - `ADMIN_ADJUST`
 - `SEASONAL_OVERRIDE_APPLIED`
+- `TEMPORARY_END_PURCHASE`

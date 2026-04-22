@@ -7,6 +7,8 @@
 3. On completion, action bar emits explicit success text.
 4. On cancellation/failure, action bar emits explicit failure text.
 5. Chat messaging remains enabled in parallel.
+6. Teleport overlay uses source identifier `"teleport"` and priority `TELEPORT`.
+7. TTL expiry schedules a player-scoped delayed cleanup task.
 
 ## Combat Overlay
 
@@ -14,9 +16,12 @@
 2. Content: target name plus two-tone color HP bar only (no numeric health).
 3. Duration: `3` seconds after latest qualifying hit by that player.
 4. Re-hit during active overlay refreshes TTL and updates bar fill.
+5. Combat overlay uses source identifier `"combat"` and priority `COMBAT`.
+6. TTL expiry schedules a player-scoped delayed cleanup task.
 
 ## Safety Rules
 
 1. Combat overlay never suppresses teleport overlay.
 2. Overlay calculations use post-damage health where available.
 3. Offline/dead/invalid target states collapse safely back to lower-priority HUD.
+4. Expired messages are evicted lazily during render and by scheduled cleanup.
