@@ -34,7 +34,8 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (player == null || !player.isOnline()) {
             return;
         }
-        refreshIdleAllOnline();
+        ensureIdlePresent(player);
+        refreshIdle(player);
     }
 
     public void onPlayerQuit(Player player) {
@@ -77,7 +78,7 @@ public final class ActionBarHudService implements TeleportHudSink {
         String hpBar = buildHpBar(currentHealth, maxHealth);
         long expiresAt = System.currentTimeMillis() + (COMBAT_TTL_TICKS * 50L);
         setMessage(attacker, new ActionBarMessage(ActionBarPriority.COMBAT,
-                "\u00A7e" + targetName + " \u00A7fHP " + hpBar, COMBAT_SOURCE, expiresAt));
+                "\u00A7e" + targetName + "\u00A7f " + hpBar, COMBAT_SOURCE, expiresAt));
         scheduleClear(attacker, COMBAT_SOURCE, COMBAT_TTL_TICKS);
     }
 
@@ -107,6 +108,7 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (player == null || !player.isOnline()) {
             return;
         }
+        ensureIdlePresent(player);
         states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState()).put(message);
         renderCurrent(player);
     }
@@ -136,12 +138,29 @@ public final class ActionBarHudService implements TeleportHudSink {
         PlayerHudState state = states.get(player.getUniqueId());
         String effective = state != null ? state.computeEffective() : null;
         if (effective == null || effective.isEmpty()) {
+            ensureIdlePresent(player);
+            state = states.get(player.getUniqueId());
+            effective = state != null ? state.computeEffective() : null;
+        }
+        if (effective == null || effective.isEmpty()) {
             return;
         }
         if (state != null && !state.shouldSend(effective)) {
             return;
         }
         player.sendActionBar(effective);
+    }
+
+    private void ensureIdlePresent(Player player) {
+        if (player == null) {
+            return;
+        }
+        PlayerHudState state = states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState());
+        if (state.get(IDLE_SOURCE) == null) {
+            int onlineCount = Bukkit.getOnlinePlayers().size();
+            state.put(new ActionBarMessage(ActionBarPriority.IDLE,
+                    "Points: ... | Online: " + onlineCount, IDLE_SOURCE, -1));
+        }
     }
 
     private static String buildHpBar(double currentHealth, double maxHealth) {

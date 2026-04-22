@@ -15,6 +15,10 @@ final class PlayerHudState {
         messages.remove(source);
     }
 
+    ActionBarMessage get(String source) {
+        return messages.get(source);
+    }
+
     void clear() {
         messages.clear();
         lastSent = null;
