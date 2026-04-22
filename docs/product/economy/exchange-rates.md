@@ -14,6 +14,7 @@ Define strict per-item base rates with optional seasonal point overrides control
 | Dirt | 1 |
 | Sand | 2 |
 | Gravel | 2 |
+| Temporary End Pass | 10,000 |
 
 ## Rules
 
@@ -33,6 +34,7 @@ Define strict per-item base rates with optional seasonal point overrides control
 9. Failed item insertion rolls back points deduction.
 10. Log purchases use per-item semantics (`1` log = `16` points).
 11. Quantity selection is not interpreted as multiplier units.
+12. Service items (e.g., `temporary_end`) deduct points and trigger effects; no inventory capacity check is performed.
 
 ## Override Scope
 

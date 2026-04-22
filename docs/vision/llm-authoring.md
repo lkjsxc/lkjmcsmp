@@ -23,3 +23,10 @@
 - Use `points` for currency generated from cobblestone conversion.
 - Use `party` for the lightweight team system.
 - Use `achievement` for plugin-managed achievement state and contracts.
+
+## GUI Visual Contracts
+
+- Decorative border colors are canonical per menu category and must match [slot-maps.md](../product/gui/slot-maps.md).
+- Border rendering uses `STAINED_GLASS_PANE` materials; never use solid blocks that could be confused with content.
+- Info panels at slot `4` use `PAPER` with concise gray or gold names.
+- Filler helper classes that contain only static layout data are exempt from the strict 180-line headroom target but must stay under 200 lines.

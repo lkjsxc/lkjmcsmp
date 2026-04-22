@@ -8,6 +8,13 @@
 4. Reason code for ledger: `TEMPORARY_END_PURCHASE`.
 5. On failure, points are not deducted and the player receives an explicit message.
 
+## Purchase Paths
+
+1. **Command path**: `/tempend purchase` triggers direct purchase.
+2. **Shop path**: Buying the `temporary_end` shop item for `10,000` points triggers the same creation flow.
+3. **Menu path**: Root menu -> Temporary End -> Purchase button triggers the same creation flow.
+4. All paths share the same balance validation, ledger reason code, and instance creation logic.
+
 ## Instance Creation
 
 1. Creation queues on the global region scheduler for Folia safety.

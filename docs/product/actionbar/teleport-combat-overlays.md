@@ -13,11 +13,12 @@
 ## Combat Overlay
 
 1. Trigger: player damages a living target (mob or player).
-2. Content: target name plus two-tone color HP bar only (no numeric health).
-3. Duration: `3` seconds after latest qualifying hit by that player.
-4. Re-hit during active overlay refreshes TTL and updates bar fill.
-5. Combat overlay uses source identifier `"combat"` and priority `COMBAT`.
-6. TTL expiry schedules a player-scoped delayed cleanup task.
+2. Content: target name plus two-tone color HP bar only. The literal text `"HP"` must not appear.
+3. Format: `§e<targetName>§f <hpBar>`
+4. Duration: `3` seconds after latest qualifying hit by that player.
+5. Re-hit during active overlay refreshes TTL and updates bar fill.
+6. Combat overlay uses source identifier `"combat"` and priority `COMBAT`.
+7. TTL expiry schedules a player-scoped delayed cleanup task.
 
 ## Safety Rules
 
@@ -25,3 +26,4 @@
 2. Overlay calculations use post-damage health where available.
 3. Offline/dead/invalid target states collapse safely back to lower-priority HUD.
 4. Expired messages are evicted lazily during render and by scheduled cleanup.
+5. After any overlay expires, the idle message is guaranteed to render within the same tick if no other overlay remains.

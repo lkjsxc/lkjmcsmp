@@ -35,3 +35,10 @@
 2. If the world exists in `Bukkit.getWorlds()`, register it and schedule expiry checks.
 3. If the world is missing, transition to `CLOSED` and clean up records.
 4. Orphaned world folders without DB records are ignored.
+
+## Multi-Instance Safety
+
+1. Multiple provisional dimensions may exist simultaneously.
+2. Each purchase (command, shop, or menu) creates an independent instance.
+3. Instances do not interfere with each other; their world names are unique.
+4. Expiry and evacuation are scoped per instance.

@@ -8,6 +8,7 @@
 - Background auto-refresh reopen loops are disallowed.
 - `Back` control uses `ARROW` material across all menus.
 - Slot positions are canonical in [slot-maps.md](slot-maps.md).
+- Decorative borders frame every menu using the canonical color per category.
 
 ## Root Menu (`/menu`)
 
@@ -17,7 +18,8 @@
 4. Team
 5. Points Shop
 6. Achievement
-7. Close Menu
+7. Temporary End
+8. Close Menu
 
 ## Teleport Menu
 
@@ -89,3 +91,19 @@
 - Reward preview
 - Claim actions for `COMPLETED_UNCLAIMED`
 - Back (`ARROW`)
+
+## Temporary End Menu
+
+- Info panel (cost, duration, description)
+- Purchase button (enabled when balance >= 10,000 points)
+- Current points balance indicator
+- Back (`ARROW`)
+
+## Picker Menus (`pick-*`)
+
+- `0..44`: paged player/requester entries
+- `46`: Page Prev
+- `47`: Page Next
+- `48`: Page Info
+- `49`: Back
+- `50`: Refresh

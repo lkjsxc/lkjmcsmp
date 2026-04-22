@@ -17,6 +17,7 @@ Extended smoke suite:
 - Achievement claim flow
 - GUI root menu open
 - Action bar HUD lifecycle and overlays
+- Temporary End purchase and creation
 
 ## Minimum Assertions
 
@@ -48,6 +49,11 @@ Extended smoke suite:
 - GUI slot-map contract markers match shop-detail source layout (`20..26` direct-buy + `31` balance + `49` back).
 - Action-bar source markers enforce deterministic state priority (teleport > combat > idle).
 - Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
+- Action bar never stays blank after combat or teleport overlay expires; idle reclaims immediately.
+- Combat overlay text omits the literal `"HP"`; shows target name followed by HP bar only.
+- Root menu includes `Temporary End` entry.
+- Temporary End shop item is visible and purchasable.
+- GUI menus render decorative borders with stained glass panes.
 
 ## Action Bar Assertions
 
@@ -55,7 +61,9 @@ Extended smoke suite:
 2. Combat overlays include target name plus two-tone HP bar and expire after `3` seconds.
 3. Idle HUD renders points and online count when no overlay is active.
 4. No scoreboard probe path or sidebar dependency remains in runtime or smoke checks.
+5. Action bar is never blank for an online player.
 
 ## Blocker Policy
 
 - Any failed action-bar assertion is an acceptance blocker.
+- Any failed GUI contract assertion is an acceptance blocker.
