@@ -18,8 +18,7 @@
 4. Team
 5. Points Shop
 6. Achievement
-7. Temporary End
-8. Close Menu
+7. Close Menu
 
 ## Teleport Menu
 
@@ -77,10 +76,11 @@
 
 - Selected item description and per-item pricing
 - Current points balance indicator
-- Direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`)
+- Direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`) for physical items
+- Service items (e.g. Temporary End) show a single Purchase button instead of quantity buttons
 - No separate quantity-setting or buy-confirm button
 - Purchase executes only when balance is sufficient
-- Detail view stays open after purchase and refreshes affordability state
+- Detail view stays open after physical-item purchase and refreshes affordability state
 - Back (`ARROW`)
 
 ## Achievement Menu
@@ -90,13 +90,6 @@
 - Detailed achievement explanation text
 - Reward preview
 - Claim actions for `COMPLETED_UNCLAIMED`
-- Back (`ARROW`)
-
-## Temporary End Menu
-
-- Info panel (cost, duration, description)
-- Purchase button (enabled when balance >= 10,000 points)
-- Current points balance indicator
 - Back (`ARROW`)
 
 ## Picker Menus (`pick-*`)

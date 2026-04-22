@@ -2,11 +2,10 @@
 
 ## States
 
-1. `PENDING_CREATION` — purchase accepted, world creation queued.
-2. `ACTIVE` — world exists, players may enter.
-3. `EXPIRING` — duration elapsed; evacuation in progress.
-4. `CLOSED` — world unloaded, records pending final cleanup.
-5. `CLEANING_UP` — final deletion of world folder and DB records.
+1. `ACTIVE` — world exists, players may enter.
+2. `EXPIRING` — duration elapsed; evacuation in progress.
+3. `CLOSED` — world unloaded, records pending final cleanup.
+4. `CLEANING_UP` — final deletion of world folder and DB records.
 
 ## Duration
 
@@ -19,7 +18,7 @@
 1. Transition to `EXPIRING`.
 2. Teleport all online participants in the world back to the recorded origin.
 3. Unload the world with `save = false`.
-4. Delete the world folder.
+4. Delete the world folder; if locked files prevent deletion, retry once after a short delay.
 5. Transition to `CLOSED`, then `CLEANING_UP`.
 6. Remove DB records.
 

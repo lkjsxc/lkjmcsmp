@@ -18,14 +18,13 @@ For 54-slot menus, bottom-row control slots are:
 ## Root Menu (`lkjmcsmp :: menu`)
 
 1. `4`: Info Panel (`PAPER`)
-2. `19`: Teleport
-3. `20`: Homes
-4. `21`: Warps
-5. `22`: Team
-6. `23`: Points Shop
-7. `24`: Achievement
-8. `25`: Temporary End
-9. `50`: Close Menu
+2. `10`: Teleport
+3. `12`: Homes
+4. `14`: Warps
+5. `16`: Team
+6. `20`: Points Shop
+7. `22`: Achievement
+8. `50`: Close Menu
 
 ## Teleport Menu (`lkjmcsmp :: teleport`)
 
@@ -104,13 +103,13 @@ For 54-slot menus, bottom-row control slots are:
 1. `4`: Info Panel — Selected Item Summary (`PAPER`)
 2. `13`: Selected Item Summary
 3. `31`: Points Balance
-4. `20`: Buy x1
-5. `21`: Buy x2
-6. `22`: Buy x4
-7. `23`: Buy x8
-8. `24`: Buy x16
-9. `25`: Buy x32
-10. `26`: Buy x64
+4. `19`: Buy x1
+5. `20`: Buy x2
+6. `21`: Buy x4
+7. `22`: Buy x8
+8. `23`: Buy x16
+9. `24`: Buy x32
+10. `25`: Buy x64
 11. `49`: Back
 
 ## Achievement Menu (`lkjmcsmp :: achievement`)
@@ -122,10 +121,10 @@ For 54-slot menus, bottom-row control slots are:
 5. `48`: Page Info
 6. `49`: Back
 
-## Temporary End Menu (`lkjmcsmp :: temporary-end`)
+## Shop Service Detail Menu (`lkjmcsmp :: shop-detail` for service items)
 
-1. `4`: Info Panel (`PAPER`)
-2. `13`: Description Summary
+1. `4`: Info Panel — Selected Service Summary (`PAPER`)
+2. `13`: Selected Service Summary
 3. `22`: Purchase
 4. `31`: Points Balance
 5. `49`: Back

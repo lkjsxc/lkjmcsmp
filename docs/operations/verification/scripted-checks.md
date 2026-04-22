@@ -46,7 +46,7 @@ Extended smoke suite:
 - Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Team disband action from GUI opens explicit confirm screen before execution.
-- GUI slot-map contract markers match shop-detail source layout (`20..26` direct-buy + `31` balance + `49` back).
+- GUI slot-map contract markers match shop-detail source layout (`19..25` direct-buy + `31` balance + `49` back).
 - Action-bar source markers enforce deterministic state priority (teleport > combat > idle).
 - Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
 - Action bar never stays blank after combat or teleport overlay expires; idle reclaims immediately.

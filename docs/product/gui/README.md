@@ -23,6 +23,7 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 15. Team menu slot mapping follows the canonical layout contract.
 16. Every plugin menu uses decorative borders for visual hierarchy and consistency.
 17. Service-type shop items (world effects, not inventory items) follow the same list-to-detail flow but execute effects on purchase.
+18. Service items in shop lists display an `ENDER_EYE` indicator and `"§dService Item — executes on purchase"` lore line.
 
 ## Visual Design System
 
@@ -38,7 +39,7 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
    - Warps: `GREEN_STAINED_GLASS_PANE`
    - Team: `CYAN_STAINED_GLASS_PANE`
    - Achievement: `ORANGE_STAINED_GLASS_PANE`
-   - Temporary End: `BLACK_STAINED_GLASS_PANE`
+   - Temporary End: `BLACK_STAINED_GLASS_PANE` (retained for legacy compatibility; menu retired)
    - Picker: `LIGHT_GRAY_STAINED_GLASS_PANE`
 4. Functional slots within border rows/columns take precedence over decorative items.
 5. Empty content slots inside the border remain empty (no filler) unless used for info panels.

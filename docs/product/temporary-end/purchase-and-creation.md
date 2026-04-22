@@ -10,22 +10,22 @@
 
 ## Purchase Paths
 
-1. **Command path**: `/tempend purchase` triggers direct purchase.
+1. **Command path**: `/tempend purchase` calls `PointsService.purchase("temporary_end", 1)` then `TemporaryEndManager.createInstance`.
 2. **Shop path**: Buying the `temporary_end` shop item for `10,000` points triggers the same creation flow.
-3. **Menu path**: Root menu -> Temporary End -> Purchase button triggers the same creation flow.
-4. All paths share the same balance validation, ledger reason code, and instance creation logic.
+3. All paths share the same balance validation, ledger reason code, and instance creation logic.
 
 ## Instance Creation
 
 1. Creation queues on the global region scheduler for Folia safety.
 2. Each instance receives a unique world name: `lkjmcsmp_tempend_<uuid>`.
 3. World generation uses `Environment.THE_END` for vanilla End terrain, dragon, cities, and Elytra.
-4. If world creation fails, the purchase is refunded and logged.
+4. If world creation fails after points are deducted, the purchase is refunded immediately with reason `TEMPORARY_END_REFUND` and logged.
+5. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance.
 
 ## Player Transfer
 
 1. At activation, all players within `10` blocks of the activation origin are captured.
-2. Captured players are teleported to the new End world's spawn platform.
+2. Captured players are teleported to the obsidian platform at `(100, 49, 0)` in the new End world.
 3. The activation origin is recorded as the return location for all participants.
 4. Invalid-state players (offline, dead, vanished) are skipped.
 5. The transfer radius is configurable under `temporary-end.transfer-radius`.
