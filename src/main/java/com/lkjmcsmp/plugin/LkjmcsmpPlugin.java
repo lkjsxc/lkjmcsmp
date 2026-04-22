@@ -123,7 +123,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         this.firstJoinDao = new FirstJoinDao(database);
 
         this.temporaryEndManager = TemporaryEndBootstrap.bootstrap(
-                this, schedulerBridge, pointsDao, new TemporaryEndDao(database), config);
+                this, schedulerBridge, pointsDao, new TemporaryEndDao(database), config, actionBarHudService);
 
         MenuService menuService = new MenuService(
                 pointsService,
@@ -168,7 +168,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         register("rtp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
         register("achievement", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
         register("ach", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
-        register("tempend", new TemporaryEndCommand(temporaryEndManager));
+        register("tempend", new TemporaryEndCommand(services.points(), temporaryEndManager));
     }
 
     private void registerListeners(Services initialized) {

@@ -32,14 +32,9 @@ public final class TemporaryEndManager {
     private final Map<String, TemporaryEndInstance> activeInstances = new ConcurrentHashMap<>();
 
     public TemporaryEndManager(
-            SchedulerBridge schedulerBridge,
-            TemporaryEndDao temporaryEndDao,
-            PointsDao pointsDao,
-            TemporaryEndWorldFactory worldFactory,
-            TemporaryEndTransfer transfer,
-            Logger logger,
-            int cost,
-            Duration duration) {
+            SchedulerBridge schedulerBridge, TemporaryEndDao temporaryEndDao, PointsDao pointsDao,
+            TemporaryEndWorldFactory worldFactory, TemporaryEndTransfer transfer,
+            Logger logger, int cost, Duration duration) {
         this.schedulerBridge = schedulerBridge;
         this.temporaryEndDao = temporaryEndDao;
         this.pointsDao = pointsDao;
@@ -50,9 +45,7 @@ public final class TemporaryEndManager {
         this.duration = duration;
     }
 
-    public int cost() {
-        return cost;
-    }
+    public int cost() { return cost; }
 
     public void recoverOnStartup() {
         schedulerBridge.runAsyncTask(() -> {
@@ -79,43 +72,36 @@ public final class TemporaryEndManager {
         });
     }
 
-    public void purchase(Player creator, Location origin) {
-        UUID creatorId = creator.getUniqueId();
-        schedulerBridge.runAsyncTask(() -> {
-            try {
-                pointsDao.addPoints(creatorId, -cost, "TEMPORARY_END_PURCHASE",
-                        "{\"cost\":" + cost + ",\"world\":\"" + origin.getWorld().getName() + "\"}");
-                schedulerBridge.runGlobalTask(() -> createInstance(creator, origin));
-                schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7aPurchased temporary End dimension for " + cost + " points."));
-            } catch (IllegalArgumentException e) {
-                schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cInsufficient points."));
-            } catch (Exception e) {
-                logger.warning("Temporary end purchase failed for " + creatorId + ": " + e.getMessage());
-                schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cPurchase failed."));
-            }
-        });
+    public boolean hasActiveInstanceByPlayer(UUID playerUuid) {
+        return activeInstances.values().stream().anyMatch(i -> i.creatorUuid().equals(playerUuid));
     }
 
     public void createInstance(Player creator, Location origin) {
+        UUID creatorId = creator.getUniqueId();
+        if (hasActiveInstanceByPlayer(creatorId)) {
+            var existing = activeInstances.values().stream().filter(i -> i.creatorUuid().equals(creatorId)).findFirst().orElse(null);
+            long remaining = existing != null ? Duration.between(Instant.now(), existing.expirationTime()).toMinutes() : 0;
+            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cYou already have an active temporary End. " + Math.max(0, remaining) + "m remaining."));
+            return;
+        }
         String instanceId = UUID.randomUUID().toString();
         String worldName = "lkjmcsmp_tempend_" + instanceId.replace("-", "");
         World world = worldFactory.createEndWorld(worldName);
         if (world == null) {
             logger.severe("Failed to create temporary End world: " + worldName);
-            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cWorld creation failed. Contact an admin."));
+            refundAndNotify(creator, "world_creation_failed");
             return;
         }
         Instant now = Instant.now();
         Instant expiration = now.plus(duration);
-        NamedLocation originLoc = new NamedLocation("", origin.getWorld().getName(),
-                origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
-        TemporaryEndInstance instance = new TemporaryEndInstance(
-                instanceId, worldName, creator.getUniqueId(), originLoc, now, expiration, InstanceLifecycle.ACTIVE);
+        NamedLocation originLoc = new NamedLocation("", origin.getWorld().getName(), origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
+        TemporaryEndInstance instance = new TemporaryEndInstance(instanceId, worldName, creatorId, originLoc, now, expiration, InstanceLifecycle.ACTIVE);
         try {
             temporaryEndDao.insertInstance(instance);
         } catch (Exception e) {
             logger.severe("Failed to persist temporary end instance: " + e.getMessage());
             worldFactory.unloadAndDelete(worldName);
+            refundAndNotify(creator, "db_persist_failed");
             return;
         }
         activeInstances.put(instanceId, instance);
@@ -125,9 +111,7 @@ public final class TemporaryEndManager {
 
     public void expireInstance(String instanceId) {
         TemporaryEndInstance instance = activeInstances.remove(instanceId);
-        if (instance == null) {
-            return;
-        }
+        if (instance == null) return;
         try {
             temporaryEndDao.updateState(instanceId, InstanceLifecycle.EXPIRING);
         } catch (Exception e) {
@@ -136,21 +120,41 @@ public final class TemporaryEndManager {
         schedulerBridge.runGlobalTask(() -> {
             transfer.evacuateAll(instance);
             boolean deleted = worldFactory.unloadAndDelete(instance.worldName());
-            try {
-                temporaryEndDao.updateState(instanceId, InstanceLifecycle.CLOSED);
-                if (deleted) {
-                    cleanupRecord(instanceId);
-                }
-                logger.info("Cleaned up temporary end instance " + instanceId);
-            } catch (Exception e) {
-                logger.warning("Cleanup DB update failed for " + instanceId + ": " + e.getMessage());
+            if (!deleted) {
+                schedulerBridge.runGlobalDelayedTask(20L, () -> {
+                    boolean retry = worldFactory.unloadAndDelete(instance.worldName());
+                    if (!retry) logger.severe("Permanent cleanup failure for " + instance.instanceId());
+                    cleanupDb(instanceId, retry);
+                });
+            } else {
+                cleanupDb(instanceId, true);
             }
         });
+    }
+
+    private void cleanupDb(String instanceId, boolean deleted) {
+        try {
+            temporaryEndDao.updateState(instanceId, InstanceLifecycle.CLOSED);
+            if (deleted) cleanupRecord(instanceId);
+            logger.info("Cleaned up temporary end instance " + instanceId);
+        } catch (Exception e) {
+            logger.warning("Cleanup DB update failed for " + instanceId + ": " + e.getMessage());
+        }
     }
 
     private void cleanupRecord(String instanceId) throws Exception {
         temporaryEndDao.deleteParticipantsByInstance(instanceId);
         temporaryEndDao.deleteInstance(instanceId);
+    }
+
+    private void refundAndNotify(Player player, String reason) {
+        try {
+            pointsDao.addPoints(player.getUniqueId(), cost, "TEMPORARY_END_REFUND", "{\"reason\":\"" + reason + "\"}");
+            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " points refunded."));
+        } catch (Exception ex) {
+            logger.severe("Refund failed for " + player.getUniqueId() + ": " + ex.getMessage());
+            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed and refund could not be applied. Contact an admin."));
+        }
     }
 
     public NamedLocation pollPendingReturns(UUID playerUuid) {
@@ -167,21 +171,12 @@ public final class TemporaryEndManager {
         return null;
     }
 
-    public Collection<TemporaryEndInstance> activeInstances() {
-        return activeInstances.values();
-    }
-
-    public TemporaryEndInstance findInstance(String instanceId) {
-        return activeInstances.get(instanceId);
-    }
-
-    public boolean isTemporaryEndWorld(String worldName) {
-        return findInstanceByWorld(worldName) != null;
-    }
+    public Collection<TemporaryEndInstance> activeInstances() { return activeInstances.values(); }
+    public TemporaryEndInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
+    public boolean isTemporaryEndWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
 
     public TemporaryEndInstance findInstanceByWorld(String worldName) {
-        return worldName == null ? null : activeInstances.values().stream()
-                .filter(i -> i.worldName().equals(worldName)).findFirst().orElse(null);
+        return worldName == null ? null : activeInstances.values().stream().filter(i -> i.worldName().equals(worldName)).findFirst().orElse(null);
     }
 
     public void removeParticipant(String worldName, UUID playerUuid) {

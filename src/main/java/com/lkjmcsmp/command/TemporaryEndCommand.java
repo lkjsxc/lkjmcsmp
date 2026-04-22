@@ -1,5 +1,6 @@
 package com.lkjmcsmp.command;
 
+import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,9 +10,11 @@ import org.bukkit.entity.Player;
 import java.time.Duration;
 
 public final class TemporaryEndCommand implements CommandExecutor {
+    private final PointsService pointsService;
     private final TemporaryEndManager manager;
 
-    public TemporaryEndCommand(TemporaryEndManager manager) {
+    public TemporaryEndCommand(PointsService pointsService, TemporaryEndManager manager) {
+        this.pointsService = pointsService;
         this.manager = manager;
     }
 
@@ -35,22 +38,28 @@ public final class TemporaryEndCommand implements CommandExecutor {
 
     private boolean handlePurchase(CommandSender sender) {
         var opt = CommandUtil.requirePlayer(sender);
-        if (opt.isEmpty()) {
-            return true;
-        }
+        if (opt.isEmpty()) return true;
         Player player = opt.get();
         if (!player.hasPermission("lkjmcsmp.temporaryend.use")) {
             player.sendMessage("Missing permission.");
             return true;
         }
-        manager.purchase(player, player.getLocation());
+        try {
+            var result = pointsService.purchase(player, "temporary_end", 1);
+            if (!result.success()) {
+                player.sendMessage(result.message());
+                return true;
+            }
+            manager.createInstance(player, player.getLocation());
+            player.sendMessage("\u00A7aTemporary End purchased! Nearby players will be transferred.");
+        } catch (Exception ex) {
+            player.sendMessage("Purchase failed: " + ex.getMessage());
+        }
         return true;
     }
 
     private boolean handleList(CommandSender sender) {
-        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) {
-            return true;
-        }
+        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) return true;
         var instances = manager.activeInstances();
         if (instances.isEmpty()) {
             sender.sendMessage("No active temporary End instances.");
@@ -66,9 +75,7 @@ public final class TemporaryEndCommand implements CommandExecutor {
     }
 
     private boolean handleInfo(CommandSender sender, String[] args) {
-        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) {
-            return true;
-        }
+        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) return true;
         if (args.length < 2) {
             sender.sendMessage("Usage: /tempend info <id>");
             return true;
@@ -87,9 +94,7 @@ public final class TemporaryEndCommand implements CommandExecutor {
     }
 
     private boolean handleForceClose(CommandSender sender, String[] args) {
-        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) {
-            return true;
-        }
+        if (!CommandUtil.requirePermission(sender, "lkjmcsmp.temporaryend.admin")) return true;
         if (args.length < 2) {
             sender.sendMessage("Usage: /tempend forceclose <id>");
             return true;

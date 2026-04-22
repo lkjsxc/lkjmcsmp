@@ -23,6 +23,7 @@ public final class TemporaryEndWorldFactory {
         World world = creator.createWorld();
         if (world != null) {
             world.setAutoSave(false);
+            world.setGameRule(org.bukkit.GameRule.DO_MOB_SPAWNING, true);
         }
         return world;
     }

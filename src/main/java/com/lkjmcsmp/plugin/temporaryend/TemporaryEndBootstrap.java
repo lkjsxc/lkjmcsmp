@@ -3,6 +3,7 @@ package com.lkjmcsmp.plugin.temporaryend;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.TemporaryEndDao;
 import com.lkjmcsmp.plugin.SchedulerBridge;
+import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,7 +15,8 @@ public final class TemporaryEndBootstrap {
             SchedulerBridge schedulerBridge,
             PointsDao pointsDao,
             TemporaryEndDao temporaryEndDao,
-            FileConfiguration config) {
+            FileConfiguration config,
+            ActionBarHudService actionBarHudService) {
         int cost = config.getInt("temporary-end.cost", 10000);
         int radius = config.getInt("temporary-end.transfer-radius", 10);
         int duration = config.getInt("temporary-end.duration-minutes", 180);
@@ -26,7 +28,7 @@ public final class TemporaryEndBootstrap {
         manager.recoverOnStartup();
         new TemporaryEndLifecycle(schedulerBridge, manager, plugin.getLogger()).start();
         plugin.getServer().getPluginManager().registerEvents(
-                new TemporaryEndListener(manager, schedulerBridge, plugin.getLogger()), plugin);
+                new TemporaryEndListener(manager, schedulerBridge, plugin.getLogger(), actionBarHudService), plugin);
         return manager;
     }
 }

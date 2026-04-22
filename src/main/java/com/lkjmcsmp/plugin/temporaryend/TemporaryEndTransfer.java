@@ -27,16 +27,11 @@ public final class TemporaryEndTransfer {
 
     public void captureAndTransfer(Location origin, World world, String instanceId) {
         double radiusSq = transferRadius * (double) transferRadius;
+        Location platform = new Location(world, 100.5, 49, 0.5);
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.getWorld().equals(origin.getWorld())) {
-                continue;
-            }
-            if (player.getLocation().distanceSquared(origin) > radiusSq) {
-                continue;
-            }
-            if (!player.isValid() || !player.isOnline()) {
-                continue;
-            }
+            if (!player.getWorld().equals(origin.getWorld())) continue;
+            if (player.getLocation().distanceSquared(origin) > radiusSq) continue;
+            if (!player.isValid() || !player.isOnline()) continue;
             NamedLocation returnLoc = new NamedLocation("", origin.getWorld().getName(),
                     origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
             try {
@@ -44,11 +39,8 @@ public final class TemporaryEndTransfer {
             } catch (Exception e) {
                 logger.warning("Failed to insert participant: " + e.getMessage());
             }
-            Location spawn = world.getSpawnLocation().clone();
             schedulerBridge.runPlayerTask(player, () -> {
-                if (player.isOnline()) {
-                    player.teleportAsync(spawn);
-                }
+                if (player.isOnline()) player.teleportAsync(platform);
             });
         }
         logger.info("Transferred nearby players into temporary end instance " + instanceId);
@@ -56,22 +48,16 @@ public final class TemporaryEndTransfer {
 
     public void evacuateAll(TemporaryEndInstance instance) {
         World world = Bukkit.getWorld(instance.worldName());
-        if (world == null) {
-            return;
-        }
+        if (world == null) return;
         for (Player player : world.getPlayers()) {
             schedulerBridge.runPlayerTask(player, () -> returnPlayer(player, instance.origin()));
         }
     }
 
     private void returnPlayer(Player player, NamedLocation origin) {
-        if (!player.isOnline()) {
-            return;
-        }
+        if (!player.isOnline()) return;
         World ow = Bukkit.getWorld(origin.world());
-        if (ow == null) {
-            ow = Bukkit.getWorlds().get(0);
-        }
+        if (ow == null) ow = Bukkit.getWorlds().get(0);
         Location loc = new Location(ow, origin.x(), origin.y(), origin.z(), origin.yaw(), origin.pitch());
         player.teleportAsync(loc);
     }
