@@ -142,7 +142,7 @@ final class CoreMenuActions {
             views.open(player, MenuTitles.TEMPORARY_END);
             return true;
         }
-        temporaryEndManager.purchase(player, player.getLocation());
+        temporaryEndManager.createInstance(player, player.getLocation());
         player.sendMessage("\u00A7aTemporary End purchased! Nearby players will be transferred.");
         views.open(player, MenuTitles.TEMPORARY_END);
         return true;

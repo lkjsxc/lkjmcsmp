@@ -88,7 +88,7 @@ public final class PointsCommand implements CommandExecutor {
                 achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
                 actionBarHudService.refreshIdle(player);
                 if (args[1].equalsIgnoreCase("temporary_end") && temporaryEndManager != null) {
-                    temporaryEndManager.purchase(player, player.getLocation());
+                    temporaryEndManager.createInstance(player, player.getLocation());
                 }
             }
             player.sendMessage(result.message());

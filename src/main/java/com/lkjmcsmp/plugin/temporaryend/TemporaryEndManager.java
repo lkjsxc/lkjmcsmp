@@ -50,6 +50,10 @@ public final class TemporaryEndManager {
         this.duration = duration;
     }
 
+    public int cost() {
+        return cost;
+    }
+
     public void recoverOnStartup() {
         schedulerBridge.runAsyncTask(() -> {
             try {
@@ -92,7 +96,7 @@ public final class TemporaryEndManager {
         });
     }
 
-    private void createInstance(Player creator, Location origin) {
+    public void createInstance(Player creator, Location origin) {
         String instanceId = UUID.randomUUID().toString();
         String worldName = "lkjmcsmp_tempend_" + instanceId.replace("-", "");
         World world = worldFactory.createEndWorld(worldName);

@@ -106,7 +106,7 @@ final class ShopActions {
             achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
             actionBarHudService.refreshIdle(player);
             if ("temporary_end".equals(selection.itemKey()) && temporaryEndManager != null) {
-                temporaryEndManager.purchase(player, player.getLocation());
+                temporaryEndManager.createInstance(player, player.getLocation());
             }
         }
         player.sendMessage(result.message());
