@@ -14,12 +14,12 @@ public final class ActionBarHudService implements TeleportHudSink {
     private static final long COMBAT_TTL_TICKS = 60L;
     private static final long TELEPORT_RESULT_TTL_TICKS = 40L;
     private static final long TELEPORT_COUNTDOWN_TTL_TICKS = 25L;
-    private static final String NO_DATA_IDLE = "Points: 0 | Online: 0";
+    private static final String IDLE_SOURCE = "idle";
+    private static final String TELEPORT_SOURCE = "teleport";
+    private static final String COMBAT_SOURCE = "combat";
     private final SchedulerBridge schedulerBridge;
     private final PointsService pointsService;
-    private final Map<UUID, String> idleTextByPlayer = new ConcurrentHashMap<>();
-    private final Map<UUID, TimedMessage> teleportMessages = new ConcurrentHashMap<>();
-    private final Map<UUID, TimedMessage> combatMessages = new ConcurrentHashMap<>();
+    private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
 
     public ActionBarHudService(SchedulerBridge schedulerBridge, PointsService pointsService) {
         this.schedulerBridge = schedulerBridge;
@@ -27,9 +27,7 @@ public final class ActionBarHudService implements TeleportHudSink {
     }
 
     public void stop() {
-        idleTextByPlayer.clear();
-        teleportMessages.clear();
-        combatMessages.clear();
+        states.clear();
     }
 
     public void onPlayerJoin(Player player) {
@@ -43,10 +41,7 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (player == null) {
             return;
         }
-        UUID playerId = player.getUniqueId();
-        idleTextByPlayer.remove(playerId);
-        teleportMessages.remove(playerId);
-        combatMessages.remove(playerId);
+        states.remove(player.getUniqueId());
         refreshIdleAllOnline();
     }
 
@@ -62,7 +57,9 @@ public final class ActionBarHudService implements TeleportHudSink {
             } catch (Exception ignored) {
             }
             int onlineCount = Bukkit.getOnlinePlayers().size();
-            idleTextByPlayer.put(playerId, "Points: " + points + " | Online: " + onlineCount);
+            String text = "Points: " + points + " | Online: " + onlineCount;
+            states.computeIfAbsent(playerId, k -> new PlayerHudState()).put(
+                    new ActionBarMessage(ActionBarPriority.IDLE, text, IDLE_SOURCE, -1));
             schedulerBridge.runPlayerTask(player, () -> renderCurrent(player));
         });
     }
@@ -77,11 +74,11 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (attacker == null || !attacker.isOnline()) {
             return;
         }
-        UUID playerId = attacker.getUniqueId();
         String hpBar = buildHpBar(currentHealth, maxHealth);
-        combatMessages.put(playerId, TimedMessage.of("\u00A7e" + targetName + " \u00A7fHP " + hpBar, COMBAT_TTL_TICKS));
-        renderCurrent(attacker);
-        scheduleRender(attacker, COMBAT_TTL_TICKS);
+        long expiresAt = System.currentTimeMillis() + (COMBAT_TTL_TICKS * 50L);
+        setMessage(attacker, new ActionBarMessage(ActionBarPriority.COMBAT,
+                "\u00A7e" + targetName + " \u00A7fHP " + hpBar, COMBAT_SOURCE, expiresAt));
+        scheduleClear(attacker, COMBAT_SOURCE, COMBAT_TTL_TICKS);
     }
 
     @Override
@@ -89,11 +86,9 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (player == null || !player.isOnline()) {
             return;
         }
-        UUID playerId = player.getUniqueId();
-        teleportMessages.put(playerId, TimedMessage.of(
-                "\u00A7bTeleport in \u00A7f" + secondsRemaining + "\u00A7bs",
-                TELEPORT_COUNTDOWN_TTL_TICKS));
-        renderCurrent(player);
+        long expiresAt = System.currentTimeMillis() + (TELEPORT_COUNTDOWN_TTL_TICKS * 50L);
+        setMessage(player, new ActionBarMessage(ActionBarPriority.TELEPORT,
+                "\u00A7bTeleport in \u00A7f" + secondsRemaining + "\u00A7bs", TELEPORT_SOURCE, expiresAt));
     }
 
     @Override
@@ -101,45 +96,52 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (player == null || !player.isOnline()) {
             return;
         }
-        UUID playerId = player.getUniqueId();
         String prefix = success ? "\u00A7aTeleport complete" : "\u00A7cTeleport failed";
-        teleportMessages.put(playerId, TimedMessage.of(prefix + "\u00A77: \u00A7f" + message, TELEPORT_RESULT_TTL_TICKS));
-        renderCurrent(player);
-        scheduleRender(player, TELEPORT_RESULT_TTL_TICKS);
+        long expiresAt = System.currentTimeMillis() + (TELEPORT_RESULT_TTL_TICKS * 50L);
+        setMessage(player, new ActionBarMessage(ActionBarPriority.TELEPORT,
+                prefix + "\u00A77: \u00A7f" + message, TELEPORT_SOURCE, expiresAt));
+        scheduleClear(player, TELEPORT_SOURCE, TELEPORT_RESULT_TTL_TICKS);
     }
 
-    private void scheduleRender(Player player, long delayTicks) {
-        schedulerBridge.runPlayerDelayedTask(player, delayTicks, () -> renderCurrent(player));
+    public void setMessage(Player player, ActionBarMessage message) {
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+        states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState()).put(message);
+        renderCurrent(player);
+    }
+
+    public void clearMessage(Player player, String source) {
+        if (player == null) {
+            return;
+        }
+        PlayerHudState state = states.get(player.getUniqueId());
+        if (state != null) {
+            state.remove(source);
+        }
+        if (player.isOnline()) {
+            renderCurrent(player);
+        }
+    }
+
+    private void scheduleClear(Player player, String source, long delayTicks) {
+        schedulerBridge.runPlayerDelayedTask(player, delayTicks,
+                () -> clearMessage(player, source));
     }
 
     private void renderCurrent(Player player) {
         if (player == null || !player.isOnline()) {
             return;
         }
-        UUID playerId = player.getUniqueId();
-        TimedMessage teleport = activeMessage(teleportMessages, playerId);
-        if (teleport != null) {
-            player.sendActionBar(teleport.text());
+        PlayerHudState state = states.get(player.getUniqueId());
+        String effective = state != null ? state.computeEffective() : null;
+        if (effective == null || effective.isEmpty()) {
             return;
         }
-        TimedMessage combat = activeMessage(combatMessages, playerId);
-        if (combat != null) {
-            player.sendActionBar(combat.text());
+        if (state != null && !state.shouldSend(effective)) {
             return;
         }
-        player.sendActionBar(idleTextByPlayer.getOrDefault(playerId, NO_DATA_IDLE));
-    }
-
-    private static TimedMessage activeMessage(Map<UUID, TimedMessage> messages, UUID playerId) {
-        TimedMessage current = messages.get(playerId);
-        if (current == null) {
-            return null;
-        }
-        if (current.expiresAtMs() < System.currentTimeMillis()) {
-            messages.remove(playerId);
-            return null;
-        }
-        return current;
+        player.sendActionBar(effective);
     }
 
     private static String buildHpBar(double currentHealth, double maxHealth) {
@@ -151,11 +153,5 @@ public final class ActionBarHudService implements TeleportHudSink {
         int filled = (int) Math.round(ratio * segments);
         int empty = Math.max(0, segments - filled);
         return "\u00A7a" + "|".repeat(filled) + "\u00A77" + "|".repeat(empty);
-    }
-
-    private record TimedMessage(String text, long expiresAtMs) {
-        private static TimedMessage of(String text, long ttlTicks) {
-            return new TimedMessage(text, System.currentTimeMillis() + (ttlTicks * 50L));
-        }
     }
 }
