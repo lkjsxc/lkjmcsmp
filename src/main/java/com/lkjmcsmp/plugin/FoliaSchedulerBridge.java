@@ -30,6 +30,16 @@ public final class FoliaSchedulerBridge implements SchedulerBridge {
     }
 
     @Override
+    public void runGlobalTask(Runnable runnable) {
+        plugin.getServer().getGlobalRegionScheduler().run(plugin, task -> runnable.run());
+    }
+
+    @Override
+    public void runGlobalDelayedTask(long delayTicks, Runnable runnable) {
+        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin, task -> runnable.run(), delayTicks);
+    }
+
+    @Override
     public void runAsyncTask(Runnable runnable) {
         plugin.getServer().getAsyncScheduler().runNow(plugin, task -> runnable.run());
     }

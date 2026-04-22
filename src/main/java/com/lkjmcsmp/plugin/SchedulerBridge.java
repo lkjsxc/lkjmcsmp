@@ -10,5 +10,9 @@ public interface SchedulerBridge {
 
     void runRegionTask(Location location, Runnable runnable);
 
+    void runGlobalTask(Runnable runnable);
+
+    void runGlobalDelayedTask(long delayTicks, Runnable runnable);
+
     void runAsyncTask(Runnable runnable);
 }
