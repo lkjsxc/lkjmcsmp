@@ -179,6 +179,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             hotbarMenuService.install(online);
         }
         getServer().getPluginManager().registerEvents(new ActionBarHudListener(initialized.hud()), this);
+        initialized.hud().start();
         initialized.hud().refreshIdleAllOnline();
         getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(getLogger()), this);
         if (getConfig().getBoolean("teleport.first-join.enabled", true)) {
@@ -188,7 +189,6 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                     this);
         }
     }
-
     private void register(String command, CommandExecutor executor) {
         Objects.requireNonNull(getCommand(command), "Command missing in plugin.yml: " + command).setExecutor(executor);
     }

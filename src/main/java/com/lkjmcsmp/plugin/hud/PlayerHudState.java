@@ -24,6 +24,10 @@ final class PlayerHudState {
         lastSent = null;
     }
 
+    void clearLastSent() {
+        lastSent = null;
+    }
+
     String computeEffective() {
         ActionBarMessage best = null;
         for (var it = messages.entrySet().iterator(); it.hasNext(); ) {
