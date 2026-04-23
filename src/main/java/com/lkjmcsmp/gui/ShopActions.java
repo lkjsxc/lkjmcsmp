@@ -32,7 +32,7 @@ final class ShopActions {
 
     boolean handleShop(Player player, String display) throws Exception {
         UUID playerId = player.getUniqueId();
-        if (display.equals("Convert Cobblestone") && eventMaterialIs(player, Material.COBBLESTONE)) {
+        if (display.equals("Convert Cobblestone")) {
             convertAllCobblestone(player);
             return true;
         }
@@ -131,9 +131,5 @@ final class ShopActions {
         return count;
     }
 
-    private static boolean eventMaterialIs(Player player, Material material) {
-        var event = player.getOpenInventory();
-        var cursor = event.getCursor();
-        return cursor == null || cursor.getType() == material;
-    }
+
 }

@@ -22,7 +22,7 @@ final class PlayerPickerMenuView {
         int slotIdx = 0;
         for (Player online : MenuPagination.pageSlice(players, bounded)) {
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(Material.PLAYER_HEAD, "Player :: " + online.getName(), actionHint));
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.playerHead(online, "Player :: " + online.getName(), actionHint));
             }
             slotIdx++;
         }
@@ -55,8 +55,8 @@ final class PlayerPickerMenuView {
                 continue;
             }
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(
-                        Material.PLAYER_HEAD,
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.playerHead(
+                        requester,
                         "Requester :: " + requester.getName(),
                         request.summonHere() ? "Requested /tpahere" : "Requested /tpa"));
             }

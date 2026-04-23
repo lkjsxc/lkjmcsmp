@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -32,6 +33,11 @@ public final class HotbarMenuListener implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         hotbarMenuService.install(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDeath(PlayerDeathEvent event) {
+        event.getDrops().removeIf(hotbarMenuService::isToken);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
