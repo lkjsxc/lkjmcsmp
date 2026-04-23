@@ -5,13 +5,14 @@
 1. Load config defaults and validate required keys.
 2. Initialize SQLite connection and schema migrator.
 3. Construct domain services and repository adapters.
-4. Register commands.
-5. Register GUI listeners (inventory + hotbar menu entrypoint).
-6. Register teleport override and first-join listeners.
-7. Construct `ActionBarHudService` with scheduler bridge + points dependencies.
-8. Register HUD listeners for join/quit and combat triggers.
-9. Prime idle HUD state for already-online players.
-10. Emit startup summary log including HUD state handlers.
+4. Bootstrap `TemporaryEndManager` and run startup recovery for active instances.
+5. Register commands.
+6. Register GUI listeners (inventory + hotbar menu entrypoint).
+7. Register teleport override and first-join listeners.
+8. Construct `ActionBarHudService` with scheduler bridge + points dependencies.
+9. Register HUD listeners for join/quit and combat triggers.
+10. Prime idle HUD state for already-online players.
+11. Emit startup summary log including HUD state handlers and temporary end recovery count.
 
 ## Disable Sequence
 
