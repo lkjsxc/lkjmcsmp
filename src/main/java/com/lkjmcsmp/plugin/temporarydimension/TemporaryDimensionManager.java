@@ -161,7 +161,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private void refundAndNotify(Player player, String reason) {
         try {
             pointsDao.addPoints(player.getUniqueId(), cost, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"" + reason + "\"}");
-            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " Maruishi Points refunded."));
+            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " Cobblestone Points refunded."));
         } catch (Exception ex) {
             logger.severe("Refund failed for " + player.getUniqueId() + ": " + ex.getMessage());
             schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed and refund could not be applied. Contact an admin."));

@@ -30,7 +30,8 @@ public final class MenuService {
             TeleportService teleportService,
             SchedulerBridge schedulerBridge) {
         this.schedulerBridge = schedulerBridge;
-        this.topLevelViews = new TopLevelMenuViews(pointsService, achievementService);
+        this.profileMenuView = new ProfileMenuView(pointsService, achievementService, partyService);
+        this.topLevelViews = new TopLevelMenuViews(pointsService, achievementService, profileMenuView);
         CoreMenuViews coreViews = new CoreMenuViews(
                 homeService,
                 warpService,
@@ -43,7 +44,6 @@ public final class MenuService {
                 actionBarHudService,
                 topLevelViews,
                 coreMenus);
-        this.profileMenuView = new ProfileMenuView(pointsService, achievementService, partyService);
     }
 
     public void openRoot(Player player) {

@@ -93,7 +93,7 @@ public final class PointsService {
         }
         InventoryUtil.removeMaterial(player, Material.COBBLESTONE, consume);
         pointsDao.addPoints(player.getUniqueId(), consume, "COBBLE_CONVERT", "{\"amount\":" + consume + "}");
-        return Result.ok("converted " + consume + " cobblestone into " + consume + " Maruishi Points", consume);
+        return Result.ok("converted " + consume + " cobblestone into " + consume + " Cobblestone Points", consume);
     }
 
     public Result purchase(Player player, String itemKey) throws Exception {
@@ -116,7 +116,7 @@ public final class PointsService {
         }
         int balance = pointsDao.getBalance(player.getUniqueId());
         if (balance < totalPoints) {
-            return Result.fail("insufficient Maruishi Points");
+            return Result.fail("insufficient Cobblestone Points");
         }
         if (!entry.service() && !InventoryUtil.hasInventoryCapacity(player, entry.material(), quantity)) {
             return Result.fail("not enough inventory space");
@@ -130,7 +130,7 @@ public final class PointsService {
                 executor.execute(player, entry);
             }
         }
-        return Result.ok("purchased " + quantity + "x " + entry.displayName() + " for " + totalPoints + " Maruishi Points");
+        return Result.ok("purchased " + quantity + "x " + entry.displayName() + " for " + totalPoints + " Cobblestone Points");
     }
 
     public Result applyOverride(Player actor, String itemKey, int newPoints) throws Exception {

@@ -18,7 +18,7 @@ public final class TemporaryDimensionBootstrap {
             FileConfiguration config,
             ActionBarRouter actionBarRouter) {
         int cost = config.getInt("temporary-dimension.cost", 10000);
-        int radius = config.getInt("temporary-dimension.transfer-radius", 10);
+        int radius = config.getInt("temporary-dimension.transfer-radius", 5);
         int duration = config.getInt("temporary-dimension.duration-minutes", 180);
         TemporaryDimensionWorldFactory factory = new TemporaryDimensionWorldFactory(plugin.getLogger());
         TemporaryDimensionTransfer transfer = new TemporaryDimensionTransfer(schedulerBridge, temporaryDimensionDao, plugin.getLogger(), radius, factory);

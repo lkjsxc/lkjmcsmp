@@ -32,15 +32,15 @@ public final class RespawnRtpListener implements Listener {
         }
         World world = respawn.getWorld();
         Location spawn = world.getSpawnLocation();
-        if (respawn.getWorld().equals(spawn.getWorld())
-                && respawn.getBlockX() == spawn.getBlockX()
-                && respawn.getBlockY() == spawn.getBlockY()
-                && respawn.getBlockZ() == spawn.getBlockZ()) {
-            teleportService.randomTeleport(player, world.getName(), true, false, result -> {
-                if (!result.success()) {
-                    player.sendMessage("Respawn RTP failed: " + result.message());
-                }
-            });
+        if (event.isBedSpawn()
+                || respawn.getBlockX() != spawn.getBlockX()
+                || respawn.getBlockZ() != spawn.getBlockZ()) {
+            return;
         }
+        teleportService.randomTeleport(player, world.getName(), true, false, result -> {
+            if (!result.success()) {
+                player.sendMessage("Respawn RTP failed: " + result.message());
+            }
+        });
     }
 }

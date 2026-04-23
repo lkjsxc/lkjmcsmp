@@ -68,6 +68,11 @@ public final class AchievementService {
         return views;
     }
 
+    public Result resetAll(UUID playerId) throws Exception {
+        achievementDao.deleteAllForPlayer(playerId);
+        return Result.ok("achievements reset");
+    }
+
     public Result claim(UUID playerId, String achievementKey) throws Exception {
         AchievementDefinition definition = definitions.get(achievementKey);
         if (definition == null) {

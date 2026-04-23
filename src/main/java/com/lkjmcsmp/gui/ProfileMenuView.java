@@ -26,7 +26,7 @@ final class ProfileMenuView {
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Profile: " + player.getName()));
 
         int points = safePoints(player);
-        inventory.setItem(10, MenuItems.named(Material.SUNFLOWER, "Points", "Balance: " + points + " Maruishi Points"));
+        inventory.setItem(10, MenuItems.named(Material.SUNFLOWER, "Points", "Balance: " + points + " Cobblestone Points"));
 
         try {
             var partyId = partyService.getPartyId(player.getUniqueId());

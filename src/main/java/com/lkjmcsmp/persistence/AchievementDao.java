@@ -49,6 +49,16 @@ public final class AchievementDao {
         }
     }
 
+    public void deleteAllForPlayer(UUID playerId) throws Exception {
+        try (var connection = database.open();
+             PreparedStatement statement = connection.prepareStatement("""
+                     DELETE FROM achievement_state WHERE player_uuid = ?
+                     """)) {
+            statement.setString(1, playerId.toString());
+            statement.executeUpdate();
+        }
+    }
+
     public record State(AchievementStatus status, int progress) {
     }
 }

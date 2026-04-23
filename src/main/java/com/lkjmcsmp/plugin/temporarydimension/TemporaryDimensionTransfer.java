@@ -34,8 +34,9 @@ public final class TemporaryDimensionTransfer {
             if (!player.getWorld().equals(origin.getWorld())) continue;
             if (player.getLocation().distanceSquared(origin) > radiusSq) continue;
             if (!player.isValid() || !player.isOnline()) continue;
-            NamedLocation returnLoc = new NamedLocation("", origin.getWorld().getName(),
-                    origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
+            Location playerLoc = player.getLocation();
+            NamedLocation returnLoc = new NamedLocation("", playerLoc.getWorld().getName(),
+                    playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(), playerLoc.getYaw(), playerLoc.getPitch());
             try {
                 temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
             } catch (Exception e) {

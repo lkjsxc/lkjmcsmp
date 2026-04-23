@@ -7,7 +7,7 @@ final class ActionBarComposer {
     }
 
     static String idle(int points, int onlineCount) {
-        return "Maruishi Points: " + points + " | Online: " + onlineCount;
+        return "Cobblestone Points: " + points + " | Online: " + onlineCount;
     }
 
     static String combat(String targetName, double currentHealth, double maxHealth) {
@@ -25,7 +25,7 @@ final class ActionBarComposer {
     }
 
     static String shopPurchase(String itemKey, int cost) {
-        return "\u00A7aPurchased \u00A7f" + itemKey + "\u00A7a for \u00A7f" + cost + "\u00A7a Maruishi Points";
+        return "\u00A7aPurchased \u00A7f" + itemKey + "\u00A7a for \u00A7f" + cost + "\u00A7a Cobblestone Points";
     }
 
     static String temporaryDimension(long remainingSeconds) {

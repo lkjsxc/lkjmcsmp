@@ -18,10 +18,12 @@ import java.util.Map;
 final class TopLevelMenuViews {
     private final PointsService pointsService;
     private final AchievementService achievementService;
+    private final ProfileMenuView profileMenuView;
 
-    TopLevelMenuViews(PointsService pointsService, AchievementService achievementService) {
+    TopLevelMenuViews(PointsService pointsService, AchievementService achievementService, ProfileMenuView profileMenuView) {
         this.pointsService = pointsService;
         this.achievementService = achievementService;
+        this.profileMenuView = profileMenuView;
     }
 
     void openRoot(Player player) {
@@ -34,7 +36,7 @@ final class TopLevelMenuViews {
         inventory.setItem(20, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
         inventory.setItem(22, MenuItems.named(Material.BOOK, "Achievement"));
         inventory.setItem(24, MenuItems.named(Material.CLOCK, "Profile"));
-        inventory.setItem(25, MenuItems.named(Material.BARRIER, "Close Menu"));
+        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.BARRIER, "Close Menu"));
         MenuDecor.fillBorder(inventory, MenuDecor.ROOT_BORDER);
         player.openInventory(inventory);
     }
@@ -48,7 +50,7 @@ final class TopLevelMenuViews {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.SHOP);
         int points = safePoints(player);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
-                "Points Shop", "Your balance: " + points + " Maruishi Points"));
+                "Points Shop", "Your balance: " + points + " Cobblestone Points"));
         int slotIdx = 0;
         for (Map.Entry<String, ShopEntry> entry : MenuPagination.pageSlice(sorted, bounded)) {
             ShopEntry value = entry.getValue();
@@ -57,7 +59,7 @@ final class TopLevelMenuViews {
             meta.setDisplayName("Item :: " + entry.getKey());
             List<String> lore = new ArrayList<>();
             lore.add(value.displayName());
-            lore.add("Price: " + value.points() + " Maruishi Points");
+            lore.add("Price: " + value.points() + " Cobblestone Points");
             if (value.service()) {
                 lore.add("\u00A7dService Item — executes on purchase");
             } else {
@@ -77,7 +79,7 @@ final class TopLevelMenuViews {
         inventory.setItem(MenuLayout.SHOP_CONVERT_SLOT, MenuItems.named(
                 Material.COBBLESTONE,
                 "Convert Cobblestone",
-                "Converts all cobblestone in inventory to Maruishi Points"));
+                "Converts all cobblestone in inventory to Cobblestone Points"));
         inventory.setItem(50, playerPointsItem(player));
         MenuPagination.renderControls(inventory, bounded, sorted.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
@@ -104,26 +106,26 @@ final class TopLevelMenuViews {
         }
         int points = safePoints(player);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
-                "Buying: " + selected.displayName(), "Price: " + selected.points() + " Maruishi Points"));
+                "Buying: " + selected.displayName(), "Price: " + selected.points() + " Cobblestone Points"));
         inventory.setItem(13, MenuItems.named(
                 selected.material(),
                 "Selected :: " + selected.displayName(),
-                "Price: " + selected.points() + " Maruishi Points",
+                "Price: " + selected.points() + " Cobblestone Points",
                 selected.service() ? "\u00A7dService — executes on purchase" : "Direct buy amounts: 1, 2, 4, 8, 16, 32, 64",
                 "Click a button to purchase immediately."));
         inventory.setItem(31, MenuItems.named(
                 Material.SUNFLOWER,
-                "Your Maruishi Points",
+                "Your Cobblestone Points",
                 "Balance: " + points,
-                "Price: " + selected.points() + " Maruishi Points"));
+                "Price: " + selected.points() + " Cobblestone Points"));
         if (selected.service()) {
             int total = selected.points();
             boolean affordable = points >= total;
             inventory.setItem(22, MenuItems.named(
                     affordable ? Material.LIME_DYE : Material.BARRIER,
                     affordable ? "Purchase" : "Purchase (Locked)",
-                    "Cost: " + total + " Maruishi Points",
-                    affordable ? "Click to purchase now" : "Not enough Maruishi Points"));
+                    "Cost: " + total + " Cobblestone Points",
+                    affordable ? "Click to purchase now" : "Not enough Cobblestone Points"));
         } else {
             inventory.setItem(19, quantityItem(selected.points(), points, 1));
             inventory.setItem(20, quantityItem(selected.points(), points, 2));
@@ -167,7 +169,7 @@ final class TopLevelMenuViews {
     }
 
     private ItemStack playerPointsItem(Player player) {
-        return MenuItems.named(Material.SUNFLOWER, "Your Maruishi Points", "Balance: " + safePoints(player));
+        return MenuItems.named(Material.SUNFLOWER, "Your Cobblestone Points", "Balance: " + safePoints(player));
     }
 
     private static ItemStack quantityItem(int pointsPerItem, int balance, int quantity) {
@@ -176,12 +178,12 @@ final class TopLevelMenuViews {
         return MenuItems.named(
                 affordable ? Material.LIME_DYE : Material.BARRIER,
                 "Buy x" + quantity,
-                "Cost: " + total + " Maruishi Points",
-                affordable ? "Click to purchase now" : "Not enough Maruishi Points");
+                "Cost: " + total + " Cobblestone Points",
+                affordable ? "Click to purchase now" : "Not enough Cobblestone Points");
     }
 
     void openProfile(Player player) {
-        // delegated to ProfileMenuView via MenuService
+        profileMenuView.open(player);
     }
 
     private int safePoints(Player player) {
