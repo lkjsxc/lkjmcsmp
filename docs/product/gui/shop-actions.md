@@ -22,7 +22,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 1. **Buy x1, x2, x4, x8, x16, x32, x64** (slots `19..25`): deduct Cobblestone Points and grant the item stack immediately.
 2. **Back** (slot `49`): return to shop list at the previously viewed page.
 3. Info panel (slot `4`) shows selected item summary.
-4. Points balance indicator (slot `31`) shows current Cobblestone Points.
+4. Points balance indicator (slot `50`) shows current Cobblestone Points.
 5. After successful purchase, detail view refreshes affordability state and stays open.
 6. After failed purchase, detail view stays open and player receives exact reason.
 
@@ -31,7 +31,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 1. **Purchase** (slot `22`): deduct Cobblestone Points and execute the registered service effect.
 2. **Back** (slot `49`): return to shop list at the previously viewed page.
 3. Info panel (slot `4`) shows selected service summary.
-4. Points balance indicator (slot `31`) shows current Cobblestone Points.
+4. Points balance indicator (slot `50`) shows current Cobblestone Points.
 5. After successful purchase, return to shop list.
 6. After failed purchase, return to shop list with exact reason.
 

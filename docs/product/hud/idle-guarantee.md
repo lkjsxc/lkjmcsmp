@@ -14,7 +14,7 @@ The idle message is a permanent background layer. It is always present in state 
 
 ## Refresh Rules
 
-1. Idle content refreshes every `20` seconds for all online players to prevent client fade-out and keep values accurate.
+1. Idle content refreshes every `20` seconds for all online players to keep values accurate. The per-player periodic renderer sends action-bar packets every `2` ticks to prevent client fade-out.
 2. Refresh updates the idle source in the player's state directly; the next periodic evaluation picks it up.
 3. On player join, idle is computed and injected immediately before the first periodic tick.
 

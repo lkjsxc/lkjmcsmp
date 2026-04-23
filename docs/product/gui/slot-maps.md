@@ -79,7 +79,7 @@ For 54-slot menus, bottom-row control slots are:
 7. `24`: Set Team Home
 8. `25`: Leave Team
 9. `28..34`: Member list (player heads)
-10. `31`: Disband Team
+10. `25`: Disband Team
 11. `49`: Back
 
 ## Team Disband Confirm Menu (`lkjmcsmp :: team-disband-confirm`)
@@ -104,7 +104,7 @@ For 54-slot menus, bottom-row control slots are:
 
 1. `4`: Info Panel — Selected Item Summary (`PAPER`)
 2. `13`: Selected Item Summary
-3. `31`: Points Balance
+3. `50`: Points Balance
 4. `19`: Buy x1
 5. `20`: Buy x2
 6. `21`: Buy x4
@@ -137,7 +137,7 @@ For 54-slot menus, bottom-row control slots are:
 1. `4`: Info Panel — Selected Service Summary (`PAPER`)
 2. `13`: Selected Service Summary
 3. `22`: Purchase
-4. `31`: Points Balance
+4. `50`: Points Balance
 5. `49`: Back
 
 ## Picker Menus (`pick-*`)

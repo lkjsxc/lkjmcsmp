@@ -42,6 +42,7 @@ Purchasing a dimension pass deducts Cobblestone Points and creates a new isolate
 3. Each captured player's current location is recorded as their individual return location.
 4. Invalid-state players (offline, dead, vanished) are skipped.
 5. The transfer radius is configurable under `temporary-dimension.transfer-radius`.
+6. **Folia Safety:** player location and validity checks run on each player's own scheduler. The global scheduler only enumerates candidates and schedules per-player validation tasks.
 
 ## Access Policy
 

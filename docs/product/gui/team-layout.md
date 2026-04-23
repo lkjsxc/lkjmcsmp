@@ -7,13 +7,13 @@ Define a predictable and high-signal team menu layout that prioritizes common ac
 ## Canonical Slot Map
 
 - Slot `10`: Team Info
-- Slot `19`: Create Team
-- Slot `20`: Invite Player
-- Slot `21`: Accept Invite
-- Slot `23`: Team Home
-- Slot `24`: Set Team Home
-- Slot `25`: Leave Team
-- Slot `31`: Disband Team
+- Slot `12`: Create Team
+- Slot `13`: Accept Invite
+- Slot `14`: Invite Player
+- Slot `15`: Team Home
+- Slot `16`: Set Team Home
+- Slot `21`: Leave Team
+- Slot `25`: Disband Team
 - Slot `49`: Back (`ARROW`)
 
 ## Member List Display
@@ -27,8 +27,8 @@ Define a predictable and high-signal team menu layout that prioritizes common ac
 ## Grouping Rules
 
 1. Informational state appears first (`Team Info`) before action rows.
-2. Frequent actions (create, invite, accept, home) stay in the center-left cluster (`19..24`).
-3. Exit/destructive actions (`Leave Team`, `Disband Team`) are visually separated from the primary cluster.
+2. Frequent actions (create, invite, accept, home) stay in the top-row cluster (`12..16`).
+3. Exit/destructive actions (`Leave Team`, `Disband Team`) are visually separated in the second row (`21` and `25`).
 4. `Disband Team` remains isolated and never adjacent to `Create Team`.
 5. Clicking `Disband Team` opens a dedicated confirmation screen before command execution.
 

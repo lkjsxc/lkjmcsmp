@@ -7,7 +7,7 @@ A per-player periodic task evaluates HUD state, evicts expired messages, and dis
 ## Per-Player Periodic Task
 
 1. Every online player has a dedicated periodic re-evaluation task scheduled on their player scheduler.
-2. Task interval: `20` ticks (`1` second).
+2. Task interval: `2` ticks (`0.1` second).
 3. Each tick performs:
    - Evict expired messages from the player's state.
    - Compute the effective message by priority and timestamp.
