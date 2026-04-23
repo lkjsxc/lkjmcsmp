@@ -18,12 +18,13 @@
 4. Team
 5. Points Shop
 6. Achievement
-7. Close Menu
+7. Profile
+8. Close Menu
 
 ## Temporary Dimension Access
 
 - The dimension pass is not a root-menu entry.
-- Players reach it through **Points Shop → Mysterious Egg → Purchase**.
+- Players reach it through **Points Shop -> Mysterious Egg -> Purchase**.
 
 ## Teleport Menu
 
@@ -56,6 +57,7 @@
 ## Team Menu
 
 - Team info
+- Member list (player heads with names)
 - Create team
 - Invite player (target picker)
 - Accept invite / leave / disband
@@ -97,6 +99,14 @@
 - Claim actions for `COMPLETED_UNCLAIMED`
 - Back (`ARROW`)
 
+## Profile Menu
+
+- Points balance
+- Team info and role
+- Achievement summary
+- Playtime
+- Back (`ARROW`)
+
 ## Picker Menus (`pick-*`)
 
 - `0..44`: paged player/requester entries
@@ -105,3 +115,9 @@
 - `48`: Page Info
 - `49`: Back
 - `50`: Refresh
+
+## Cross-References
+
+- [slot-maps.md](slot-maps.md): canonical slot positions
+- [team-layout.md](team-layout.md): team-specific rules
+- [shop-actions.md](shop-actions.md): purchase and conversion behavior

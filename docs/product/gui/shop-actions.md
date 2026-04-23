@@ -38,18 +38,20 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 ## Cobblestone Conversion Rules
 
 1. Conversion is triggered only by the **Convert Cobblestone** button in the shop list.
-2. The amount converted equals the total cobblestone count in the player's inventory.
-3. If no cobblestone is present, the action fails with an explicit message.
-4. On success, the shop list refreshes and the player sees the new Maruishi Points balance.
-5. Conversion triggers achievement progress for `convert_amount`.
+2. The button click is identified by display name alone; cursor contents do not affect eligibility.
+3. The amount converted equals the total cobblestone count in the player's inventory.
+4. If no cobblestone is present, the action fails with an explicit message.
+5. On success, the shop list refreshes and the player sees the new Maruishi Points balance.
+6. Conversion triggers achievement progress for `convert_amount`.
 
 ## Service Effect Execution Rules
 
 1. Every service item has a registered `ShopEffectExecutor` keyed by its shop item key.
-2. The executor runs only after Maruishi Points deduction succeeds and is ledgered.
-3. If the executor throws or returns failure, the Maruishi Points deduction is NOT rolled back automatically; the executor must handle its own compensating transactions.
-4. No inventory capacity check is performed for service items.
-5. The `temporary_dimension_pass` executor calls `TemporaryDimensionManager.createInstance`.
+2. The executor receives the `ShopEntry` so it can read configuration such as `environment`.
+3. The executor runs only after Maruishi Points deduction succeeds and is ledgered.
+4. If the executor throws or returns failure, the Maruishi Points deduction is NOT rolled back automatically; the executor must handle its own compensating transactions.
+5. No inventory capacity check is performed for service items.
+6. The `temporary_dimension_pass` executor calls `TemporaryDimensionManager.createInstance` with the entry's configured environment.
 
 ## Failure Semantics
 
@@ -57,3 +59,8 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 2. **Unknown shop item**: rejected with explicit "unknown shop item" message.
 3. **Inventory full (physical items only)**: rejected before deduction.
 4. **Effect execution failure**: Maruishi Points remain deducted; player receives explicit failure reason; audit log captures the failure.
+
+## Cross-References
+
+- [slot-maps.md](slot-maps.md): canonical slot positions for shop menus
+- [../temporary-dimension/shop-integration.md](../temporary-dimension/shop-integration.md): dimension pass placement

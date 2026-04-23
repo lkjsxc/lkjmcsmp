@@ -34,6 +34,12 @@ Gameplay behavior inside a temporary dimension depends on its environment type.
 2. On expiry the world is deleted (`save = false`); nothing persists.
 3. Items in player inventories remain with the player.
 
+## Portal and Escape Rules
+
+1. `PlayerPortalEvent` is cancelled inside temporary dimensions to prevent accidental main-world network linkage.
+2. Death respawn is redirected to the participant's recorded origin.
+
 ## Cross-References
 
 - [lifecycle.md](lifecycle.md): when instances expire and what happens to players
+- [purchase-and-creation.md](purchase-and-creation.md): creation and transfer rules

@@ -19,7 +19,7 @@ Instances move through three states with deterministic expiry, evacuation, and c
 ## Expiry Sequence
 
 1. Transition to `EXPIRING`.
-2. Teleport all online participants in the world back to the recorded origin.
+2. Teleport all online participants in the world back to their recorded origin.
 3. Unload the world with `save = false`.
 4. Delete the world folder; if locked files prevent deletion, retry once after a short delay.
 5. Transition to `CLOSED`.
@@ -31,6 +31,17 @@ Instances move through three states with deterministic expiry, evacuation, and c
 2. On next `PlayerJoinEvent`, if they have a participant record for a `CLOSED` instance, teleport them to the origin and delete the record.
 3. The `CLOSED` state covers both record-pending and record-removed phases for simplicity.
 4. This handles disconnect-during-expiry and server restart recovery.
+
+## Death Handling
+
+1. If a player dies inside a temporary dimension, their respawn location is overridden to their recorded origin.
+2. If no origin record exists, the main overworld spawn is used.
+3. This prevents respawning in a world that may be deleted on expiry.
+
+## Portal Handling
+
+1. `PlayerPortalEvent` inside a temporary dimension is cancelled.
+2. This prevents accidental escape to the main world network via Nether or End portals.
 
 ## Startup Recovery
 

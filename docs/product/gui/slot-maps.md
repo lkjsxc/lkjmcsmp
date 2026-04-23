@@ -24,7 +24,8 @@ For 54-slot menus, bottom-row control slots are:
 5. `16`: Team
 6. `20`: Points Shop
 7. `22`: Achievement
-8. `50`: Close Menu
+8. `24`: Profile
+9. `25`: Close Menu
 
 ## Teleport Menu (`lkjmcsmp :: teleport`)
 
@@ -77,8 +78,9 @@ For 54-slot menus, bottom-row control slots are:
 6. `23`: Team Home
 7. `24`: Set Team Home
 8. `25`: Leave Team
-9. `31`: Disband Team
-10. `49`: Back
+9. `28..34`: Member list (player heads)
+10. `31`: Disband Team
+11. `49`: Back
 
 ## Team Disband Confirm Menu (`lkjmcsmp :: team-disband-confirm`)
 
@@ -121,6 +123,15 @@ For 54-slot menus, bottom-row control slots are:
 5. `48`: Page Info
 6. `49`: Back
 
+## Profile Menu (`lkjmcsmp :: profile`)
+
+1. `4`: Info Panel — Player Name (`PAPER`)
+2. `10`: Points Balance (`SUNFLOWER`)
+3. `12`: Team Info (`PLAYER_HEAD`)
+4. `14`: Achievement Summary (`BOOK`)
+5. `16`: Playtime (`CLOCK`)
+6. `49`: Back (`ARROW`)
+
 ## Shop Service Detail Menu (`lkjmcsmp :: shop-detail` for service items)
 
 1. `4`: Info Panel — Selected Service Summary (`PAPER`)
@@ -148,3 +159,9 @@ For 54-slot menus, bottom-row control slots are:
 5. Contract changes to slot maps must be reflected in both docs and implementation in the same batch.
 6. Decorative borders take precedence over empty slots but never overwrite functional items.
 7. Shop action semantics are defined in [shop-actions.md](shop-actions.md).
+
+## Cross-References
+
+- [menu-tree.md](menu-tree.md): menu hierarchy and navigation
+- [team-layout.md](team-layout.md): team-specific layout rules
+- [shop-actions.md](shop-actions.md): click behavior for shop surfaces

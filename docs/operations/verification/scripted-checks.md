@@ -18,6 +18,7 @@ Extended smoke suite:
 - GUI root menu open
 - Action bar HUD lifecycle and overlays
 - Temporary End purchase and creation
+- Profile command
 
 ## Minimum Assertions
 
@@ -33,6 +34,7 @@ Extended smoke suite:
 - Hotbar menu item drop intent does not lose item and opens root menu.
 - Hotbar slot `8` token cannot be moved by inventory manipulation vectors.
 - Hotbar slot `8` token opens menu from cancelled/blocked interaction contexts.
+- Hotbar slot `8` token does not appear in death drops.
 - GUI `Back` controls render as arrow items.
 - GUI menus avoid background auto-refresh reopen loops.
 - Picker menus render explicit manual `Refresh`.
@@ -41,11 +43,13 @@ Extended smoke suite:
 - Shop item selection opens item detail purchase screen.
 - Shop detail shows current points balance.
 - Shop detail renders direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`).
+- Shop cobblestone conversion button works regardless of held item.
 - Pagination controls keep stable ordering across pages.
 - Achievement GUI shows achievement status plus numeric progress text.
 - Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 Maruishi Points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Team disband action from GUI opens explicit confirm screen before execution.
+- Team menu displays member names as player heads.
 - GUI slot-map contract markers match shop-detail source layout (`19..25` direct-buy + `31` balance + `49` back).
 - Action-bar source markers enforce deterministic state priority (teleport > combat > idle).
 - Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
@@ -53,7 +57,9 @@ Extended smoke suite:
 - Combat overlay text omits the literal `"HP"`; shows target name followed by HP bar only.
 - Shop list renders service items with `ENDER_EYE` indicator and `"§dService Item — executes on purchase"` lore line.
 - Temporary End Pass shop item is visible and purchasable.
+- Temporary dimension creation respects the shop entry `environment` value (`THE_END`, `NETHER`, `NORMAL`).
 - GUI menus render decorative borders with stained glass panes.
+- `/profile` command opens the profile menu without error.
 
 ## Action Bar Assertions
 

@@ -15,13 +15,13 @@ Purchasing a dimension pass deducts Maruishi Points and creates a new isolated w
 ## Purchase Paths
 
 1. **Shop path (primary)**: Open Points Shop, select the dimension pass item, and click Purchase. This deducts Maruishi Points and triggers instance creation automatically.
-2. **Command path (secondary)**: `/tempdim purchase` deducts points and creates a `THE_END` instance by default.
+2. **Command path (secondary)**: `/tempdim purchase` deducts points and creates an instance using the shop entry's configured environment.
 3. All paths share the same balance validation, ledger reason code, and instance creation logic.
 
 ## Environment Selection
 
 1. Shop entries specify `environment` in `shop.yml`. Supported values: `THE_END`, `NETHER`, `NORMAL`.
-2. Command path defaults to `THE_END`.
+2. Command path uses the same shop entry configuration.
 3. The environment is stored in the instance record and determines world generation rules.
 
 ## Instance Creation
@@ -46,10 +46,11 @@ Purchasing a dimension pass deducts Maruishi Points and creates a new isolated w
 ## Access Policy
 
 1. The instance is open: any player may enter the world while it exists.
-2. Only initially captured participants are guaranteed evacuation on expiry.
+2. All initially captured participants are tracked for automatic return on expiry.
 3. Late entrants are not tracked for automatic return.
 
 ## Cross-References
 
 - [shop-integration.md](shop-integration.md): visual placement in the Points Shop
 - [lifecycle.md](lifecycle.md): expiry and cleanup after creation
+- [access-rules.md](access-rules.md): gameplay inside active instances

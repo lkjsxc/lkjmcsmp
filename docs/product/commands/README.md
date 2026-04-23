@@ -21,3 +21,4 @@ Specify canonical command behavior, permissions, side effects, and error outputs
 - [party.md](party.md): party command behavior and ownership rules
 - [utility.md](utility.md): `/menu`, `/points`, `/convert`, `/shop`, `/achievement`, and `/ach`
 - [override-behavior.md](override-behavior.md): `/tp` override listener and namespaced fallback
+- [profile.md](profile.md): `/profile` command and self-profile menu

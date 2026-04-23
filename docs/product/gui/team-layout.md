@@ -16,6 +16,14 @@ Define a predictable and high-signal team menu layout that prioritizes common ac
 - Slot `31`: Disband Team
 - Slot `49`: Back (`ARROW`)
 
+## Member List Display
+
+1. Slots `28..34` display up to 7 member heads.
+2. Each head shows the member's name as display name.
+3. If there are more than 7 members, the first 6 heads are shown plus a `+N more` indicator at slot `34`.
+4. Member heads use `PLAYER_HEAD` with `SkullMeta` set to the member's UUID so skins render correctly.
+5. If the player is not in a team, the member list area remains empty.
+
 ## Grouping Rules
 
 1. Informational state appears first (`Team Info`) before action rows.
@@ -37,3 +45,8 @@ Define a predictable and high-signal team menu layout that prioritizes common ac
 2. `Confirm Disband` is separated from `Cancel` by at least one slot.
 3. Cancel returns to Team menu without side effects.
 4. After confirm success/failure, Team menu state refreshes immediately.
+
+## Cross-References
+
+- [slot-maps.md](slot-maps.md): shared navigation and border contracts
+- [menu-tree.md](menu-tree.md): team menu placement in hierarchy

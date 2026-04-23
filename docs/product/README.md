@@ -22,3 +22,4 @@ Define player-facing behavior for commands, menus, achievements, economy, social
 - [hud/README.md](hud/README.md): action-bar HUD contracts and priority rules
 - [social/README.md](social/README.md): party permissions and audit expectations
 - [temporary-dimension/README.md](temporary-dimension/README.md): temporary dimension purchase and lifecycle
+- [features/README.md](features/README.md): cross-cutting player-facing behaviors

@@ -27,9 +27,15 @@
 - `hud` runtime components: idle rendering, teleport/combat overlays, and periodic re-evaluation
 - `HotbarMenuService`: slot-8 menu token lifecycle and lock enforcement
 - `TemporaryDimensionManager`: registry, creation, expiry, evacuation, and cleanup of temporary dimension instances
+- `RespawnRtpListener`: overrides initial-spawn respawn with random teleport
 
 ## HUD Reliability Boundary
 
 1. Runtime HUD contract must be satisfiable through Bukkit/Paper action-bar APIs.
 2. No sidebar/packet fallback dependency may be introduced in runtime or verification paths.
 3. HUD logs must include enough context (`trigger`, `playerUuid`, `state`) for operational triage.
+
+## Cross-References
+
+- [../folia/scheduler-contract.md](../folia/scheduler-contract.md): scheduling rules
+- [../../product/hud/README.md](../../product/hud/README.md): player-facing HUD contracts
