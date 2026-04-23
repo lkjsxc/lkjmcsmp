@@ -19,13 +19,13 @@ items:
     environment: THE_END
   dirt:
     material: DIRT
-    points: 1
+    points: 4
     display_name: "Dirt"
   sand:
     material: SAND
-    points: 2
+    points: 4
     display_name: "Sand"
   gravel:
     material: GRAVEL
-    points: 2
+    points: 4
     display_name: "Gravel"

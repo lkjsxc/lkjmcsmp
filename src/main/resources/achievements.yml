@@ -4,88 +4,88 @@ achievements:
     description: Convert cobblestone into points to bootstrap your economy.
     kind: convert_amount
     target: 64
-    reward-points: 32
+    reward-points: 320
   converter_apprentice:
     title: Converter Apprentice
     description: Convert 512 cobblestone in total.
     kind: convert_amount
     target: 512
-    reward-points: 64
+    reward-points: 640
   converter_expert:
     title: Converter Expert
     description: Convert 4096 cobblestone in total.
     kind: convert_amount
     target: 4096
-    reward-points: 128
+    reward-points: 1280
   cobblestone_legend:
     title: Cobblestone Legend
     description: Convert 10000 cobblestone in total.
     kind: convert_amount
     target: 10000
-    reward-points: 256
+    reward-points: 2560
   first_home_set:
     title: Settled Down
     description: Set your first home so you always have a safe return point.
     kind: home_set
     target: 1
-    reward-points: 16
+    reward-points: 160
   home_network:
     title: Home Network
     description: Create three homes to build a travel network.
     kind: home_set
     target: 3
-    reward-points: 24
+    reward-points: 240
   first_warp_use:
     title: World Traveler
     description: Use a server warp to reach a shared location.
     kind: warp_use
     target: 1
-    reward-points: 16
+    reward-points: 160
   warp_regular:
     title: Warp Regular
     description: Use server warps ten times.
     kind: warp_use
     target: 10
-    reward-points: 32
+    reward-points: 320
   first_party_join:
     title: Social Start
     description: Join a party and begin cooperative play.
     kind: party_join
     target: 1
-    reward-points: 24
+    reward-points: 240
   first_shop_purchase:
     title: First Purchase
     description: Buy your first shop unit from the points shop.
     kind: shop_purchase_quantity
     target: 1
-    reward-points: 16
+    reward-points: 160
   shop_bulk_buyer:
     title: Bulk Buyer
     description: Buy fifty total shop units.
     kind: shop_purchase_quantity
     target: 50
-    reward-points: 64
+    reward-points: 640
   first_tpa_request:
     title: Messenger
     description: Send your first teleport request.
     kind: teleport_request_sent
     target: 1
-    reward-points: 12
+    reward-points: 120
   frequent_requester:
     title: Frequent Requester
     description: Send twenty teleport requests.
     kind: teleport_request_sent
     target: 20
-    reward-points: 48
+    reward-points: 480
   first_rtp:
     title: Explorer
     description: Complete your first random teleport.
     kind: random_teleport_use
     target: 1
-    reward-points: 16
+    reward-points: 160
   rtp_veteran:
     title: Deep Explorer
     description: Complete twenty random teleports.
     kind: random_teleport_use
     target: 20
-    reward-points: 64
+    reward-points: 640
