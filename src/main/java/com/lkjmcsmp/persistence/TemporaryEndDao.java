@@ -123,7 +123,7 @@ public final class TemporaryEndDao {
                      SELECT p.return_world, p.return_x, p.return_y, p.return_z, p.return_yaw, p.return_pitch, p.instance_id
                      FROM temporary_end_participants p
                      JOIN temporary_end_instances i ON p.instance_id = i.instance_id
-                     WHERE p.player_uuid = ? AND i.state IN ('CLOSED','CLEANING_UP')
+                     WHERE p.player_uuid = ? AND i.state = 'CLOSED'
                      """)) {
             statement.setString(1, playerUuid.toString());
             try (ResultSet rs = statement.executeQuery()) {

@@ -4,8 +4,7 @@
 
 1. `ACTIVE` — world exists, players may enter.
 2. `EXPIRING` — duration elapsed; evacuation in progress.
-3. `CLOSED` — world unloaded, records pending final cleanup.
-4. `CLEANING_UP` — final deletion of world folder and DB records.
+3. `CLOSED` — world unloaded and records removed.
 
 ## Duration
 
@@ -19,13 +18,14 @@
 2. Teleport all online participants in the world back to the recorded origin.
 3. Unload the world with `save = false`.
 4. Delete the world folder; if locked files prevent deletion, retry once after a short delay.
-5. Transition to `CLOSED`, then `CLEANING_UP`.
+5. Transition to `CLOSED`.
 6. Remove DB records.
 
 ## Offline and Join Handling
 
 1. If a participant is offline during expiry, their return is deferred.
 2. On next `PlayerJoinEvent`, if they have a participant record for a `CLOSED` instance, teleport them to the origin and delete the record.
+3. The `CLOSED` state covers both record-pending and record-removed phases for simplicity.
 3. This handles disconnect-during-expiry and server restart recovery.
 
 ## Startup Recovery
