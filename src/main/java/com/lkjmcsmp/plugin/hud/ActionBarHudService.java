@@ -62,7 +62,7 @@ public final class ActionBarHudService implements TeleportHudSink {
             int points = 0;
             try { points = pointsService.getBalance(playerId); } catch (Exception ignored) { }
             int onlineCount = Bukkit.getOnlinePlayers().size();
-            String text = "Points: " + points + " | Online: " + onlineCount;
+            String text = "Maruishi Points: " + points + " | Online: " + onlineCount;
             states.computeIfAbsent(playerId, k -> new PlayerHudState()).put(
                     new ActionBarMessage(ActionBarPriority.IDLE, text, IDLE_SOURCE, -1));
             schedulerBridge.runPlayerTask(player, () -> renderCurrent(player));
@@ -104,7 +104,7 @@ public final class ActionBarHudService implements TeleportHudSink {
         if (player == null || !player.isOnline()) return;
         long expiresAt = System.currentTimeMillis() + (SHOP_TTL_TICKS * 50L);
         setMessage(player, new ActionBarMessage(ActionBarPriority.GAMEPLAY,
-                "\u00A7aPurchased \u00A7f" + itemKey + "\u00A7a for \u00A7f" + cost + "\u00A7a points",
+                "\u00A7aPurchased \u00A7f" + itemKey + "\u00A7a for \u00A7f" + cost + "\u00A7a Maruishi Points",
                 SHOP_SOURCE, expiresAt));
         scheduleClear(player, SHOP_SOURCE, SHOP_TTL_TICKS);
     }

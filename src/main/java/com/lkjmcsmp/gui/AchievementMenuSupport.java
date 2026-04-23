@@ -21,7 +21,7 @@ final class AchievementMenuSupport {
                 KEY_PREFIX + view.definition().key(),
                 "Status: " + view.status().name(),
                 "Progress: " + current + "/" + target + " (" + percent + "%)",
-                "Reward: " + view.definition().rewardPoints() + " points",
+                "Reward: " + view.definition().rewardPoints() + " Maruishi Points",
                 view.definition().description(),
                 view.status() == AchievementStatus.COMPLETED_UNCLAIMED ? "Click to claim reward" : "Claim unavailable");
     }
