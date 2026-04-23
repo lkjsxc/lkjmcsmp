@@ -2,16 +2,16 @@
 
 ## Cost and Trigger
 
-1. Consuming `10,000` points creates one temporary End instance.
+1. Consuming `10,000` Maruishi Points creates one temporary End instance.
 2. The cost is configurable under `temporary-end.cost`.
-3. Purchase validates balance atomically before deducting points.
+3. Purchase validates balance atomically before deducting Maruishi Points.
 4. Reason code for ledger: `TEMPORARY_END_PURCHASE`.
-5. On failure, points are not deducted and the player receives an explicit message.
+5. On failure, Maruishi Points are not deducted and the player receives an explicit message.
 
 ## Purchase Paths
 
-1. **Command path**: `/tempend purchase` calls `PointsService.purchase("temporary_end", 1)` then `TemporaryEndManager.createInstance`.
-2. **Shop path**: Buying the `temporary_end` shop item for `10,000` points triggers the same creation flow.
+1. **Shop path (primary)**: Open Points Shop, select `Temporary End Pass`, and click Purchase. This deducts Maruishi Points and triggers instance creation automatically.
+2. **Command path (secondary)**: `/tempend purchase` calls `PointsService.purchase("temporary_end_pass", 1)` then `TemporaryEndManager.createInstance`.
 3. All paths share the same balance validation, ledger reason code, and instance creation logic.
 
 ## Instance Creation
@@ -19,7 +19,7 @@
 1. Creation queues on the global region scheduler for Folia safety.
 2. Each instance receives a unique world name: `lkjmcsmp_tempend_<uuid>`.
 3. World generation uses `Environment.THE_END` for vanilla End terrain, dragon, cities, and Elytra.
-4. If world creation fails after points are deducted, the purchase is refunded immediately with reason `TEMPORARY_END_REFUND` and logged.
+4. If world creation fails after Maruishi Points are deducted, the purchase is refunded immediately with reason `TEMPORARY_END_REFUND` and logged.
 5. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance.
 
 ## Player Transfer
