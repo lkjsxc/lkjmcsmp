@@ -4,12 +4,12 @@
 
 Priority enum values (lower ordinal = higher precedence):
 
-1. `CRITICAL`
-2. `SYSTEM`
+1. `CRITICAL` — reserved for future server-wide alerts (currently unused)
+2. `SYSTEM` — reserved for future maintenance messages (currently unused)
 3. `TELEPORT`
 4. `COMBAT`
 5. `GAMEPLAY`
-6. `INFO`
+6. `INFO` — reserved for future info overlays (currently unused)
 7. `IDLE` (lowest)
 
 ## Idle HUD Contract

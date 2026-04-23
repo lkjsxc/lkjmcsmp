@@ -20,3 +20,4 @@ Specify canonical command behavior, permissions, side effects, and error outputs
 - [homes-warps.md](homes-warps.md): home and warp lifecycle contracts
 - [party.md](party.md): party command behavior and ownership rules
 - [utility.md](utility.md): `/menu`, `/points`, `/convert`, `/shop`, `/achievement`, and `/ach`
+- [override-behavior.md](override-behavior.md): `/tp` override listener and namespaced fallback

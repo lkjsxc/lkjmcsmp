@@ -10,6 +10,7 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
 - `runRegionTask(Location, Runnable)`
 - `runAsyncTask(Runnable)`
 - `runPlayerDelayedTask(Player, long delayTicks, Runnable)`
+- `runGlobalDelayedTask(long delayTicks, Runnable)`
 - completion-aware player teleport adapter (async completion with explicit success/failure)
 
 ## Rules
@@ -28,3 +29,4 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
 10. Action-bar overlay expiry uses player-scoped delayed scheduling; do not depend on global tick orchestration.
 11. Idle HUD inputs (points and online count) are refreshed from explicit state-change events.
 12. HUD state transitions verify player online state before mutation work.
+13. **Task Cancellation**: scheduled delayed tasks owned by the plugin must be cancellable. On plugin disable, all recurring or delayed tasks must be stopped to prevent duplication on reload.

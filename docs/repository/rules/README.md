@@ -14,3 +14,4 @@ Define hard authoring and acceptance constraints for all changes.
 
 - [line-limits.md](line-limits.md): hard limits and split pressure
 - [docs-first-policy.md](docs-first-policy.md): required docs-before-code flow
+- [build-hygiene.md](build-hygiene.md): Gradle wrapper, daemon, and mount policies

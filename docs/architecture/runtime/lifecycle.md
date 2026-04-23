@@ -16,11 +16,9 @@
 
 ## Disable Sequence
 
-1. Clear transient HUD overlays for online players.
-2. Flush pending audit buffer.
-3. Close persistence resources.
-4. Cancel scheduled tasks owned by plugin.
-5. Emit shutdown summary log.
+1. Stop `ActionBarHudService` and cancel its scheduled idle refresh task.
+2. Close the SQLite database connection.
+3. Emit shutdown summary log.
 
 ## Runtime Threading Rules
 

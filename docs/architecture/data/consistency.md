@@ -20,6 +20,6 @@
 
 ## Retry Rules
 
-1. Busy SQLite operations retry with bounded backoff.
-2. Exhausted retries surface explicit command failure.
-3. Failed writes are logged with operation key and actor.
+1. SQLite busy scenarios are surfaced as explicit command failures.
+2. Failed writes are logged with operation key and actor.
+3. DAO callers handle `SQLException` as a failure path, not a retry loop.

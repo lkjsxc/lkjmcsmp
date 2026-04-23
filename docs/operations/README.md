@@ -16,3 +16,4 @@ Define operational runbooks for deployment, verification, and acceptance gates.
 
 - [verification/README.md](verification/README.md): compose pipeline and smoke assertions
 - [deployment/README.md](deployment/README.md): local server and configuration operations
+- [troubleshooting.md](troubleshooting.md): common enable-time and runtime failures
