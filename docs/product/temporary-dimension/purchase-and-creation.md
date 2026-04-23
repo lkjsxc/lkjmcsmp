@@ -30,7 +30,7 @@ Purchasing a dimension pass deducts Cobblestone Points and creates a new isolate
 2. Each instance receives a unique world name: `lkjmcsmp_tempdim_<uuid>`.
 3. World generation uses the configured `Environment`.
 4. If world creation fails after Cobblestone Points are deducted, the purchase is refunded immediately with reason `TEMPORARY_DIMENSION_REFUND` and logged.
-5. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance.
+5. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance and a full Cobblestone Point refund.
 
 ## Player Transfer
 

@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-
 public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final SchedulerBridge schedulerBridge;
     private final TemporaryDimensionDao temporaryDimensionDao;
@@ -95,7 +94,12 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         if (hasActiveInstanceByPlayer(creatorId)) {
             var existing = activeInstances.values().stream().filter(i -> i.creatorUuid().equals(creatorId)).findFirst().orElse(null);
             long remaining = existing != null ? Duration.between(Instant.now(), existing.expirationTime()).toMinutes() : 0;
-            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cYou already have an active temporary dimension. " + Math.max(0, remaining) + "m remaining."));
+            try {
+                pointsDao.addPoints(creatorId, cost, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"duplicate_instance\"}");
+            } catch (Exception ex) {
+                logger.severe("Duplicate-instance refund failed: " + ex.getMessage());
+            }
+            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cYou already have an active temporary dimension. " + Math.max(0, remaining) + "m remaining. \u00A7a" + cost + " Cobblestone Points refunded."));
             return;
         }
         String instanceId = UUID.randomUUID().toString();
