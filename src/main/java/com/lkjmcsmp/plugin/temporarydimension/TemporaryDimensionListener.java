@@ -14,10 +14,12 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public final class TemporaryDimensionListener implements Listener {
@@ -68,10 +70,36 @@ public final class TemporaryDimensionListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent event) {
         String fromWorld = event.getFrom().getWorld() != null ? event.getFrom().getWorld().getName() : "";
         if (manager.isTemporaryDimensionWorld(fromWorld)) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage("\u00A7cPortals are disabled in temporary dimensions.");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        String deathWorld = player.getWorld().getName();
+        if (!manager.isTemporaryDimensionWorld(deathWorld)) {
+            return;
+        }
+        Optional<NamedLocation> returnLoc = Optional.empty();
+        try {
+            returnLoc = manager.findParticipantReturn(player.getUniqueId());
+        } catch (Exception e) {
+            logger.warning("Failed to lookup participant return for " + player.getUniqueId() + ": " + e.getMessage());
+        }
+        if (returnLoc.isPresent()) {
+            NamedLocation loc = returnLoc.get();
+            World world = Bukkit.getWorld(loc.world());
+            if (world == null) world = Bukkit.getWorlds().get(0);
+            event.setRespawnLocation(new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch()));
+        } else {
+            World world = Bukkit.getWorlds().get(0);
+            event.setRespawnLocation(world.getSpawnLocation());
         }
     }
 

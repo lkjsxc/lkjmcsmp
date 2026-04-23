@@ -3,6 +3,7 @@ package com.lkjmcsmp.plugin.temporarydimension;
 import com.lkjmcsmp.domain.ShopEffectExecutor;
 import com.lkjmcsmp.domain.model.InstanceLifecycle;
 import com.lkjmcsmp.domain.model.NamedLocation;
+import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.TemporaryDimensionDao;
@@ -49,12 +50,15 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     public int cost() { return cost; }
 
     @Override
-    public void execute(Player player) {
-        createInstance(player, player.getLocation(), World.Environment.THE_END);
-    }
-
-    public void execute(Player player, World.Environment environment) {
-        createInstance(player, player.getLocation(), environment);
+    public void execute(Player player, ShopEntry entry) {
+        World.Environment env = World.Environment.THE_END;
+        if (entry != null && !entry.environment().isBlank()) {
+            try {
+                env = World.Environment.valueOf(entry.environment().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        createInstance(player, player.getLocation(), env);
     }
 
     public void recoverOnStartup() {
@@ -95,27 +99,29 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         }
         String instanceId = UUID.randomUUID().toString();
         String worldName = "lkjmcsmp_tempdim_" + instanceId.replace("-", "");
-        World world = worldFactory.createWorld(worldName, environment);
-        if (world == null) {
-            logger.severe("Failed to create temporary dimension world: " + worldName);
-            refundAndNotify(creator, "world_creation_failed");
-            return;
-        }
-        Instant now = Instant.now();
-        Instant expiration = now.plus(duration);
-        NamedLocation originLoc = new NamedLocation("", origin.getWorld().getName(), origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
-        TemporaryDimensionInstance instance = new TemporaryDimensionInstance(instanceId, worldName, creatorId, environment, originLoc, now, expiration, InstanceLifecycle.ACTIVE);
-        try {
-            temporaryDimensionDao.insertInstance(instance);
-        } catch (Exception e) {
-            logger.severe("Failed to persist temporary dimension instance: " + e.getMessage());
-            worldFactory.unloadAndDelete(worldName);
-            refundAndNotify(creator, "db_persist_failed");
-            return;
-        }
-        activeInstances.put(instanceId, instance);
-        logger.info("Created temporary dimension instance " + instanceId + " world=" + worldName + " env=" + environment);
-        transfer.captureAndTransfer(origin, world, instanceId);
+        schedulerBridge.runGlobalTask(() -> {
+            World world = worldFactory.createWorld(worldName, environment);
+            if (world == null) {
+                logger.severe("Failed to create temporary dimension world: " + worldName);
+                refundAndNotify(creator, "world_creation_failed");
+                return;
+            }
+            Instant now = Instant.now();
+            Instant expiration = now.plus(duration);
+            NamedLocation originLoc = new NamedLocation("", origin.getWorld().getName(), origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
+            TemporaryDimensionInstance instance = new TemporaryDimensionInstance(instanceId, worldName, creatorId, environment, originLoc, now, expiration, InstanceLifecycle.ACTIVE);
+            try {
+                temporaryDimensionDao.insertInstance(instance);
+            } catch (Exception e) {
+                logger.severe("Failed to persist temporary dimension instance: " + e.getMessage());
+                worldFactory.unloadAndDelete(worldName);
+                refundAndNotify(creator, "db_persist_failed");
+                return;
+            }
+            activeInstances.put(instanceId, instance);
+            logger.info("Created temporary dimension instance " + instanceId + " world=" + worldName + " env=" + environment);
+            transfer.captureAndTransfer(origin, world, instanceId);
+        });
     }
 
     public void expireInstance(String instanceId) {
@@ -191,5 +197,9 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
                 logger.warning("Failed to remove participant: " + e.getMessage());
             }
         }
+    }
+
+    public java.util.Optional<NamedLocation> findParticipantReturn(UUID playerUuid) throws Exception {
+        return temporaryDimensionDao.findParticipantReturn(playerUuid);
     }
 }

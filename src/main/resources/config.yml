@@ -23,7 +23,7 @@ economy:
   max-convert-per-op: 4096
 party:
   invite-timeout-seconds: 60
-temporary-end:
+temporary-dimension:
   cost: 10000
   transfer-radius: 10
   duration-minutes: 180

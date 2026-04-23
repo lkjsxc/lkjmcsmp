@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class TemporaryDimensionDao {
@@ -127,6 +128,28 @@ public final class TemporaryDimensionDao {
             }
         }
         return results;
+    }
+
+    public Optional<NamedLocation> findParticipantReturn(UUID playerUuid) throws Exception {
+        try (var connection = database.open();
+             PreparedStatement statement = connection.prepareStatement("""
+                     SELECT p.return_world, p.return_x, p.return_y, p.return_z, p.return_yaw, p.return_pitch
+                     FROM temporary_dimension_participants p
+                     JOIN temporary_dimension_instances i ON p.instance_id = i.instance_id
+                     WHERE p.player_uuid = ? AND i.state = 'ACTIVE'
+                     LIMIT 1
+                     """)) {
+            statement.setString(1, playerUuid.toString());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new NamedLocation("", rs.getString("return_world"),
+                            rs.getDouble("return_x"), rs.getDouble("return_y"),
+                            rs.getDouble("return_z"), rs.getFloat("return_yaw"),
+                            rs.getFloat("return_pitch")));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     public void deleteParticipant(String instanceId, UUID playerUuid) throws Exception {

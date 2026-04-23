@@ -127,7 +127,7 @@ public final class PointsService {
         } else {
             ShopEffectExecutor executor = effectExecutors.get(entry.key());
             if (executor != null) {
-                executor.execute(player);
+                executor.execute(player, entry);
             }
         }
         return Result.ok("purchased " + quantity + "x " + entry.displayName() + " for " + totalPoints + " Maruishi Points");
@@ -143,7 +143,7 @@ public final class PointsService {
         }
         String normalizedItemKey = itemKey.toLowerCase();
         economyOverrideDao.upsert(normalizedItemKey, newPoints, 1, actor.getUniqueId());
-        ShopEntry next = new ShopEntry(current.key(), current.material(), current.displayName(), newPoints, current.service());
+        ShopEntry next = new ShopEntry(current.key(), current.material(), current.displayName(), newPoints, current.service(), current.environment());
         shopItems.put(normalizedItemKey, next);
         auditDao.log(actor.getUniqueId(), null, "SEASONAL_OVERRIDE_APPLIED",
                 "{\"item\":\"" + itemKey + "\",\"points\":" + current.points() + "}",
