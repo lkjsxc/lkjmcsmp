@@ -21,6 +21,9 @@
 - `lkjmcsmp.shop.use`
 - `lkjmcsmp.achievement.use`
 - `lkjmcsmp.economy.override`
+- `lkjmcsmp.profile.use`
+- `lkjmcsmp.temporarydimension.use`
+- `lkjmcsmp.temporarydimension.admin`
 
 ## Rules
 

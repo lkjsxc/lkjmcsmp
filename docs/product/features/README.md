@@ -14,5 +14,6 @@ Define player-facing behaviors that span multiple menus, commands, or systems.
 
 - [death-drops.md](death-drops.md): hotbar menu token drop prevention
 - [respawn-rtp.md](respawn-rtp.md): random teleport on initial-spawn respawn
+- [first-join-rtp.md](first-join-rtp.md): random teleport on first join
 - [profile.md](profile.md): self-profile command and menu
 - [player-heads.md](player-heads.md): correct skin rendering for PLAYER_HEAD items

@@ -14,13 +14,13 @@ The dimension pass is a service-type shop item placed among natural blocks for v
 1. Material: `DRAGON_EGG`
 2. Display name: `§5§kM§r §5Mysterious Egg §5§kM` (obfuscated edges for mystery)
 3. Lore: `"§dService Item — executes on purchase"`
-4. Price: `10,000` Maruishi Points
+4. Price: `10,000` Cobblestone Points
 
 ## Behavior
 
 1. Clicking the item opens the shop detail page.
 2. Detail page shows a single **Purchase** button (no quantity selection for service items).
-3. On purchase, Maruishi Points are deducted and a temporary dimension instance is created immediately.
+3. On purchase, Cobblestone Points are deducted and a temporary dimension instance is created immediately.
 4. The environment is read from the shop entry configuration (`THE_END` by default).
 
 ## Cross-References

@@ -39,6 +39,7 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
    - Warps: `GREEN_STAINED_GLASS_PANE`
    - Team: `CYAN_STAINED_GLASS_PANE`
    - Achievement: `ORANGE_STAINED_GLASS_PANE`
+   - Profile: `LIME_STAINED_GLASS_PANE`
    - Picker: `LIGHT_GRAY_STAINED_GLASS_PANE`
 4. Functional slots within border rows/columns take precedence over decorative items.
 5. Empty content slots inside the border remain empty (no filler) unless used for info panels.

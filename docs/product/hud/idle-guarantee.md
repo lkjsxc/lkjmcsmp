@@ -6,7 +6,7 @@ The idle message is a permanent background layer. It is always present in state 
 
 ## Idle Content
 
-1. Idle HUD renders: `Maruishi Points: <balance> | Online: <count>`
+1. Idle HUD renders: `Cobblestone Points: <balance> | Online: <count>`
 2. Idle HUD changes only when either source value changes.
 3. Idle HUD must reclaim display immediately after higher-priority overlays expire.
 4. **Always-On Idle Guarantee**: the action bar must never be blank for an online player. Idle is stored as a persistent source with `expiresAt = -1`.

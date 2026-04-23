@@ -46,7 +46,7 @@ Extended smoke suite:
 - Shop cobblestone conversion button works regardless of held item.
 - Pagination controls keep stable ordering across pages.
 - Achievement GUI shows achievement status plus numeric progress text.
-- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 Maruishi Points`.
+- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 Cobblestone Points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Team disband action from GUI opens explicit confirm screen before execution.
 - Team menu displays member names as player heads.

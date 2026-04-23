@@ -7,7 +7,7 @@ When a player dies and would respawn at the world's initial spawn point, randoml
 ## Rules
 
 1. Triggered on `PlayerRespawnEvent`.
-2. Applies only when the resolved respawn location equals the world spawn (initial spawn point).
+2. Applies only when the respawn reason is `DEFAULT_SPAWN` (the world's initial spawn point).
 3. Does not apply to bed respawns, anchor respawns, or any non-default spawn.
 4. Uses `TeleportService.randomTeleport` with `bypassCooldown=true` and `applyStabilityDelay=false`.
 5. Requires permission `lkjmcsmp.rtp.use`.

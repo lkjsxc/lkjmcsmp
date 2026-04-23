@@ -8,6 +8,7 @@
 - `/shop` opens points exchange GUI.
 - `/achievement` opens the achievement GUI.
 - `/ach` is a short alias for `/achievement`.
+- `/achievement reset <player>` resets all achievement progress for a target player (admin only).
 
 ## Rules
 
@@ -25,6 +26,7 @@
 12. Picker menus expose explicit manual `Refresh`.
 13. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`, including cancelled/blocked interaction contexts.
 14. Achievement claims from GUI and `/achievement claim <key>` use the same service path.
+15. `/achievement reset <player>` requires `lkjmcsmp.achievement.admin` and deletes all achievement state for the target.
 
 ## Failures
 

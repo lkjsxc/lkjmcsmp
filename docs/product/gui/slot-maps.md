@@ -25,7 +25,7 @@ For 54-slot menus, bottom-row control slots are:
 6. `20`: Points Shop
 7. `22`: Achievement
 8. `24`: Profile
-9. `25`: Close Menu
+9. `50`: Close Menu
 
 ## Teleport Menu (`lkjmcsmp :: teleport`)
 

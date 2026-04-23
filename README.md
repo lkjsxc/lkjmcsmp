@@ -23,7 +23,7 @@ The canonical documentation lives in [docs/README.md](docs/README.md).
 
 ## Key Systems
 
-- **Economy**: Maruishi Points from cobblestone conversion.
+- **Economy**: Cobblestone Points from cobblestone conversion.
 - **Teleport**: `/tp`, `/tpa`, `/tpahere`, `/rtp` with stability delay.
 - **Homes/Warps**: GUI-first with pagination.
 - **Party**: lightweight teams with invites and homes.

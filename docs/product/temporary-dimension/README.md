@@ -2,7 +2,7 @@
 
 ## Summary
 
-Players purchase isolated, time-limited dimension instances with Maruishi Points. Each instance is an independent world with configurable environment (End, Nether, or Overworld).
+Players purchase isolated, time-limited dimension instances with Cobblestone Points. Each instance is an independent world with configurable environment (End, Nether, or Overworld).
 
 ## Rules
 

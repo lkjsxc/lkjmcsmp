@@ -2,16 +2,16 @@
 
 ## Goal
 
-Provide a strict, auditable Maruishi Points economy where cobblestone conversion is the primary source.
+Provide a strict, auditable Cobblestone Points economy where cobblestone conversion is the primary source.
 
 ## Core Rule
 
-- `1 cobblestone = 1 Maruishi Point`
+- `1 cobblestone = 1 Cobblestone Point`
 
 ## Conversion Rules
 
 1. Conversion consumes physical cobblestone from player inventory.
-2. Conversion is atomic: consume and grant Maruishi Points in one transaction.
+2. Conversion is atomic: consume and grant Cobblestone Points in one transaction.
 3. Partial consume is allowed when requested amount exceeds inventory, only if `allowPartial=true` in config.
 4. Default behavior rejects when requested amount exceeds inventory.
 
@@ -28,4 +28,4 @@ Provide a strict, auditable Maruishi Points economy where cobblestone conversion
 - `SHOP_PURCHASE`
 - `ADMIN_ADJUST`
 - `SEASONAL_OVERRIDE_APPLIED`
-- `TEMPORARY_END_REFUND`
+- `TEMPORARY_DIMENSION_REFUND`

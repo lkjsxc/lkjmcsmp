@@ -12,7 +12,7 @@ Provide a self-profile command and menu so players can view their own stats with
 ## Profile Menu (`lkjmcsmp :: profile`)
 
 - Slot `4`: Info Panel (`PAPER`) showing player name.
-- Slot `10`: Points balance (`SUNFLOWER`). Shows current Maruishi Points.
+- Slot `10`: Points balance (`SUNFLOWER`). Shows current Cobblestone Points.
 - Slot `12`: Team info (`PLAYER_HEAD` with own skull). Shows party name and role. Click opens Team menu.
 - Slot `14`: Achievement summary (`BOOK`). Shows completed count / total count and in-progress count. Click opens Achievement menu.
 - Slot `16`: Playtime (`CLOCK`). Shows session playtime (or total if tracked).
