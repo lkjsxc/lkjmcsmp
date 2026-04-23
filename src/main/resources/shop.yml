@@ -2,22 +2,29 @@ items:
   oak_log:
     material: OAK_LOG
     points: 16
+    display_name: "Oak Log"
   spruce_log:
     material: SPRUCE_LOG
     points: 16
+    display_name: "Spruce Log"
   birch_log:
     material: BIRCH_LOG
     points: 16
+    display_name: "Birch Log"
   dirt:
     material: DIRT
     points: 1
+    display_name: "Dirt"
   sand:
     material: SAND
     points: 2
+    display_name: "Sand"
   gravel:
     material: GRAVEL
     points: 2
-  temporary_end:
+    display_name: "Gravel"
+  temporary_end_pass:
     material: DRAGON_EGG
     points: 10000
     service: true
+    display_name: "Temporary End Pass"
