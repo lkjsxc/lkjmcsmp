@@ -19,7 +19,7 @@ commands:
     usage: /shop [buy <item> [quantity]|override <item> <points>]
     permission: lkjmcsmp.shop.use
   achievement:
-    usage: /achievement [list|claim <key>]
+    usage: /achievement [list|claim <key>|reset <player>]
     permission: lkjmcsmp.achievement.use
   ach:
     usage: /ach [list|claim <key>]
