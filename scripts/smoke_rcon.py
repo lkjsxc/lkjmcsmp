@@ -16,7 +16,7 @@ SOURCE_MENU_TITLES = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / 
 SOURCE_SLOT_MAP = WORKSPACE / "docs" / "product" / "gui" / "slot-maps.md"
 SOURCE_SHOP_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TopLevelMenuViews.java"
 SOURCE_TEAM_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TeamMenuView.java"
-SOURCE_ACTIONBAR_HUD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarHudService.java"
+SOURCE_ACTIONBAR_HUD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRouter.java"
 
 
 def run_cmd(client: RCONClient, command: str, must_contain: str | None = None):
@@ -117,7 +117,7 @@ def assert_actionbar_hud_markers():
     if not SOURCE_ACTIONBAR_HUD.exists():
         raise RuntimeError(f"actionbar hud source missing: {SOURCE_ACTIONBAR_HUD}")
     hud_text = SOURCE_ACTIONBAR_HUD.read_text(encoding="utf-8")
-    for expected in ("COMBAT_TTL_TICKS", "onTeleportCountdown", "onTeleportResult", "refreshIdle"):
+    for expected in ("onCombatHit", "onTeleportCountdown", "onTeleportResult", "refreshIdle"):
         if expected not in hud_text:
             raise RuntimeError(f"actionbar hud source missing `{expected}`")
     print("[ok] actionbar hud markers present")
