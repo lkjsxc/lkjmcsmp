@@ -1,5 +1,6 @@
 package com.lkjmcsmp.plugin.temporaryend;
 
+import com.lkjmcsmp.domain.ShopEffectExecutor;
 import com.lkjmcsmp.domain.model.InstanceLifecycle;
 import com.lkjmcsmp.domain.model.NamedLocation;
 import com.lkjmcsmp.domain.model.TemporaryEndInstance;
@@ -20,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-public final class TemporaryEndManager {
+public final class TemporaryEndManager implements ShopEffectExecutor {
     private final SchedulerBridge schedulerBridge;
     private final TemporaryEndDao temporaryEndDao;
     private final PointsDao pointsDao;
@@ -46,6 +47,11 @@ public final class TemporaryEndManager {
     }
 
     public int cost() { return cost; }
+
+    @Override
+    public void execute(Player player) {
+        createInstance(player, player.getLocation());
+    }
 
     public void recoverOnStartup() {
         schedulerBridge.runAsyncTask(() -> {
@@ -150,7 +156,7 @@ public final class TemporaryEndManager {
     private void refundAndNotify(Player player, String reason) {
         try {
             pointsDao.addPoints(player.getUniqueId(), cost, "TEMPORARY_END_REFUND", "{\"reason\":\"" + reason + "\"}");
-            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " points refunded."));
+            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " Maruishi Points refunded."));
         } catch (Exception ex) {
             logger.severe("Refund failed for " + player.getUniqueId() + ": " + ex.getMessage());
             schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed and refund could not be applied. Contact an admin."));

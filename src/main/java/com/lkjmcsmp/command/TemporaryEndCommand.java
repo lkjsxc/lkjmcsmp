@@ -45,13 +45,12 @@ public final class TemporaryEndCommand implements CommandExecutor {
             return true;
         }
         try {
-            var result = pointsService.purchase(player, "temporary_end", 1);
+            var result = pointsService.purchase(player, "temporary_end_pass", 1);
             if (!result.success()) {
                 player.sendMessage(result.message());
                 return true;
             }
-            manager.createInstance(player, player.getLocation());
-            player.sendMessage("\u00A7aTemporary End purchased! Nearby players will be transferred.");
+            player.sendMessage("\u00A7aTemporary End Pass purchased! Nearby players will be transferred.");
         } catch (Exception ex) {
             player.sendMessage("Purchase failed: " + ex.getMessage());
         }

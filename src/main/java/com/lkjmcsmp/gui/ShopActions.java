@@ -4,7 +4,6 @@ import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarHudService;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,21 +16,18 @@ final class ShopActions {
     private final ActionBarHudService actionBarHudService;
     private final TopLevelMenuViews views;
     private final TopLevelMenuState state;
-    private final TemporaryEndManager temporaryEndManager;
 
     ShopActions(
             PointsService pointsService,
             AchievementService achievementService,
             ActionBarHudService actionBarHudService,
             TopLevelMenuViews views,
-            TopLevelMenuState state,
-            TemporaryEndManager temporaryEndManager) {
+            TopLevelMenuState state) {
         this.pointsService = pointsService;
         this.achievementService = achievementService;
         this.actionBarHudService = actionBarHudService;
         this.views = views;
         this.state = state;
-        this.temporaryEndManager = temporaryEndManager;
     }
 
     boolean handleShop(Player player, String display) throws Exception {
@@ -115,9 +111,6 @@ final class ShopActions {
             int cost = entry != null ? entry.points() * actualQuantity : 0;
             actionBarHudService.onShopPurchase(player, selection.itemKey(), cost);
             actionBarHudService.refreshIdle(player);
-            if ("temporary_end".equals(selection.itemKey()) && temporaryEndManager != null) {
-                temporaryEndManager.createInstance(player, player.getLocation());
-            }
         }
         player.sendMessage(result.message());
         if (isService) {

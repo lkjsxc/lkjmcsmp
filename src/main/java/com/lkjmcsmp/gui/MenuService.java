@@ -6,7 +6,6 @@ import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.plugin.SchedulerBridge;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarHudService;
 import org.bukkit.Material;
@@ -28,8 +27,7 @@ public final class MenuService {
             WarpService warpService,
             PartyService partyService,
             TeleportService teleportService,
-            SchedulerBridge schedulerBridge,
-            TemporaryEndManager temporaryEndManager) {
+            SchedulerBridge schedulerBridge) {
         this.schedulerBridge = schedulerBridge;
         this.topLevelViews = new TopLevelMenuViews(pointsService, achievementService);
         CoreMenuViews coreViews = new CoreMenuViews(
@@ -43,8 +41,7 @@ public final class MenuService {
                 achievementService,
                 actionBarHudService,
                 topLevelViews,
-                coreMenus,
-                temporaryEndManager);
+                coreMenus);
     }
 
     public void openRoot(Player player) {

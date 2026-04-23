@@ -3,7 +3,6 @@ package com.lkjmcsmp.gui;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarHudService;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -22,14 +21,13 @@ final class TopLevelMenuActions {
             AchievementService achievementService,
             ActionBarHudService actionBarHudService,
             TopLevelMenuViews views,
-            CoreMenuService coreMenus,
-            TemporaryEndManager temporaryEndManager) {
+            CoreMenuService coreMenus) {
         this.achievementService = achievementService;
         this.actionBarHudService = actionBarHudService;
         this.views = views;
         this.coreMenus = coreMenus;
         this.shopActions = new ShopActions(
-                pointsService, achievementService, actionBarHudService, views, state, temporaryEndManager);
+                pointsService, achievementService, actionBarHudService, views, state);
     }
 
     boolean handleClick(InventoryClickEvent event, Player player, String title, String display) throws Exception {

@@ -124,6 +124,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
 
         this.temporaryEndManager = TemporaryEndBootstrap.bootstrap(
                 this, schedulerBridge, pointsDao, new TemporaryEndDao(database), config, actionBarHudService);
+        pointsService.registerEffect("temporary_end_pass", temporaryEndManager);
 
         MenuService menuService = new MenuService(
                 pointsService,
@@ -133,8 +134,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 warpService,
                 partyService,
                 teleportService,
-                schedulerBridge,
-                temporaryEndManager);
+                schedulerBridge);
         return new Services(
                 pointsService,
                 homeService,
@@ -148,9 +148,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
 
     private void registerCommands(Services services) {
         register("menu", new MenuCommand(services.menus()));
-        register("points", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud(), temporaryEndManager));
-        register("convert", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud(), temporaryEndManager));
-        register("shop", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud(), temporaryEndManager));
+        register("points", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
+        register("convert", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
+        register("shop", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
         register("home", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
         register("sethome", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
         register("delhome", new HomeCommand(services.homes(), services.teleports(), services.achievement()));
