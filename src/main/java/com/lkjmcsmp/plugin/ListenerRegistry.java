@@ -37,5 +37,9 @@ final class ListenerRegistry {
                     new FirstJoinTeleportListener(services.teleports(), firstJoinDao, schedulerBridge, firstJoinWorld, logger),
                     plugin);
         }
+        if (config.getBoolean("respawn-on-death.random-teleport.enabled", true)) {
+            plugin.getServer().getPluginManager().registerEvents(
+                    new RespawnRtpListener(services.teleports(), logger), plugin);
+        }
     }
 }

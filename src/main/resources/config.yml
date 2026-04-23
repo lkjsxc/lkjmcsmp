@@ -23,6 +23,9 @@ economy:
   max-convert-per-op: 4096
 party:
   invite-timeout-seconds: 60
+respawn-on-death:
+  random-teleport:
+    enabled: true
 temporary-dimension:
   cost: 10000
   transfer-radius: 10
