@@ -11,6 +11,9 @@
 - `docker-compose.verify.yml`
 - `build.gradle.kts`
 - `settings.gradle.kts`
+- `gradlew`
+- `gradlew.bat`
+- `gradle/wrapper/gradle-wrapper.properties`
 
 ## Rules
 
