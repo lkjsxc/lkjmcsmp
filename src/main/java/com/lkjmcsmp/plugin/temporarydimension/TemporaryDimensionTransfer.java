@@ -9,6 +9,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public final class TemporaryDimensionTransfer {
@@ -30,23 +33,29 @@ public final class TemporaryDimensionTransfer {
     public void captureAndTransfer(Location origin, World world, String instanceId) {
         double radiusSq = transferRadius * (double) transferRadius;
         Location spawn = worldFactory.resolveSpawnLocation(world);
+        List<UUID> candidateIds = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.getWorld().equals(origin.getWorld())) continue;
-            if (player.getLocation().distanceSquared(origin) > radiusSq) continue;
-            if (!player.isValid() || !player.isOnline()) continue;
-            Location playerLoc = player.getLocation();
-            NamedLocation returnLoc = new NamedLocation("", playerLoc.getWorld().getName(),
-                    playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(), playerLoc.getYaw(), playerLoc.getPitch());
-            try {
-                temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
-            } catch (Exception e) {
-                logger.warning("Failed to insert participant: " + e.getMessage());
-            }
+            candidateIds.add(player.getUniqueId());
+        }
+        for (UUID playerId : candidateIds) {
+            Player player = Bukkit.getPlayer(playerId);
+            if (player == null) continue;
             schedulerBridge.runPlayerTask(player, () -> {
-                if (player.isOnline()) player.teleportAsync(spawn);
+                if (!player.isOnline() || !player.isValid()) return;
+                if (!player.getWorld().equals(origin.getWorld())) return;
+                if (player.getLocation().distanceSquared(origin) > radiusSq) return;
+                Location playerLoc = player.getLocation();
+                NamedLocation returnLoc = new NamedLocation("", playerLoc.getWorld().getName(),
+                        playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(), playerLoc.getYaw(), playerLoc.getPitch());
+                try {
+                    temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
+                } catch (Exception e) {
+                    logger.warning("Failed to insert participant: " + e.getMessage());
+                }
+                player.teleportAsync(spawn);
             });
         }
-        logger.info("Transferred nearby players into temporary dimension instance " + instanceId);
+        logger.info("Scheduled transfers for temporary dimension instance " + instanceId);
     }
 
     public void evacuateAll(TemporaryDimensionInstance instance) {

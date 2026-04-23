@@ -32,7 +32,11 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
-        hotbarMenuService.install(event.getPlayer());
+        Player player = event.getPlayer();
+        player.getScheduler().runDelayed(hotbarMenuService.plugin(), task -> {
+            hotbarMenuService.install(player);
+            player.updateInventory();
+        }, null, 2L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -88,13 +92,14 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent event) {
-        hotbarMenuService.ensureInstalled(event.getPlayer());
+        Player player = event.getPlayer();
         if (!hotbarMenuService.isToken(event.getItemDrop().getItemStack())) {
             return;
         }
         event.setCancelled(true);
-        event.getItemDrop().remove();
-        hotbarMenuService.open(event.getPlayer());
+        hotbarMenuService.install(player);
+        player.updateInventory();
+        hotbarMenuService.open(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

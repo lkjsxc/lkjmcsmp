@@ -21,6 +21,10 @@ public final class HotbarMenuService {
         this.tokenKey = new NamespacedKey(plugin, "menu-hotbar-token");
     }
 
+    public JavaPlugin plugin() {
+        return plugin;
+    }
+
     public void install(Player player) {
         player.getInventory().setItem(HOTBAR_SLOT, createTokenItem());
     }

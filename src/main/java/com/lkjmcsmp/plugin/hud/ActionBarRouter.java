@@ -9,9 +9,10 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ActionBarRouter implements TeleportHudSink {
-    private static final long TICK_INTERVAL = 20L;
+    private static final long TICK_INTERVAL = 2L;
     private static final long COMBAT_TTL_MS = 3000L;
     private static final long TELEPORT_RESULT_TTL_MS = 2000L;
     private static final long SHOP_TTL_MS = 3000L;
@@ -26,6 +27,7 @@ public final class ActionBarRouter implements TeleportHudSink {
     private final PointsService pointsService;
     private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
     private final ActionBarRenderer renderer;
+    private final AtomicInteger onlineCount = new AtomicInteger(0);
     private volatile boolean running = false;
 
     public ActionBarRouter(SchedulerBridge schedulerBridge, PointsService pointsService) {
@@ -36,6 +38,7 @@ public final class ActionBarRouter implements TeleportHudSink {
 
     public void start() {
         running = true;
+        onlineCount.set(Bukkit.getOnlinePlayers().size());
         for (Player player : Bukkit.getOnlinePlayers()) {
             onPlayerJoin(player);
         }
@@ -52,7 +55,7 @@ public final class ActionBarRouter implements TeleportHudSink {
         }
         states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState());
         refreshIdle(player);
-        scheduleNext(player);
+        schedulerBridge.runPlayerTask(player, () -> scheduleNext(player));
     }
 
     public void onPlayerQuit(Player player) {
@@ -62,19 +65,27 @@ public final class ActionBarRouter implements TeleportHudSink {
         states.remove(player.getUniqueId());
     }
 
+    public void incrementOnlineCount() {
+        onlineCount.incrementAndGet();
+    }
+
+    public void decrementOnlineCount() {
+        onlineCount.decrementAndGet();
+    }
+
     public void refreshIdle(Player player) {
         if (player == null || !player.isOnline()) {
             return;
         }
         UUID playerId = player.getUniqueId();
+        int count = onlineCount.get();
         schedulerBridge.runAsyncTask(() -> {
             int points = 0;
             try {
                 points = pointsService.getBalance(playerId);
             } catch (Exception ignored) {
             }
-            int onlineCount = Bukkit.getOnlinePlayers().size();
-            String text = ActionBarComposer.idle(points, onlineCount);
+            String text = ActionBarComposer.idle(points, count);
             states.computeIfAbsent(playerId, k -> new PlayerHudState()).put(
                     new ActionBarMessage(ActionBarPriority.IDLE, text, IDLE_SOURCE, -1));
         });

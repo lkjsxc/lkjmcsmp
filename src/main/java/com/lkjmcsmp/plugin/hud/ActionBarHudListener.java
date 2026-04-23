@@ -20,11 +20,13 @@ public final class ActionBarHudListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        actionBarHudService.incrementOnlineCount();
         actionBarHudService.onPlayerJoin(event.getPlayer());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        actionBarHudService.decrementOnlineCount();
         actionBarHudService.onPlayerQuit(event.getPlayer());
     }
 

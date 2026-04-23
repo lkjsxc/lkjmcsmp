@@ -105,7 +105,14 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         String instanceId = UUID.randomUUID().toString();
         String worldName = "lkjmcsmp_tempdim_" + instanceId.replace("-", "");
         schedulerBridge.runGlobalTask(() -> {
-            World world = worldFactory.createWorld(worldName, environment);
+            World world;
+            try {
+                world = worldFactory.createWorld(worldName, environment);
+            } catch (Exception ex) {
+                logger.severe("Exception creating temporary dimension world: " + worldName + " — " + ex.getMessage());
+                refundAndNotify(creator, "world_creation_failed");
+                return;
+            }
             if (world == null) {
                 logger.severe("Failed to create temporary dimension world: " + worldName);
                 refundAndNotify(creator, "world_creation_failed");

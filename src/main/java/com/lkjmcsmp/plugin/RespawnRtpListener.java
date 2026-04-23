@@ -1,7 +1,6 @@
 package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.domain.TeleportService;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,15 +25,14 @@ public final class RespawnRtpListener implements Listener {
         if (!player.hasPermission("lkjmcsmp.rtp.use")) {
             return;
         }
-        Location respawn = event.getRespawnLocation();
-        if (respawn == null || respawn.getWorld() == null) {
+        if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
             return;
         }
-        World world = respawn.getWorld();
-        Location spawn = world.getSpawnLocation();
-        if (event.isBedSpawn()
-                || respawn.getBlockX() != spawn.getBlockX()
-                || respawn.getBlockZ() != spawn.getBlockZ()) {
+        if (event.isBedSpawn() || event.isAnchorSpawn()) {
+            return;
+        }
+        World world = event.getRespawnLocation().getWorld();
+        if (world == null) {
             return;
         }
         teleportService.randomTeleport(player, world.getName(), true, false, result -> {
