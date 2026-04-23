@@ -43,7 +43,7 @@ Extended smoke suite:
 - Shop detail renders direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`).
 - Pagination controls keep stable ordering across pages.
 - Achievement GUI shows achievement status plus numeric progress text.
-- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 points`.
+- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 16 Maruishi Points`.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Team disband action from GUI opens explicit confirm screen before execution.
 - GUI slot-map contract markers match shop-detail source layout (`19..25` direct-buy + `31` balance + `49` back).
@@ -51,8 +51,8 @@ Extended smoke suite:
 - Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
 - Action bar never stays blank after combat or teleport overlay expires; idle reclaims immediately.
 - Combat overlay text omits the literal `"HP"`; shows target name followed by HP bar only.
-- Root menu includes `Temporary End` entry.
-- Temporary End shop item is visible and purchasable.
+- Shop list renders service items with `ENDER_EYE` indicator and `"§dService Item — executes on purchase"` lore line.
+- Temporary End Pass shop item is visible and purchasable.
 - GUI menus render decorative borders with stained glass panes.
 
 ## Action Bar Assertions

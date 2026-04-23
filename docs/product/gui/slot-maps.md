@@ -147,3 +147,4 @@ For 54-slot menus, bottom-row control slots are:
 4. Non-paged menus may leave shared pagination slots empty.
 5. Contract changes to slot maps must be reflected in both docs and implementation in the same batch.
 6. Decorative borders take precedence over empty slots but never overwrite functional items.
+7. Shop action semantics are defined in [shop-actions.md](shop-actions.md).

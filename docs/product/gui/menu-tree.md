@@ -20,6 +20,11 @@
 6. Achievement
 7. Close Menu
 
+## Temporary End Access
+
+- The Temporary End Pass is not a root-menu entry.
+- Players reach it through **Points Shop → Temporary End Pass → Purchase**.
+
 ## Teleport Menu
 
 - Random Teleport

@@ -15,10 +15,11 @@
 
 1. Service-type shop items trigger world or player effects rather than giving inventory items.
 2. Service items follow the same list-to-detail navigation as physical items.
-3. Service item detail menus show the same direct-buy quantity buttons.
+3. Service item detail menus show a single Purchase button instead of quantity buttons.
 4. On purchase, service effects execute only after point deduction succeeds.
 5. Service purchase failure rolls back any partial effect execution.
-6. The `temporary_end` service item creates a temporary End dimension instance and transfers nearby players.
+6. The `temporary_end_pass` service item creates a temporary End dimension instance and transfers nearby players.
+7. Service item behavior is fully defined in [shop-actions.md](shop-actions.md).
 
 ## Feedback Rules
 

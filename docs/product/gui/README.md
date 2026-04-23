@@ -39,7 +39,6 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
    - Warps: `GREEN_STAINED_GLASS_PANE`
    - Team: `CYAN_STAINED_GLASS_PANE`
    - Achievement: `ORANGE_STAINED_GLASS_PANE`
-   - Temporary End: `BLACK_STAINED_GLASS_PANE` (retained for legacy compatibility; menu retired)
    - Picker: `LIGHT_GRAY_STAINED_GLASS_PANE`
 4. Functional slots within border rows/columns take precedence over decorative items.
 5. Empty content slots inside the border remain empty (no filler) unless used for info panels.
@@ -55,5 +54,6 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 - [menu-tree.md](menu-tree.md): canonical menu hierarchy and navigation controls
 - [slot-maps.md](slot-maps.md): canonical slot map for every menu surface
 - [interaction-rules.md](interaction-rules.md): inventory click and feedback behavior
+- [shop-actions.md](shop-actions.md): shop list, detail, and cobblestone conversion actions
 - [hotbar-entrypoint.md](hotbar-entrypoint.md): slot-8 menu token lock and interaction policy
 - [team-layout.md](team-layout.md): team menu slot map and role-aware affordances
