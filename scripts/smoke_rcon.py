@@ -42,7 +42,7 @@ def assert_radius_defaults():
     if not SOURCE_CONFIG.exists():
         raise RuntimeError(f"source config missing: {SOURCE_CONFIG}")
     text = SOURCE_CONFIG.read_text(encoding="utf-8")
-    for expected in ("rtp-min-radius: 1000", "rtp-max-radius: 100000"):
+    for expected in ("rtp-min-radius: 1000", "rtp-max-radius: 100000", "temporary-dimension:", "respawn-on-death:"):
         if expected not in text:
             raise RuntimeError(f"config missing `{expected}`")
     print("[ok] source config defaults for RTP radius")
@@ -65,7 +65,7 @@ def assert_achievement_and_menu_contract_markers():
     if not SOURCE_MENU_TITLES.exists():
         raise RuntimeError(f"menu titles source missing: {SOURCE_MENU_TITLES}")
     menu_titles_text = SOURCE_MENU_TITLES.read_text(encoding="utf-8")
-    for expected in ("SHOP_DETAIL", "HOMES_DELETE", "TEAM_DISBAND_CONFIRM"):
+    for expected in ("SHOP_DETAIL", "HOMES_DELETE", "TEAM_DISBAND_CONFIRM", "PROFILE"):
         if expected not in menu_titles_text:
             raise RuntimeError(f"menu titles missing `{expected}`")
     print("[ok] achievement/menu contract markers present")
@@ -131,7 +131,7 @@ def main() -> int:
         assert_achievement_and_menu_contract_markers()
         assert_gui_slot_map_alignment_markers()
         assert_actionbar_hud_markers()
-        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach"):
+        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach", "profile"):
             run_cmd(client, f"help {command}", command)
         run_cmd(client, "help lkjmcsmp:tp", "lkjmcsmp:tp")
         return 0

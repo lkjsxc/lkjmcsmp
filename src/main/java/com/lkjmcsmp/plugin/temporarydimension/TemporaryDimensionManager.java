@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -32,7 +31,6 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final int cost;
     private final Duration duration;
     private final Map<String, TemporaryDimensionInstance> activeInstances = new ConcurrentHashMap<>();
-
     public TemporaryDimensionManager(
             SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao, PointsDao pointsDao,
             TemporaryDimensionWorldFactory worldFactory, TemporaryDimensionTransfer transfer,
@@ -46,9 +44,10 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         this.cost = cost;
         this.duration = duration;
     }
-
     public int cost() { return cost; }
-
+    public Collection<TemporaryDimensionInstance> activeInstances() { return activeInstances.values(); }
+    public TemporaryDimensionInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
+    public boolean isTemporaryDimensionWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
     @Override
     public void execute(Player player, ShopEntry entry) {
         World.Environment env = World.Environment.THE_END;
@@ -60,7 +59,6 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         }
         createInstance(player, player.getLocation(), env);
     }
-
     public void recoverOnStartup() {
         schedulerBridge.runAsyncTask(() -> {
             try {
@@ -85,6 +83,9 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
                 logger.warning("Temporary dimension startup recovery failed: " + e.getMessage());
             }
         });
+    }
+    public java.util.Optional<NamedLocation> findParticipantReturn(UUID playerUuid) throws Exception {
+        return temporaryDimensionDao.findParticipantReturn(playerUuid);
     }
     public boolean hasActiveInstanceByPlayer(UUID playerUuid) {
         return activeInstances.values().stream().anyMatch(i -> i.creatorUuid().equals(playerUuid));
@@ -123,7 +124,6 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             transfer.captureAndTransfer(origin, world, instanceId);
         });
     }
-
     public void expireInstance(String instanceId) {
         TemporaryDimensionInstance instance = activeInstances.remove(instanceId);
         if (instance == null) return;
@@ -146,7 +146,6 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             }
         });
     }
-
     private void cleanupDb(String instanceId, boolean deleted) {
         try {
             temporaryDimensionDao.updateState(instanceId, InstanceLifecycle.CLOSED);
@@ -181,10 +180,6 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         }
         return null;
     }
-
-    public Collection<TemporaryDimensionInstance> activeInstances() { return activeInstances.values(); }
-    public TemporaryDimensionInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
-    public boolean isTemporaryDimensionWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
     public TemporaryDimensionInstance findInstanceByWorld(String worldName) {
         return worldName == null ? null : activeInstances.values().stream().filter(i -> i.worldName().equals(worldName)).findFirst().orElse(null);
     }
@@ -197,9 +192,5 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
                 logger.warning("Failed to remove participant: " + e.getMessage());
             }
         }
-    }
-
-    public java.util.Optional<NamedLocation> findParticipantReturn(UUID playerUuid) throws Exception {
-        return temporaryDimensionDao.findParticipantReturn(playerUuid);
     }
 }
