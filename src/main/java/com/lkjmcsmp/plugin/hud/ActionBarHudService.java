@@ -25,6 +25,7 @@ public final class ActionBarHudService implements TeleportHudSink {
     private final SchedulerBridge schedulerBridge;
     private final PointsService pointsService;
     private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
+    private volatile boolean running = false;
 
     public ActionBarHudService(SchedulerBridge schedulerBridge, PointsService pointsService) {
         this.schedulerBridge = schedulerBridge;
@@ -32,15 +33,20 @@ public final class ActionBarHudService implements TeleportHudSink {
     }
 
     public void start() {
+        running = true;
         schedulerBridge.runGlobalDelayedTask(IDLE_REFRESH_TICKS, this::runIdleRefresh);
     }
 
     private void runIdleRefresh() {
+        if (!running) {
+            return;
+        }
         refreshIdleAllOnline();
         schedulerBridge.runGlobalDelayedTask(IDLE_REFRESH_TICKS, this::runIdleRefresh);
     }
 
     public void stop() {
+        running = false;
         states.clear();
     }
 

@@ -30,8 +30,8 @@ Define strict per-item base rates with optional seasonal Maruishi Point override
 5. Opening detail view resets quantity to default baseline (`1` item).
 6. Total cost is `points-per-item * selected-quantity`.
 7. Purchase succeeds only when Maruishi Points balance and inventory capacity are sufficient.
-8. Purchase grants items only after Maruishi Points deduction succeeds.
-9. Failed item insertion rolls back Maruishi Points deduction.
+8. Purchase grants items or executes service effects only after Maruishi Points deduction succeeds.
+9. Failed physical item insertion or service effect execution does **not** roll back Maruishi Points; callers must handle compensating transactions if needed.
 10. Log purchases use per-item semantics (`1` log = `16` Maruishi Points).
 11. Quantity selection is not interpreted as multiplier units.
 12. Service items (e.g., `temporary_end_pass`) deduct Maruishi Points and trigger effects; no inventory capacity check is performed.
