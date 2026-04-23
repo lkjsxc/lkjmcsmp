@@ -11,10 +11,10 @@ Define strict per-item base rates with optional seasonal Maruishi Point override
 | Oak Log | 16 |
 | Spruce Log | 16 |
 | Birch Log | 16 |
+| Mysterious Egg | 10,000 |
 | Dirt | 1 |
 | Sand | 2 |
 | Gravel | 2 |
-| Temporary End Pass | 10,000 |
 
 ## Rules
 
@@ -34,12 +34,12 @@ Define strict per-item base rates with optional seasonal Maruishi Point override
 9. Failed physical item insertion or service effect execution does **not** roll back Maruishi Points; callers must handle compensating transactions if needed.
 10. Log purchases use per-item semantics (`1` log = `16` Maruishi Points).
 11. Quantity selection is not interpreted as multiplier units.
-12. Service items (e.g., `temporary_end_pass`) deduct Maruishi Points and trigger effects; no inventory capacity check is performed.
+12. Service items (e.g., `temporary_dimension_pass`) deduct Maruishi Points and trigger effects; no inventory capacity check is performed.
 
 ## Item Keys and Display Names
 
 1. The canonical config key for a shop item may differ from its player-facing display name.
-2. `temporary_end_pass` is the config key; its display name is "Temporary End Pass".
+2. `temporary_dimension_pass` is the config key; its display name is "Mysterious Egg".
 3. Display names are shown in menus; keys are used in commands and config files.
 
 ## Override Scope

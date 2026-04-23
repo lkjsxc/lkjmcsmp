@@ -18,8 +18,8 @@ Surface common enable-time and runtime failures with deterministic diagnostics.
 
 ### HUD Task Duplication on Reload
 - Symptom: Duplicate idle refresh messages or rapid action-bar flicker after `/reload`.
-- Cause: Old `ActionBarHudService` scheduled tasks were not cancelled before re-enable.
-- Fix: Ensure `onDisable` calls `services.hud().stop()` and that `stop()` cancels scheduled tasks.
+- Cause: Old `ActionBarRouter` per-player periodic tasks were not cancelled before re-enable.
+- Fix: Ensure `onDisable` calls `services.hud().stop()` and that `stop()` cancels all per-player periodic tasks.
 
 ## Build Failures
 

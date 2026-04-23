@@ -20,10 +20,10 @@
 6. Achievement
 7. Close Menu
 
-## Temporary End Access
+## Temporary Dimension Access
 
-- The Temporary End Pass is not a root-menu entry.
-- Players reach it through **Points Shop → Temporary End Pass → Purchase**.
+- The dimension pass is not a root-menu entry.
+- Players reach it through **Points Shop → Mysterious Egg → Purchase**.
 
 ## Teleport Menu
 
@@ -82,7 +82,7 @@
 - Selected item description and per-item pricing
 - Current points balance indicator
 - Direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`) for physical items
-- Service items (e.g. Temporary End) show a single Purchase button instead of quantity buttons
+- Service items (e.g. temporary dimension pass) show a single Purchase button instead of quantity buttons
 - No separate quantity-setting or buy-confirm button
 - Purchase executes only when balance is sufficient
 - Detail view stays open after physical-item purchase and refreshes affordability state

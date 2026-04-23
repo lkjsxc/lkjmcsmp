@@ -4,7 +4,7 @@
 
 - `com.lkjmcsmp.plugin`: Bukkit/Folia entrypoint and wiring
 - `com.lkjmcsmp.plugin.hud`: action-bar HUD state orchestration and listeners
-- `com.lkjmcsmp.plugin.temporaryend`: temporary End instance lifecycle and world management
+- `com.lkjmcsmp.plugin.temporarydimension`: temporary dimension instance lifecycle and world management
 - `com.lkjmcsmp.command`: command handlers and argument adapters
 - `com.lkjmcsmp.gui`: inventory menu orchestration
 - `com.lkjmcsmp.domain`: pure gameplay services and policies
@@ -23,10 +23,10 @@
 
 - `SchedulerBridge`: Folia-safe task abstraction for player/region/global/async/delayed execution
 - `TeleportService`: command teleport policies, request lifecycle, stability delay, and RTP safety
-- `ActionBarHudService`: facade entrypoint for player HUD updates and overlay arbitration
-- `hud` runtime components: idle rendering, teleport/combat overlays, and TTL expiry scheduling
+- `ActionBarRouter`: facade entrypoint for player HUD updates and overlay arbitration
+- `hud` runtime components: idle rendering, teleport/combat overlays, and periodic re-evaluation
 - `HotbarMenuService`: slot-8 menu token lifecycle and lock enforcement
-- `TemporaryEndManager`: registry, creation, expiry, evacuation, and cleanup of temporary End instances
+- `TemporaryDimensionManager`: registry, creation, expiry, evacuation, and cleanup of temporary dimension instances
 
 ## HUD Reliability Boundary
 

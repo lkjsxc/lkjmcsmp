@@ -13,7 +13,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 5. **Item entry click**: capture selected item key, open shop detail for that item.
 6. **Item entry appearance**:
    - Physical items: show material, display name, price, and `"Selectable quantity: 1..64"` lore.
-   - Service items: show material, display name, price, `"§dService Item — executes on purchase"` lore, and an `ENDER_EYE` indicator appended to the lore.
+   - Service items: show configured material, display name, price, `"§dService Item — executes on purchase"` lore.
 
 ## Shop Detail Actions (`lkjmcsmp :: shop-detail`)
 
@@ -49,7 +49,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 2. The executor runs only after Maruishi Points deduction succeeds and is ledgered.
 3. If the executor throws or returns failure, the Maruishi Points deduction is NOT rolled back automatically; the executor must handle its own compensating transactions.
 4. No inventory capacity check is performed for service items.
-5. The `temporary_end_pass` executor calls `TemporaryEndManager.createInstance`.
+5. The `temporary_dimension_pass` executor calls `TemporaryDimensionManager.createInstance`.
 
 ## Failure Semantics
 

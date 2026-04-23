@@ -1,4 +1,8 @@
-# Temporary End Lifecycle
+# Temporary Dimension Lifecycle
+
+## Summary
+
+Instances move through three states with deterministic expiry, evacuation, and cleanup.
 
 ## States
 
@@ -9,7 +13,7 @@
 ## Duration
 
 1. Default duration: `3` hours.
-2. Configurable under `temporary-end.duration-minutes`.
+2. Configurable under `temporary-dimension.duration-minutes`.
 3. Expiry is checked every `5` minutes while instances are active.
 
 ## Expiry Sequence
@@ -26,7 +30,7 @@
 1. If a participant is offline during expiry, their return is deferred.
 2. On next `PlayerJoinEvent`, if they have a participant record for a `CLOSED` instance, teleport them to the origin and delete the record.
 3. The `CLOSED` state covers both record-pending and record-removed phases for simplicity.
-3. This handles disconnect-during-expiry and server restart recovery.
+4. This handles disconnect-during-expiry and server restart recovery.
 
 ## Startup Recovery
 
@@ -41,3 +45,8 @@
 2. Each purchase (command, shop, or menu) creates an independent instance.
 3. Instances do not interfere with each other; their world names are unique.
 4. Expiry and evacuation are scoped per instance.
+
+## Cross-References
+
+- [access-rules.md](access-rules.md): gameplay inside active instances
+- [purchase-and-creation.md](purchase-and-creation.md): how instances are created

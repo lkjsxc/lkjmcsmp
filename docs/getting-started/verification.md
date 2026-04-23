@@ -16,12 +16,12 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 2. `smoke` returns zero only when plugin startup and scripted command checks pass.
 3. Non-zero from any step blocks acceptance.
 4. Teleport, menu lock, and action-bar regressions are treated as acceptance blockers.
-5. HUD regressions include missing teleport countdown/completion feedback and missing combat overlay behavior.
+5. HUD regressions include missing teleport countdown/completion feedback, missing combat overlay behavior, and action-bar blank gaps.
 
 ## Minimal Smoke Assertions
 
 - Plugin appears in server plugin list.
-- Core command registrations exist (`tp`, `rtp`, `tpa`, `home`, `team`, `warp`, `achievement`, `ach`).
+- Core command registrations exist (`tp`, `rtp`, `tpa`, `home`, `team`, `warp`, `achievement`, `ach`, `tempdim`).
 - GUI root menu can be opened by command.
 - Cobblestone conversion command path succeeds for an operator test account.
 - Hotbar slot `8` menu entrypoint opens GUI and cannot be dropped.
@@ -35,4 +35,4 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Shop detail direct-buy path uses final item quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`) and honors per-item rate math (`1` log = `16` points).
 - Shop detail slot-map markers match canonical layout (`19..25`, `31`, `49`).
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
-- Action-bar markers enforce idle HUD (`points+online`), teleport countdown/completion states, and 3-second combat target HP bar overlay.
+- Action-bar markers enforce always-on idle HUD (`points+online`), teleport countdown/completion states, and 3-second combat target HP bar overlay.
