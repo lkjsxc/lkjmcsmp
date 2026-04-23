@@ -159,4 +159,9 @@ public final class SqliteDatabase {
                 """);
         }
     }
+
+    public void close() {
+        // SQLite JDBC uses per-call connections via DriverManager.
+        // All callers already use try-with-resources; this is a lifecycle hook for future pooling.
+    }
 }

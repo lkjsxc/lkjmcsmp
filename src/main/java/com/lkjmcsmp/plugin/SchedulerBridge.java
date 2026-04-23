@@ -15,4 +15,6 @@ public interface SchedulerBridge {
     void runGlobalDelayedTask(long delayTicks, Runnable runnable);
 
     void runAsyncTask(Runnable runnable);
+
+    void cancelTasks();
 }
