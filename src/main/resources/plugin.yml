@@ -69,6 +69,9 @@ commands:
   rtp:
     usage: /rtp [world]
     permission: lkjmcsmp.rtp.use
+  profile:
+    usage: /profile
+    permission: lkjmcsmp.profile.use
   tempdim:
     usage: /tempdim [purchase|list|info|forceclose]
     permission: lkjmcsmp.temporarydimension.use
@@ -103,6 +106,8 @@ permissions:
     default: op
   lkjmcsmp.economy.override:
     default: op
+  lkjmcsmp.profile.use:
+    default: true
   lkjmcsmp.temporarydimension.use:
     default: true
   lkjmcsmp.temporarydimension.admin:

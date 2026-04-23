@@ -17,6 +17,7 @@ public final class MenuService {
     private final CoreMenuService coreMenus;
     private final TopLevelMenuViews topLevelViews;
     private final TopLevelMenuActions topLevelActions;
+    private final ProfileMenuView profileMenuView;
     private final SchedulerBridge schedulerBridge;
 
     public MenuService(
@@ -42,6 +43,7 @@ public final class MenuService {
                 actionBarHudService,
                 topLevelViews,
                 coreMenus);
+        this.profileMenuView = new ProfileMenuView(pointsService, achievementService, partyService);
     }
 
     public void openRoot(Player player) {
@@ -57,6 +59,10 @@ public final class MenuService {
     public void openAchievement(Player player) {
         topLevelActions.setAchievementPage(player.getUniqueId(), 0);
         topLevelViews.openAchievement(player, topLevelActions.achievementPage(player.getUniqueId()));
+    }
+
+    public void openProfile(Player player) {
+        profileMenuView.open(player);
     }
 
     public void openTpAcceptPicker(Player player) throws Exception {
@@ -85,6 +91,8 @@ public final class MenuService {
                 if (!coreMenus.openBack(player, title)) {
                     if (MenuTitles.SHOP_DETAIL.equals(title)) {
                         topLevelViews.openShop(player, topLevelActions.shopPage(player.getUniqueId()));
+                    } else if (MenuTitles.PROFILE.equals(title)) {
+                        openRoot(player);
                     } else {
                         openRoot(player);
                     }

@@ -4,6 +4,7 @@ import com.lkjmcsmp.command.AchievementCommand;
 import com.lkjmcsmp.command.HomeCommand;
 import com.lkjmcsmp.command.MenuCommand;
 import com.lkjmcsmp.command.PointsCommand;
+import com.lkjmcsmp.command.ProfileCommand;
 import com.lkjmcsmp.command.TeamCommand;
 import com.lkjmcsmp.command.TeleportCommand;
 import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionCommand;
@@ -40,6 +41,7 @@ final class CommandRegistry {
         register(plugin, "rtp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
         register(plugin, "achievement", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
         register(plugin, "ach", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
+        register(plugin, "profile", new ProfileCommand(services.menus()));
         register(plugin, "tempdim", new TemporaryDimensionCommand(services.points(), temporaryDimensionManager));
     }
 

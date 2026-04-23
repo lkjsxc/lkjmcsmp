@@ -17,6 +17,7 @@ final class MenuTitles {
     static final String PICK_TP = PREFIX + " pick-tp";
     static final String PICK_TP_ACCEPT = PREFIX + " pick-tpaccept";
     static final String PICK_INVITE = PREFIX + " pick-invite";
+    static final String PROFILE = PREFIX + " profile";
 
     private MenuTitles() {
     }

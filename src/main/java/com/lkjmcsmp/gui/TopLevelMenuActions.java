@@ -36,6 +36,7 @@ final class TopLevelMenuActions {
             case MenuTitles.SHOP -> shopActions.handleShop(player, display);
             case MenuTitles.SHOP_DETAIL -> shopActions.handleShopDetail(player, display);
             case MenuTitles.ACHIEVEMENT -> handleAchievement(event, player, display);
+            case MenuTitles.PROFILE -> handleProfile(player, display);
             default -> false;
         };
     }
@@ -50,6 +51,10 @@ final class TopLevelMenuActions {
         if (display.equals("Achievement")) {
             setAchievementPage(player.getUniqueId(), 0);
             views.openAchievement(player, achievementPage(player.getUniqueId()));
+            return true;
+        }
+        if (display.equals("Profile")) {
+            views.openProfile(player);
             return true;
         }
         if (display.equals("Close Menu")) {
@@ -87,6 +92,25 @@ final class TopLevelMenuActions {
         }
         views.openAchievement(player, achievementPage(playerId));
         return true;
+    }
+
+    private boolean handleProfile(Player player, String display) throws Exception {
+        return switch (display) {
+            case "Team" -> {
+                coreMenus.open(player, MenuTitles.TEAM);
+                yield true;
+            }
+            case "Achievements" -> {
+                setAchievementPage(player.getUniqueId(), 0);
+                views.openAchievement(player, achievementPage(player.getUniqueId()));
+                yield true;
+            }
+            case "Back" -> {
+                coreMenus.openBack(player, MenuTitles.PROFILE);
+                yield true;
+            }
+            default -> true;
+        };
     }
 
     void resetShopSelection(UUID playerId) { state.resetShopSelection(playerId); }

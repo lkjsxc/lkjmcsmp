@@ -33,7 +33,8 @@ final class TopLevelMenuViews {
         inventory.setItem(16, MenuItems.named(Material.PLAYER_HEAD, "Team"));
         inventory.setItem(20, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
         inventory.setItem(22, MenuItems.named(Material.BOOK, "Achievement"));
-        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.BARRIER, "Close Menu"));
+        inventory.setItem(24, MenuItems.named(Material.CLOCK, "Profile"));
+        inventory.setItem(25, MenuItems.named(Material.BARRIER, "Close Menu"));
         MenuDecor.fillBorder(inventory, MenuDecor.ROOT_BORDER);
         player.openInventory(inventory);
     }
@@ -177,6 +178,10 @@ final class TopLevelMenuViews {
                 "Buy x" + quantity,
                 "Cost: " + total + " Maruishi Points",
                 affordable ? "Click to purchase now" : "Not enough Maruishi Points");
+    }
+
+    void openProfile(Player player) {
+        // delegated to ProfileMenuView via MenuService
     }
 
     private int safePoints(Player player) {

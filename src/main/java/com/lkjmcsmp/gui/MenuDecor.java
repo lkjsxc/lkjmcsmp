@@ -15,6 +15,7 @@ final class MenuDecor {
     static final Material WARPS_BORDER = Material.GREEN_STAINED_GLASS_PANE;
     static final Material TEAM_BORDER = Material.CYAN_STAINED_GLASS_PANE;
     static final Material ACHIEVEMENT_BORDER = Material.ORANGE_STAINED_GLASS_PANE;
+    static final Material PROFILE_BORDER = Material.LIME_STAINED_GLASS_PANE;
     static final Material PICKER_BORDER = Material.LIGHT_GRAY_STAINED_GLASS_PANE;
 
     private MenuDecor() {
