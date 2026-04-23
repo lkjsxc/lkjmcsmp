@@ -1,6 +1,7 @@
-package com.lkjmcsmp.plugin.temporaryend;
+package com.lkjmcsmp.plugin.temporarydimension;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
@@ -10,22 +11,34 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.logging.Logger;
 
-public final class TemporaryEndWorldFactory {
+public final class TemporaryDimensionWorldFactory {
     private final Logger logger;
 
-    public TemporaryEndWorldFactory(Logger logger) {
+    public TemporaryDimensionWorldFactory(Logger logger) {
         this.logger = logger;
     }
 
-    public World createEndWorld(String worldName) {
+    public World createWorld(String worldName, World.Environment environment) {
         WorldCreator creator = new WorldCreator(worldName);
-        creator.environment(World.Environment.THE_END);
+        creator.environment(environment);
         World world = creator.createWorld();
         if (world != null) {
             world.setAutoSave(false);
             world.setGameRule(org.bukkit.GameRule.DO_MOB_SPAWNING, true);
         }
         return world;
+    }
+
+    public Location resolveSpawnLocation(World world) {
+        return switch (world.getEnvironment()) {
+            case THE_END -> new Location(world, 100.5, 49, 0.5);
+            default -> {
+                int x = 0;
+                int z = 0;
+                int y = world.getHighestBlockYAt(x, z);
+                yield new Location(world, x + 0.5, Math.max(y, 70), z + 0.5);
+            }
+        };
     }
 
     public boolean unloadAndDelete(String worldName) {

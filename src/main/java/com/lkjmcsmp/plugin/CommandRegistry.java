@@ -6,9 +6,9 @@ import com.lkjmcsmp.command.MenuCommand;
 import com.lkjmcsmp.command.PointsCommand;
 import com.lkjmcsmp.command.TeamCommand;
 import com.lkjmcsmp.command.TeleportCommand;
-import com.lkjmcsmp.command.TemporaryEndCommand;
+import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionCommand;
 import com.lkjmcsmp.command.WarpCommand;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
+import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionManager;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,7 +18,7 @@ final class CommandRegistry {
     private CommandRegistry() {
     }
 
-    static void registerAll(JavaPlugin plugin, Services services, TemporaryEndManager temporaryEndManager) {
+    static void registerAll(JavaPlugin plugin, Services services, TemporaryDimensionManager temporaryDimensionManager) {
         register(plugin, "menu", new MenuCommand(services.menus()));
         register(plugin, "points", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
         register(plugin, "convert", new PointsCommand(services.points(), services.menus(), services.achievement(), services.hud()));
@@ -40,7 +40,7 @@ final class CommandRegistry {
         register(plugin, "rtp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
         register(plugin, "achievement", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
         register(plugin, "ach", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
-        register(plugin, "tempend", new TemporaryEndCommand(services.points(), temporaryEndManager));
+        register(plugin, "tempdim", new TemporaryDimensionCommand(services.points(), temporaryDimensionManager));
     }
 
     private static void register(JavaPlugin plugin, String command, CommandExecutor executor) {

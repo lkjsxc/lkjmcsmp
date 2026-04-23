@@ -2,7 +2,7 @@ package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.achievement.AchievementService;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 final class TopLevelMenuActions {
     private final AchievementService achievementService;
-    private final ActionBarHudService actionBarHudService;
+    private final ActionBarRouter actionBarHudService;
     private final TopLevelMenuViews views;
     private final CoreMenuService coreMenus;
     private final ShopActions shopActions;
@@ -19,7 +19,7 @@ final class TopLevelMenuActions {
     TopLevelMenuActions(
             PointsService pointsService,
             AchievementService achievementService,
-            ActionBarHudService actionBarHudService,
+            ActionBarRouter actionBarHudService,
             TopLevelMenuViews views,
             CoreMenuService coreMenus) {
         this.achievementService = achievementService;

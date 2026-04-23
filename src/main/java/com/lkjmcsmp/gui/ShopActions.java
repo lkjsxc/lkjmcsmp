@@ -3,7 +3,7 @@ package com.lkjmcsmp.gui;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.achievement.AchievementService;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,14 +13,14 @@ import java.util.UUID;
 final class ShopActions {
     private final PointsService pointsService;
     private final AchievementService achievementService;
-    private final ActionBarHudService actionBarHudService;
+    private final ActionBarRouter actionBarHudService;
     private final TopLevelMenuViews views;
     private final TopLevelMenuState state;
 
     ShopActions(
             PointsService pointsService,
             AchievementService achievementService,
-            ActionBarHudService actionBarHudService,
+            ActionBarRouter actionBarHudService,
             TopLevelMenuViews views,
             TopLevelMenuState state) {
         this.pointsService = pointsService;

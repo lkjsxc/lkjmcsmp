@@ -129,10 +129,11 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
-                CREATE TABLE IF NOT EXISTS temporary_end_instances (
+                CREATE TABLE IF NOT EXISTS temporary_dimension_instances (
                   instance_id TEXT PRIMARY KEY,
                   world_name TEXT NOT NULL UNIQUE,
                   creator_uuid TEXT NOT NULL,
+                  environment TEXT NOT NULL,
                   origin_world TEXT NOT NULL,
                   origin_x REAL NOT NULL,
                   origin_y REAL NOT NULL,
@@ -145,7 +146,7 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
-                CREATE TABLE IF NOT EXISTS temporary_end_participants (
+                CREATE TABLE IF NOT EXISTS temporary_dimension_participants (
                   instance_id TEXT NOT NULL,
                   player_uuid TEXT NOT NULL,
                   return_world TEXT NOT NULL,

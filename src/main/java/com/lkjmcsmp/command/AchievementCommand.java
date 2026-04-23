@@ -2,7 +2,7 @@ package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.achievement.AchievementService;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,12 +10,12 @@ import org.bukkit.command.CommandSender;
 public final class AchievementCommand implements CommandExecutor {
     private final AchievementService achievementService;
     private final MenuService menuService;
-    private final ActionBarHudService actionBarHudService;
+    private final ActionBarRouter actionBarHudService;
 
     public AchievementCommand(
             AchievementService achievementService,
             MenuService menuService,
-            ActionBarHudService actionBarHudService) {
+            ActionBarRouter actionBarHudService) {
         this.achievementService = achievementService;
         this.menuService = menuService;
         this.actionBarHudService = actionBarHudService;

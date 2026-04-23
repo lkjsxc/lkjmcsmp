@@ -1,8 +1,8 @@
-package com.lkjmcsmp.plugin.temporaryend;
+package com.lkjmcsmp.plugin.temporarydimension;
 
 import com.lkjmcsmp.domain.model.NamedLocation;
-import com.lkjmcsmp.domain.model.TemporaryEndInstance;
-import com.lkjmcsmp.persistence.TemporaryEndDao;
+import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
+import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,23 +11,25 @@ import org.bukkit.entity.Player;
 
 import java.util.logging.Logger;
 
-public final class TemporaryEndTransfer {
+public final class TemporaryDimensionTransfer {
     private final SchedulerBridge schedulerBridge;
-    private final TemporaryEndDao temporaryEndDao;
+    private final TemporaryDimensionDao temporaryDimensionDao;
     private final Logger logger;
     private final int transferRadius;
+    private final TemporaryDimensionWorldFactory worldFactory;
 
-    public TemporaryEndTransfer(SchedulerBridge schedulerBridge, TemporaryEndDao temporaryEndDao,
-                                Logger logger, int transferRadius) {
+    public TemporaryDimensionTransfer(SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao,
+                                      Logger logger, int transferRadius, TemporaryDimensionWorldFactory worldFactory) {
         this.schedulerBridge = schedulerBridge;
-        this.temporaryEndDao = temporaryEndDao;
+        this.temporaryDimensionDao = temporaryDimensionDao;
         this.logger = logger;
         this.transferRadius = transferRadius;
+        this.worldFactory = worldFactory;
     }
 
     public void captureAndTransfer(Location origin, World world, String instanceId) {
         double radiusSq = transferRadius * (double) transferRadius;
-        Location platform = new Location(world, 100.5, 49, 0.5);
+        Location spawn = worldFactory.resolveSpawnLocation(world);
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!player.getWorld().equals(origin.getWorld())) continue;
             if (player.getLocation().distanceSquared(origin) > radiusSq) continue;
@@ -35,18 +37,18 @@ public final class TemporaryEndTransfer {
             NamedLocation returnLoc = new NamedLocation("", origin.getWorld().getName(),
                     origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
             try {
-                temporaryEndDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
+                temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
             } catch (Exception e) {
                 logger.warning("Failed to insert participant: " + e.getMessage());
             }
             schedulerBridge.runPlayerTask(player, () -> {
-                if (player.isOnline()) player.teleportAsync(platform);
+                if (player.isOnline()) player.teleportAsync(spawn);
             });
         }
-        logger.info("Transferred nearby players into temporary end instance " + instanceId);
+        logger.info("Transferred nearby players into temporary dimension instance " + instanceId);
     }
 
-    public void evacuateAll(TemporaryEndInstance instance) {
+    public void evacuateAll(TemporaryDimensionInstance instance) {
         World world = Bukkit.getWorld(instance.worldName());
         if (world == null) return;
         for (Player player : world.getPlayers()) {

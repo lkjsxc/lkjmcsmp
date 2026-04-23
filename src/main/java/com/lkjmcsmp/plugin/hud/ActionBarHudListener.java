@@ -12,9 +12,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class ActionBarHudListener implements Listener {
-    private final ActionBarHudService actionBarHudService;
+    private final ActionBarRouter actionBarHudService;
 
-    public ActionBarHudListener(ActionBarHudService actionBarHudService) {
+    public ActionBarHudListener(ActionBarRouter actionBarHudService) {
         this.actionBarHudService = actionBarHudService;
     }
 

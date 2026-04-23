@@ -11,6 +11,12 @@ items:
     material: BIRCH_LOG
     points: 16
     display_name: "Birch Log"
+  temporary_dimension_pass:
+    material: DRAGON_EGG
+    points: 10000
+    service: true
+    display_name: "\u00A7kM\u00A7r \u00A75Mysterious Egg \u00A7kM"
+    environment: THE_END
   dirt:
     material: DIRT
     points: 1
@@ -23,8 +29,3 @@ items:
     material: GRAVEL
     points: 2
     display_name: "Gravel"
-  temporary_end_pass:
-    material: DRAGON_EGG
-    points: 10000
-    service: true
-    display_name: "Temporary End Pass"

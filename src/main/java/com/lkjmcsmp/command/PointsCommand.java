@@ -3,7 +3,7 @@ package com.lkjmcsmp.command;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.achievement.AchievementService;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,13 +12,13 @@ public final class PointsCommand implements CommandExecutor {
     private final PointsService pointsService;
     private final MenuService menuService;
     private final AchievementService achievementService;
-    private final ActionBarHudService actionBarHudService;
+    private final ActionBarRouter actionBarHudService;
 
     public PointsCommand(
             PointsService pointsService,
             MenuService menuService,
             AchievementService achievementService,
-            ActionBarHudService actionBarHudService) {
+            ActionBarRouter actionBarHudService) {
         this.pointsService = pointsService;
         this.menuService = menuService;
         this.achievementService = achievementService;

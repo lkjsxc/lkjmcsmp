@@ -1,8 +1,8 @@
-package com.lkjmcsmp.plugin.temporaryend;
+package com.lkjmcsmp.plugin.temporarydimension;
 
 import com.lkjmcsmp.domain.model.NamedLocation;
 import com.lkjmcsmp.plugin.SchedulerBridge;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,18 +20,18 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Logger;
 
-public final class TemporaryEndListener implements Listener {
-    private final TemporaryEndManager manager;
+public final class TemporaryDimensionListener implements Listener {
+    private final TemporaryDimensionManager manager;
     private final SchedulerBridge schedulerBridge;
     private final Logger logger;
-    private final ActionBarHudService actionBarHudService;
+    private final ActionBarRouter actionBarRouter;
 
-    public TemporaryEndListener(TemporaryEndManager manager, SchedulerBridge schedulerBridge, Logger logger,
-                                ActionBarHudService actionBarHudService) {
+    public TemporaryDimensionListener(TemporaryDimensionManager manager, SchedulerBridge schedulerBridge, Logger logger,
+                                      ActionBarRouter actionBarRouter) {
         this.manager = manager;
         this.schedulerBridge = schedulerBridge;
         this.logger = logger;
-        this.actionBarHudService = actionBarHudService;
+        this.actionBarRouter = actionBarRouter;
     }
 
     @EventHandler
@@ -56,14 +56,13 @@ public final class TemporaryEndListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        // No-op; expiry handles offline participants via DB records.
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
             String fromWorld = event.getFrom().getWorld() != null ? event.getFrom().getWorld().getName() : "";
-            if (manager.isTemporaryEndWorld(fromWorld)) {
+            if (manager.isTemporaryDimensionWorld(fromWorld)) {
                 manager.removeParticipant(fromWorld, event.getPlayer().getUniqueId());
             }
         }
@@ -72,8 +71,7 @@ public final class TemporaryEndListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent event) {
         String fromWorld = event.getFrom().getWorld() != null ? event.getFrom().getWorld().getName() : "";
-        if (manager.isTemporaryEndWorld(fromWorld)) {
-            // Allow vanilla portal mechanics.
+        if (manager.isTemporaryDimensionWorld(fromWorld)) {
         }
     }
 
@@ -81,14 +79,14 @@ public final class TemporaryEndListener implements Listener {
     public void onChangedWorld(PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
         String toWorld = player.getWorld().getName();
-        if (manager.isTemporaryEndWorld(toWorld)) {
+        if (manager.isTemporaryDimensionWorld(toWorld)) {
             var instance = manager.findInstanceByWorld(toWorld);
             if (instance != null) {
                 long remaining = Duration.between(Instant.now(), instance.expirationTime()).getSeconds();
-                actionBarHudService.onEnterTemporaryEnd(player, Math.max(0, remaining));
+                actionBarRouter.onEnterTemporaryDimension(player, Math.max(0, remaining));
             }
-        } else if (manager.isTemporaryEndWorld(event.getFrom().getName())) {
-            actionBarHudService.onLeaveTemporaryEnd(player);
+        } else if (manager.isTemporaryDimensionWorld(event.getFrom().getName())) {
+            actionBarRouter.onLeaveTemporaryDimension(player);
         }
     }
 }

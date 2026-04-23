@@ -14,12 +14,12 @@ import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.SqliteDatabase;
-import com.lkjmcsmp.persistence.TemporaryEndDao;
+import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.persistence.WarpDao;
 import com.lkjmcsmp.achievement.AchievementService;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndBootstrap;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
+import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionBootstrap;
+import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,7 +32,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
     private SchedulerBridge schedulerBridge;
     private FirstJoinDao firstJoinDao;
-    private TemporaryEndManager temporaryEndManager;
+    private TemporaryDimensionManager temporaryDimensionManager;
     private SqliteDatabase database;
 
     @Override
@@ -42,8 +42,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             saveResource("shop.yml", false);
             saveResource("achievements.yml", false);
             Services initialized = initializeServices();
-            CommandRegistry.registerAll(this, initialized, temporaryEndManager);
-            ListenerRegistry.registerAll(this, initialized, firstJoinDao, schedulerBridge, temporaryEndManager);
+            CommandRegistry.registerAll(this, initialized, temporaryDimensionManager);
+            ListenerRegistry.registerAll(this, initialized, firstJoinDao, schedulerBridge, temporaryDimensionManager);
             ProxyRuntimeValidator.validate(this);
             this.services = initialized;
             getLogger().info("lkjmcsmp enabled");
@@ -92,7 +92,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 shopConfig.getConfigurationSection("items"),
                 config.getBoolean("economy.allow-partial-convert", false),
                 config.getInt("economy.max-convert-per-op", 4096));
-        ActionBarHudService actionBarHudService = new ActionBarHudService(schedulerBridge, pointsService);
+        ActionBarRouter actionBarHudService = new ActionBarRouter(schedulerBridge, pointsService);
         AchievementService achievementService = new AchievementService(
                 achievementDao,
                 pointsDao,
@@ -116,9 +116,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 actionBarHudService);
         this.firstJoinDao = new FirstJoinDao(database);
 
-        this.temporaryEndManager = TemporaryEndBootstrap.bootstrap(
-                this, schedulerBridge, pointsDao, new TemporaryEndDao(database), config, actionBarHudService);
-        pointsService.registerEffect("temporary_end_pass", temporaryEndManager);
+        this.temporaryDimensionManager = TemporaryDimensionBootstrap.bootstrap(
+                this, schedulerBridge, pointsDao, new TemporaryDimensionDao(database), config, actionBarHudService);
+        pointsService.registerEffect("temporary_dimension_pass", temporaryDimensionManager);
 
         MenuService menuService = new MenuService(
                 pointsService,

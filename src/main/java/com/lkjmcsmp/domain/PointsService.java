@@ -53,7 +53,7 @@ public final class PointsService {
             }
             String displayName = entry.getString("display_name", key);
             items.put(key.toLowerCase(), new ShopEntry(
-                    key.toLowerCase(), material, displayName, entry.getInt("points", 1), entry.getBoolean("service", false)));
+                    key.toLowerCase(), material, displayName, entry.getInt("points", 1), entry.getBoolean("service", false), entry.getString("environment", "")));
         }
         return items;
     }
@@ -66,7 +66,7 @@ public final class PointsService {
                 continue;
             }
             baseItems.put(itemKey, new ShopEntry(
-                    base.key(), base.material(), base.displayName(), override.pointsCost(), base.service()));
+                    base.key(), base.material(), base.displayName(), override.pointsCost(), base.service(), base.environment()));
         }
     }
 

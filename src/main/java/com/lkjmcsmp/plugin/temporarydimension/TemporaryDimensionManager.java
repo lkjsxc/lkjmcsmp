@@ -1,11 +1,11 @@
-package com.lkjmcsmp.plugin.temporaryend;
+package com.lkjmcsmp.plugin.temporarydimension;
 
 import com.lkjmcsmp.domain.ShopEffectExecutor;
 import com.lkjmcsmp.domain.model.InstanceLifecycle;
 import com.lkjmcsmp.domain.model.NamedLocation;
-import com.lkjmcsmp.domain.model.TemporaryEndInstance;
+import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
 import com.lkjmcsmp.persistence.PointsDao;
-import com.lkjmcsmp.persistence.TemporaryEndDao;
+import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,23 +21,23 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-public final class TemporaryEndManager implements ShopEffectExecutor {
+public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final SchedulerBridge schedulerBridge;
-    private final TemporaryEndDao temporaryEndDao;
+    private final TemporaryDimensionDao temporaryDimensionDao;
     private final PointsDao pointsDao;
-    private final TemporaryEndWorldFactory worldFactory;
-    private final TemporaryEndTransfer transfer;
+    private final TemporaryDimensionWorldFactory worldFactory;
+    private final TemporaryDimensionTransfer transfer;
     private final Logger logger;
     private final int cost;
     private final Duration duration;
-    private final Map<String, TemporaryEndInstance> activeInstances = new ConcurrentHashMap<>();
+    private final Map<String, TemporaryDimensionInstance> activeInstances = new ConcurrentHashMap<>();
 
-    public TemporaryEndManager(
-            SchedulerBridge schedulerBridge, TemporaryEndDao temporaryEndDao, PointsDao pointsDao,
-            TemporaryEndWorldFactory worldFactory, TemporaryEndTransfer transfer,
+    public TemporaryDimensionManager(
+            SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao, PointsDao pointsDao,
+            TemporaryDimensionWorldFactory worldFactory, TemporaryDimensionTransfer transfer,
             Logger logger, int cost, Duration duration) {
         this.schedulerBridge = schedulerBridge;
-        this.temporaryEndDao = temporaryEndDao;
+        this.temporaryDimensionDao = temporaryDimensionDao;
         this.pointsDao = pointsDao;
         this.worldFactory = worldFactory;
         this.transfer = transfer;
@@ -50,22 +50,27 @@ public final class TemporaryEndManager implements ShopEffectExecutor {
 
     @Override
     public void execute(Player player) {
-        createInstance(player, player.getLocation());
+        createInstance(player, player.getLocation(), World.Environment.THE_END);
+    }
+
+    public void execute(Player player, World.Environment environment) {
+        createInstance(player, player.getLocation(), environment);
     }
 
     public void recoverOnStartup() {
         schedulerBridge.runAsyncTask(() -> {
             try {
-                List<TemporaryEndInstance> active = temporaryEndDao.listByState(InstanceLifecycle.ACTIVE);
+                List<TemporaryDimensionInstance> active = temporaryDimensionDao.listByState(InstanceLifecycle.ACTIVE);
                 schedulerBridge.runGlobalTask(() -> {
-                    for (TemporaryEndInstance instance : active) {
+                    for (TemporaryDimensionInstance instance : active) {
                         if (Bukkit.getWorld(instance.worldName()) != null) {
                             activeInstances.put(instance.instanceId(), instance);
-                            logger.info("Recovered temporary end instance: " + instance.instanceId());
+                            logger.info("Recovered temporary dimension instance: " + instance.instanceId());
                         } else {
                             try {
-                                cleanupRecord(instance.instanceId());
-                                logger.info("Cleaned up orphaned temporary end record: " + instance.instanceId());
+                                temporaryDimensionDao.deleteParticipantsByInstance(instance.instanceId());
+                                temporaryDimensionDao.deleteInstance(instance.instanceId());
+                                logger.info("Cleaned up orphaned temporary dimension record: " + instance.instanceId());
                             } catch (Exception e) {
                                 logger.warning("Cleanup failed for orphaned record: " + e.getMessage());
                             }
@@ -73,53 +78,51 @@ public final class TemporaryEndManager implements ShopEffectExecutor {
                     }
                 });
             } catch (Exception e) {
-                logger.warning("Temporary end startup recovery failed: " + e.getMessage());
+                logger.warning("Temporary dimension startup recovery failed: " + e.getMessage());
             }
         });
     }
-
     public boolean hasActiveInstanceByPlayer(UUID playerUuid) {
         return activeInstances.values().stream().anyMatch(i -> i.creatorUuid().equals(playerUuid));
     }
-
-    public void createInstance(Player creator, Location origin) {
+    public void createInstance(Player creator, Location origin, World.Environment environment) {
         UUID creatorId = creator.getUniqueId();
         if (hasActiveInstanceByPlayer(creatorId)) {
             var existing = activeInstances.values().stream().filter(i -> i.creatorUuid().equals(creatorId)).findFirst().orElse(null);
             long remaining = existing != null ? Duration.between(Instant.now(), existing.expirationTime()).toMinutes() : 0;
-            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cYou already have an active temporary End. " + Math.max(0, remaining) + "m remaining."));
+            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cYou already have an active temporary dimension. " + Math.max(0, remaining) + "m remaining."));
             return;
         }
         String instanceId = UUID.randomUUID().toString();
-        String worldName = "lkjmcsmp_tempend_" + instanceId.replace("-", "");
-        World world = worldFactory.createEndWorld(worldName);
+        String worldName = "lkjmcsmp_tempdim_" + instanceId.replace("-", "");
+        World world = worldFactory.createWorld(worldName, environment);
         if (world == null) {
-            logger.severe("Failed to create temporary End world: " + worldName);
+            logger.severe("Failed to create temporary dimension world: " + worldName);
             refundAndNotify(creator, "world_creation_failed");
             return;
         }
         Instant now = Instant.now();
         Instant expiration = now.plus(duration);
         NamedLocation originLoc = new NamedLocation("", origin.getWorld().getName(), origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
-        TemporaryEndInstance instance = new TemporaryEndInstance(instanceId, worldName, creatorId, originLoc, now, expiration, InstanceLifecycle.ACTIVE);
+        TemporaryDimensionInstance instance = new TemporaryDimensionInstance(instanceId, worldName, creatorId, environment, originLoc, now, expiration, InstanceLifecycle.ACTIVE);
         try {
-            temporaryEndDao.insertInstance(instance);
+            temporaryDimensionDao.insertInstance(instance);
         } catch (Exception e) {
-            logger.severe("Failed to persist temporary end instance: " + e.getMessage());
+            logger.severe("Failed to persist temporary dimension instance: " + e.getMessage());
             worldFactory.unloadAndDelete(worldName);
             refundAndNotify(creator, "db_persist_failed");
             return;
         }
         activeInstances.put(instanceId, instance);
-        logger.info("Created temporary end instance " + instanceId + " world=" + worldName);
+        logger.info("Created temporary dimension instance " + instanceId + " world=" + worldName + " env=" + environment);
         transfer.captureAndTransfer(origin, world, instanceId);
     }
 
     public void expireInstance(String instanceId) {
-        TemporaryEndInstance instance = activeInstances.remove(instanceId);
+        TemporaryDimensionInstance instance = activeInstances.remove(instanceId);
         if (instance == null) return;
         try {
-            temporaryEndDao.updateState(instanceId, InstanceLifecycle.EXPIRING);
+            temporaryDimensionDao.updateState(instanceId, InstanceLifecycle.EXPIRING);
         } catch (Exception e) {
             logger.warning("Failed to update instance state to EXPIRING: " + e.getMessage());
         }
@@ -140,35 +143,31 @@ public final class TemporaryEndManager implements ShopEffectExecutor {
 
     private void cleanupDb(String instanceId, boolean deleted) {
         try {
-            temporaryEndDao.updateState(instanceId, InstanceLifecycle.CLOSED);
-            if (deleted) cleanupRecord(instanceId);
-            logger.info("Cleaned up temporary end instance " + instanceId);
+            temporaryDimensionDao.updateState(instanceId, InstanceLifecycle.CLOSED);
+            if (deleted) {
+                temporaryDimensionDao.deleteParticipantsByInstance(instanceId);
+                temporaryDimensionDao.deleteInstance(instanceId);
+            }
+            logger.info("Cleaned up temporary dimension instance " + instanceId);
         } catch (Exception e) {
             logger.warning("Cleanup DB update failed for " + instanceId + ": " + e.getMessage());
         }
     }
-
-    private void cleanupRecord(String instanceId) throws Exception {
-        temporaryEndDao.deleteParticipantsByInstance(instanceId);
-        temporaryEndDao.deleteInstance(instanceId);
-    }
-
     private void refundAndNotify(Player player, String reason) {
         try {
-            pointsDao.addPoints(player.getUniqueId(), cost, "TEMPORARY_END_REFUND", "{\"reason\":\"" + reason + "\"}");
+            pointsDao.addPoints(player.getUniqueId(), cost, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"" + reason + "\"}");
             schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " Maruishi Points refunded."));
         } catch (Exception ex) {
             logger.severe("Refund failed for " + player.getUniqueId() + ": " + ex.getMessage());
             schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed and refund could not be applied. Contact an admin."));
         }
     }
-
     public NamedLocation pollPendingReturns(UUID playerUuid) {
         try {
-            var pending = temporaryEndDao.findPendingReturns(playerUuid);
+            var pending = temporaryDimensionDao.findPendingReturns(playerUuid);
             if (!pending.isEmpty()) {
                 var first = pending.get(0);
-                temporaryEndDao.deleteParticipant(first.instanceId(), playerUuid);
+                temporaryDimensionDao.deleteParticipant(first.instanceId(), playerUuid);
                 return first.location();
             }
         } catch (Exception e) {
@@ -177,19 +176,17 @@ public final class TemporaryEndManager implements ShopEffectExecutor {
         return null;
     }
 
-    public Collection<TemporaryEndInstance> activeInstances() { return activeInstances.values(); }
-    public TemporaryEndInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
-    public boolean isTemporaryEndWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
-
-    public TemporaryEndInstance findInstanceByWorld(String worldName) {
+    public Collection<TemporaryDimensionInstance> activeInstances() { return activeInstances.values(); }
+    public TemporaryDimensionInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
+    public boolean isTemporaryDimensionWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
+    public TemporaryDimensionInstance findInstanceByWorld(String worldName) {
         return worldName == null ? null : activeInstances.values().stream().filter(i -> i.worldName().equals(worldName)).findFirst().orElse(null);
     }
-
     public void removeParticipant(String worldName, UUID playerUuid) {
-        TemporaryEndInstance instance = findInstanceByWorld(worldName);
+        TemporaryDimensionInstance instance = findInstanceByWorld(worldName);
         if (instance != null) {
             try {
-                temporaryEndDao.deleteParticipant(instance.instanceId(), playerUuid);
+                temporaryDimensionDao.deleteParticipant(instance.instanceId(), playerUuid);
             } catch (Exception e) {
                 logger.warning("Failed to remove participant: " + e.getMessage());
             }

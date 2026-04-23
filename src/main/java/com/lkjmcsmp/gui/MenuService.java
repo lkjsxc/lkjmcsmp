@@ -7,7 +7,7 @@ import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import com.lkjmcsmp.achievement.AchievementService;
-import com.lkjmcsmp.plugin.hud.ActionBarHudService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -22,7 +22,7 @@ public final class MenuService {
     public MenuService(
             PointsService pointsService,
             AchievementService achievementService,
-            ActionBarHudService actionBarHudService,
+            ActionBarRouter actionBarHudService,
             HomeService homeService,
             WarpService warpService,
             PartyService partyService,

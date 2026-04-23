@@ -5,7 +5,7 @@ import com.lkjmcsmp.gui.HotbarMenuService;
 import com.lkjmcsmp.gui.MenuListener;
 import com.lkjmcsmp.persistence.FirstJoinDao;
 import com.lkjmcsmp.plugin.hud.ActionBarHudListener;
-import com.lkjmcsmp.plugin.temporaryend.TemporaryEndManager;
+import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,7 +17,7 @@ final class ListenerRegistry {
     }
 
     static void registerAll(JavaPlugin plugin, Services services, FirstJoinDao firstJoinDao,
-                            SchedulerBridge schedulerBridge, TemporaryEndManager temporaryEndManager) {
+                            SchedulerBridge schedulerBridge, TemporaryDimensionManager temporaryDimensionManager) {
         Logger logger = plugin.getLogger();
         FileConfiguration config = plugin.getConfig();
 

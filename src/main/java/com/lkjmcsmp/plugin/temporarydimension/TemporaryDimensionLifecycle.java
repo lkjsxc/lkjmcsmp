@@ -1,17 +1,17 @@
-package com.lkjmcsmp.plugin.temporaryend;
+package com.lkjmcsmp.plugin.temporarydimension;
 
 import com.lkjmcsmp.plugin.SchedulerBridge;
 
 import java.time.Instant;
 import java.util.logging.Logger;
 
-public final class TemporaryEndLifecycle {
+public final class TemporaryDimensionLifecycle {
     private static final long CHECK_INTERVAL_TICKS = 6000L;
     private final SchedulerBridge schedulerBridge;
-    private final TemporaryEndManager manager;
+    private final TemporaryDimensionManager manager;
     private final Logger logger;
 
-    public TemporaryEndLifecycle(SchedulerBridge schedulerBridge, TemporaryEndManager manager, Logger logger) {
+    public TemporaryDimensionLifecycle(SchedulerBridge schedulerBridge, TemporaryDimensionManager manager, Logger logger) {
         this.schedulerBridge = schedulerBridge;
         this.manager = manager;
         this.logger = logger;
@@ -33,7 +33,7 @@ public final class TemporaryEndLifecycle {
                 }
             }
         } catch (Exception e) {
-            logger.warning("Temporary end lifecycle check failed: " + e.getMessage());
+            logger.warning("Temporary dimension lifecycle check failed: " + e.getMessage());
         }
         scheduleNext();
     }

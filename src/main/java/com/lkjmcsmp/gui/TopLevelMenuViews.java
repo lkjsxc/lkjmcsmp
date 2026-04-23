@@ -51,7 +51,7 @@ final class TopLevelMenuViews {
         int slotIdx = 0;
         for (Map.Entry<String, ShopEntry> entry : MenuPagination.pageSlice(sorted, bounded)) {
             ShopEntry value = entry.getValue();
-            ItemStack item = new ItemStack(value.service() ? Material.ENDER_EYE : value.material(), 1);
+            ItemStack item = new ItemStack(value.material(), 1);
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName("Item :: " + entry.getKey());
             List<String> lore = new ArrayList<>();
