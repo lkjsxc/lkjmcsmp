@@ -5,7 +5,7 @@
 1. Consuming `10,000` Maruishi Points creates one temporary End instance.
 2. The cost is configurable under `temporary-end.cost`.
 3. Purchase validates balance atomically before deducting Maruishi Points.
-4. Reason code for ledger: `TEMPORARY_END_PURCHASE`.
+4. Reason code for ledger: `SHOP_PURCHASE` (temporary end passes are purchased through the shop system).
 5. On failure, Maruishi Points are not deducted and the player receives an explicit message.
 
 ## Purchase Paths

@@ -28,5 +28,4 @@ Provide a strict, auditable Maruishi Points economy where cobblestone conversion
 - `SHOP_PURCHASE`
 - `ADMIN_ADJUST`
 - `SEASONAL_OVERRIDE_APPLIED`
-- `TEMPORARY_END_PURCHASE`
 - `TEMPORARY_END_REFUND`

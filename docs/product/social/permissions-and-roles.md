@@ -21,7 +21,6 @@
 - `lkjmcsmp.shop.use`
 - `lkjmcsmp.achievement.use`
 - `lkjmcsmp.economy.override`
-- `lkjmcsmp.admin.audit.view`
 
 ## Rules
 

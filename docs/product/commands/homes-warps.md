@@ -16,7 +16,6 @@
 
 - `lkjmcsmp.home.use`
 - `lkjmcsmp.home.manage`
-- `lkjmcsmp.home.limit.<tier>`
 - `lkjmcsmp.warp.use`
 - `lkjmcsmp.warp.manage`
 
