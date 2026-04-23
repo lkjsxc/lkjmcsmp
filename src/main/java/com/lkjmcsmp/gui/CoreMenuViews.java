@@ -104,7 +104,7 @@ final class CoreMenuViews {
                 pending ? "Deny Request" : "No Pending Requests",
                 "Runs /tpdeny"));
         inventory.setItem(15, MenuItems.named(
-                canDirect ? Material.DIAMOND_SWORD : Material.BARRIER,
+                canDirect ? Material.DIAMOND_SWORD : Material.GRAY_DYE,
                 canDirect ? "Direct Teleport" : "Direct Teleport (Locked)",
                 "Runs /tp <player>"));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));

@@ -122,7 +122,7 @@ final class TopLevelMenuViews {
             int total = selected.points();
             boolean affordable = points >= total;
             inventory.setItem(22, MenuItems.named(
-                    affordable ? Material.LIME_DYE : Material.BARRIER,
+                    affordable ? Material.LIME_DYE : Material.GRAY_DYE,
                     affordable ? "Purchase" : "Purchase (Locked)",
                     "Cost: " + total + " Cobblestone Points",
                     affordable ? "Click to purchase now" : "Not enough Cobblestone Points"));
@@ -176,7 +176,7 @@ final class TopLevelMenuViews {
         int total = pointsPerItem * quantity;
         boolean affordable = balance >= total;
         return MenuItems.named(
-                affordable ? Material.LIME_DYE : Material.BARRIER,
+                affordable ? Material.LIME_DYE : Material.GRAY_DYE,
                 "Buy x" + quantity,
                 "Cost: " + total + " Cobblestone Points",
                 affordable ? "Click to purchase now" : "Not enough Cobblestone Points");

@@ -20,44 +20,47 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+
 public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final SchedulerBridge schedulerBridge;
     private final TemporaryDimensionDao temporaryDimensionDao;
-    private final PointsDao pointsDao;
+    private final TemporaryDimensionRefund refund;
     private final TemporaryDimensionWorldFactory worldFactory;
     private final TemporaryDimensionTransfer transfer;
     private final Logger logger;
     private final int cost;
     private final Duration duration;
     private final Map<String, TemporaryDimensionInstance> activeInstances = new ConcurrentHashMap<>();
+
     public TemporaryDimensionManager(
             SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao, PointsDao pointsDao,
             TemporaryDimensionWorldFactory worldFactory, TemporaryDimensionTransfer transfer,
             Logger logger, int cost, Duration duration) {
         this.schedulerBridge = schedulerBridge;
         this.temporaryDimensionDao = temporaryDimensionDao;
-        this.pointsDao = pointsDao;
+        this.refund = new TemporaryDimensionRefund(schedulerBridge, temporaryDimensionDao, pointsDao, logger, cost);
         this.worldFactory = worldFactory;
         this.transfer = transfer;
         this.logger = logger;
         this.cost = cost;
         this.duration = duration;
     }
+
     public int cost() { return cost; }
     public Collection<TemporaryDimensionInstance> activeInstances() { return activeInstances.values(); }
     public TemporaryDimensionInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
     public boolean isTemporaryDimensionWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
+
     @Override
     public void execute(Player player, ShopEntry entry) {
         World.Environment env = World.Environment.THE_END;
         if (entry != null && !entry.environment().isBlank()) {
-            try {
-                env = World.Environment.valueOf(entry.environment().toUpperCase());
-            } catch (IllegalArgumentException ignored) {
-            }
+            try { env = World.Environment.valueOf(entry.environment().toUpperCase()); }
+            catch (IllegalArgumentException ignored) { }
         }
         createInstance(player, player.getLocation(), env);
     }
+
     public void recoverOnStartup() {
         schedulerBridge.runAsyncTask(() -> {
             try {
@@ -83,19 +86,22 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             }
         });
     }
+
     public java.util.Optional<NamedLocation> findParticipantReturn(UUID playerUuid) throws Exception {
         return temporaryDimensionDao.findParticipantReturn(playerUuid);
     }
+
     public boolean hasActiveInstanceByPlayer(UUID playerUuid) {
         return activeInstances.values().stream().anyMatch(i -> i.creatorUuid().equals(playerUuid));
     }
+
     public void createInstance(Player creator, Location origin, World.Environment environment) {
         UUID creatorId = creator.getUniqueId();
         if (hasActiveInstanceByPlayer(creatorId)) {
             var existing = activeInstances.values().stream().filter(i -> i.creatorUuid().equals(creatorId)).findFirst().orElse(null);
             long remaining = existing != null ? Duration.between(Instant.now(), existing.expirationTime()).toMinutes() : 0;
             try {
-                pointsDao.addPoints(creatorId, cost, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"duplicate_instance\"}");
+                refund.refundAndNotify(creator, "duplicate_instance");
             } catch (Exception ex) {
                 logger.severe("Duplicate-instance refund failed: " + ex.getMessage());
             }
@@ -109,13 +115,13 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             try {
                 world = worldFactory.createWorld(worldName, environment);
             } catch (Exception ex) {
-                logger.severe("Exception creating temporary dimension world: " + worldName + " — " + ex.getMessage());
-                refundAndNotify(creator, "world_creation_failed");
+                logger.severe("Exception creating temporary dimension world: " + worldName + " \u2014 " + ex.getMessage());
+                refund.refundAndNotify(creator, "world_creation_failed");
                 return;
             }
             if (world == null) {
                 logger.severe("Failed to create temporary dimension world: " + worldName);
-                refundAndNotify(creator, "world_creation_failed");
+                refund.refundAndNotify(creator, "world_creation_failed");
                 return;
             }
             Instant now = Instant.now();
@@ -127,7 +133,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             } catch (Exception e) {
                 logger.severe("Failed to persist temporary dimension instance: " + e.getMessage());
                 worldFactory.unloadAndDelete(worldName);
-                refundAndNotify(creator, "db_persist_failed");
+                refund.refundAndNotify(creator, "db_persist_failed");
                 return;
             }
             activeInstances.put(instanceId, instance);
@@ -135,6 +141,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             transfer.captureAndTransfer(origin, world, instanceId);
         });
     }
+
     public void expireInstance(String instanceId) {
         TemporaryDimensionInstance instance = activeInstances.remove(instanceId);
         if (instance == null) return;
@@ -150,34 +157,14 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
                 schedulerBridge.runGlobalDelayedTask(20L, () -> {
                     boolean retry = worldFactory.unloadAndDelete(instance.worldName());
                     if (!retry) logger.severe("Permanent cleanup failure for " + instance.instanceId());
-                    cleanupDb(instanceId, retry);
+                    refund.cleanupDb(instanceId, retry);
                 });
             } else {
-                cleanupDb(instanceId, true);
+                refund.cleanupDb(instanceId, true);
             }
         });
     }
-    private void cleanupDb(String instanceId, boolean deleted) {
-        try {
-            temporaryDimensionDao.updateState(instanceId, InstanceLifecycle.CLOSED);
-            if (deleted) {
-                temporaryDimensionDao.deleteParticipantsByInstance(instanceId);
-                temporaryDimensionDao.deleteInstance(instanceId);
-            }
-            logger.info("Cleaned up temporary dimension instance " + instanceId);
-        } catch (Exception e) {
-            logger.warning("Cleanup DB update failed for " + instanceId + ": " + e.getMessage());
-        }
-    }
-    private void refundAndNotify(Player player, String reason) {
-        try {
-            pointsDao.addPoints(player.getUniqueId(), cost, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"" + reason + "\"}");
-            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed. \u00A7a" + cost + " Cobblestone Points refunded."));
-        } catch (Exception ex) {
-            logger.severe("Refund failed for " + player.getUniqueId() + ": " + ex.getMessage());
-            schedulerBridge.runPlayerTask(player, () -> player.sendMessage("\u00A7cCreation failed and refund could not be applied. Contact an admin."));
-        }
-    }
+
     public NamedLocation pollPendingReturns(UUID playerUuid) {
         try {
             var pending = temporaryDimensionDao.findPendingReturns(playerUuid);
@@ -191,9 +178,11 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         }
         return null;
     }
+
     public TemporaryDimensionInstance findInstanceByWorld(String worldName) {
         return worldName == null ? null : activeInstances.values().stream().filter(i -> i.worldName().equals(worldName)).findFirst().orElse(null);
     }
+
     public void removeParticipant(String worldName, UUID playerUuid) {
         TemporaryDimensionInstance instance = findInstanceByWorld(worldName);
         if (instance != null) {
