@@ -41,7 +41,7 @@ final class AchievementMenuSupport {
     private static Material statusMaterial(AchievementStatus status) {
         return switch (status) {
             case LOCKED -> Material.GRAY_DYE;
-            case IN_PROGRESS -> Material.CLOCK;
+            case IN_PROGRESS -> Material.YELLOW_DYE;
             case COMPLETED_UNCLAIMED -> Material.LIME_DYE;
             case COMPLETED_CLAIMED -> Material.EMERALD;
         };

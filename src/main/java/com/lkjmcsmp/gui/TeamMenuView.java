@@ -34,13 +34,13 @@ final class TeamMenuView {
                 "Party: " + partyId.orElse("<none>"),
                 "Role: " + (leader ? "leader" : inTeam ? "member" : "none"),
                 "Members: " + memberList.size()));
-        inventory.setItem(19, actionItem(!inTeam, Material.CRAFTING_TABLE, "Create Team", "Runs /team create", "Leave your current team first."));
-        inventory.setItem(20, actionItem(leader, Material.NAME_TAG, "Invite Player", "Runs /team invite <player>", inTeam ? "Only leaders can invite players." : "Join or create a team first."));
-        inventory.setItem(21, actionItem(!inTeam, Material.LIME_DYE, "Accept Invite", "Runs /team accept", "Leave your current team first."));
-        inventory.setItem(23, actionItem(inTeam, Material.ENDER_PEARL, "Team Home", "Runs /team home", "Join or create a team first."));
-        inventory.setItem(24, actionItem(leader, Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome", inTeam ? "Only leaders can set team home." : "Join or create a team first."));
-        inventory.setItem(25, actionItem(inTeam, Material.BARRIER, "Leave Team", "Runs /team leave", "Join or create a team first."));
-        inventory.setItem(31, actionItem(leader, Material.TNT, "Disband Team", "Runs /team disband", inTeam ? "Only leaders can disband teams." : "Join or create a team first."));
+        inventory.setItem(12, actionItem(!inTeam, Material.CRAFTING_TABLE, "Create Team", "Runs /team create", "Leave your current team first."));
+        inventory.setItem(13, actionItem(!inTeam, Material.LIME_DYE, "Accept Invite", "Runs /team accept", "Leave your current team first."));
+        inventory.setItem(14, actionItem(leader, Material.NAME_TAG, "Invite Player", "Runs /team invite <player>", inTeam ? "Only leaders can invite players." : "Join or create a team first."));
+        inventory.setItem(15, actionItem(inTeam, Material.ENDER_PEARL, "Team Home", "Runs /team home", "Join or create a team first."));
+        inventory.setItem(16, actionItem(leader, Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome", inTeam ? "Only leaders can set team home." : "Join or create a team first."));
+        inventory.setItem(21, actionItem(inTeam, Material.BARRIER, "Leave Team", "Runs /team leave", "Join or create a team first."));
+        inventory.setItem(25, actionItem(leader, Material.TNT, "Disband Team", "Runs /team disband", inTeam ? "Only leaders can disband teams." : "Join or create a team first."));
 
         int memberSlotIdx = 0;
         int[] memberSlots = {28, 29, 30, 31, 32, 33, 34};
@@ -98,6 +98,6 @@ final class TeamMenuView {
     private static ItemStack actionItem(boolean enabled, Material material, String name, String commandLore, String lockedReason) {
         return enabled
                 ? MenuItems.named(material, name, commandLore)
-                : MenuItems.named(Material.BARRIER, name + " (Locked)", lockedReason);
+                : MenuItems.named(Material.GRAY_DYE, name + " (Locked)", lockedReason);
     }
 }

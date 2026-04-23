@@ -113,7 +113,7 @@ final class TopLevelMenuViews {
                 "Price: " + selected.points() + " Cobblestone Points",
                 selected.service() ? "\u00A7dService — executes on purchase" : "Direct buy amounts: 1, 2, 4, 8, 16, 32, 64",
                 "Click a button to purchase immediately."));
-        inventory.setItem(31, MenuItems.named(
+        inventory.setItem(50, MenuItems.named(
                 Material.SUNFLOWER,
                 "Your Cobblestone Points",
                 "Balance: " + points,
