@@ -80,7 +80,7 @@ public final class MenuService {
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         String display = displayName(event);
-        if (display.startsWith("Page ::")) {
+        if (isInert(event, display)) {
             return;
         }
         try {
@@ -129,5 +129,16 @@ public final class MenuService {
         return event.getCurrentItem().getItemMeta() == null
                 ? ""
                 : event.getCurrentItem().getItemMeta().getDisplayName();
+    }
+
+    private static boolean isInert(InventoryClickEvent event, String display) {
+        Material type = event.getCurrentItem().getType();
+        return display.isBlank()
+                || display.equals(" ")
+                || display.startsWith("Page ::")
+                || display.startsWith("Selected ::")
+                || display.equals("Your Cobblestone Points")
+                || event.getRawSlot() == MenuLayout.INFO_PANEL_SLOT
+                || type.name().endsWith("STAINED_GLASS_PANE");
     }
 }

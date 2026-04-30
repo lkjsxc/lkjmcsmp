@@ -26,12 +26,15 @@ public final class HotbarMenuService {
     }
 
     public void install(Player player) {
+        removeStrayTokens(player);
         player.getInventory().setItem(HOTBAR_SLOT, createTokenItem());
     }
 
     public void ensureInstalled(Player player) {
         if (!isToken(player.getInventory().getItem(HOTBAR_SLOT))) {
             install(player);
+        } else {
+            removeStrayTokens(player);
         }
     }
 
@@ -51,6 +54,11 @@ public final class HotbarMenuService {
         resyncNextTick(player);
     }
 
+    public void syncSoon(Player player) {
+        resyncDelayed(player, 1L);
+        resyncDelayed(player, 5L);
+    }
+
     public boolean isToken(ItemStack item) {
         if (item == null || item.getType() != Material.NETHER_STAR || item.getItemMeta() == null) {
             return false;
@@ -60,17 +68,31 @@ public final class HotbarMenuService {
     }
 
     private void resyncNextTick(Player player) {
+        resyncDelayed(player, 1L);
+    }
+
+    private void resyncDelayed(Player player, long delayTicks) {
         player.getScheduler().runDelayed(plugin, task -> {
             ensureInstalled(player);
             clearGhostCursorToken(player);
             player.updateInventory();
-        }, null, 1L);
+        }, null, delayTicks);
     }
 
     private void clearGhostCursorToken(Player player) {
         if (isToken(player.getItemOnCursor())) {
             player.setItemOnCursor(null);
         }
+    }
+
+    private void removeStrayTokens(Player player) {
+        var inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            if (slot != HOTBAR_SLOT && isToken(inventory.getItem(slot))) {
+                inventory.setItem(slot, null);
+            }
+        }
+        clearGhostCursorToken(player);
     }
 
     private ItemStack createTokenItem() {

@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -28,6 +29,7 @@ public final class HotbarMenuListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         hotbarMenuService.install(event.getPlayer());
+        hotbarMenuService.syncSoon(event.getPlayer());
     }
 
     @EventHandler
@@ -37,6 +39,7 @@ public final class HotbarMenuListener implements Listener {
             hotbarMenuService.install(player);
             player.updateInventory();
         }, null, 2L);
+        hotbarMenuService.syncSoon(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -99,28 +102,37 @@ public final class HotbarMenuListener implements Listener {
         event.setCancelled(true);
         hotbarMenuService.install(player);
         player.updateInventory();
+        hotbarMenuService.syncSoon(player);
         hotbarMenuService.open(player);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
         hotbarMenuService.ensureInstalled(player);
         int playerHotbarRawSlot = event.getView().getTopInventory().getSize() + HotbarMenuService.HOTBAR_SLOT;
-        boolean clickedHotbarSlot = event.getRawSlot() == playerHotbarRawSlot;
-        boolean numberKeyOnHotbarSlot = event.getClick() == ClickType.NUMBER_KEY
+        boolean reservedSlotClick = event.getRawSlot() == playerHotbarRawSlot;
+        boolean reservedSlotNumberKey = event.getClick() == ClickType.NUMBER_KEY
                 && event.getHotbarButton() == HotbarMenuService.HOTBAR_SLOT;
+        boolean reservedSlotHasToken = hotbarMenuService.isToken(player.getInventory().getItem(HotbarMenuService.HOTBAR_SLOT));
         boolean clickedToken = hotbarMenuService.isToken(event.getCurrentItem());
         boolean cursorToken = hotbarMenuService.isToken(event.getCursor());
         boolean numberKeyUsesToken = event.getClick() == ClickType.NUMBER_KEY
                 && event.getHotbarButton() >= 0
                 && hotbarMenuService.isToken(player.getInventory().getItem(event.getHotbarButton()));
-        if (!clickedHotbarSlot && !numberKeyOnHotbarSlot && !clickedToken && !cursorToken && !numberKeyUsesToken) {
+        boolean tokenInteraction = clickedToken || cursorToken || numberKeyUsesToken
+                || (reservedSlotClick && reservedSlotHasToken)
+                || (reservedSlotNumberKey && (clickedToken || reservedSlotHasToken));
+        if (!tokenInteraction && !reservedSlotClick && !reservedSlotNumberKey) {
             return;
         }
         event.setCancelled(true);
+        if (!tokenInteraction) {
+            hotbarMenuService.syncSoon(player);
+            return;
+        }
         hotbarMenuService.openFromInventoryInteraction(player);
     }
 
@@ -133,6 +145,7 @@ public final class HotbarMenuListener implements Listener {
         event.setCancelled(true);
         if (event.getWhoClicked() instanceof Player player) {
             hotbarMenuService.ensureInstalled(player);
+            hotbarMenuService.syncSoon(player);
         }
     }
 
@@ -143,6 +156,19 @@ public final class HotbarMenuListener implements Listener {
         }
         event.setCancelled(true);
         hotbarMenuService.ensureInstalled(event.getPlayer());
+        hotbarMenuService.syncSoon(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onPickup(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (hotbarMenuService.isToken(event.getItem().getItemStack())) {
+            event.setCancelled(true);
+            event.getItem().remove();
+        }
+        hotbarMenuService.syncSoon(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
