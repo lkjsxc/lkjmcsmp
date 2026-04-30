@@ -17,14 +17,13 @@ public final class TemporaryDimensionBootstrap {
             TemporaryDimensionDao temporaryDimensionDao,
             FileConfiguration config,
             ActionBarRouter actionBarRouter) {
-        int cost = config.getInt("temporary-dimension.cost", 10000);
         int radius = config.getInt("temporary-dimension.transfer-radius", 5);
         int duration = config.getInt("temporary-dimension.duration-minutes", 180);
         TemporaryDimensionWorldFactory factory = new TemporaryDimensionWorldFactory(plugin.getLogger());
         TemporaryDimensionTransfer transfer = new TemporaryDimensionTransfer(schedulerBridge, temporaryDimensionDao, plugin.getLogger(), radius, factory);
         TemporaryDimensionManager manager = new TemporaryDimensionManager(
-                schedulerBridge, temporaryDimensionDao, pointsDao, factory, transfer,
-                plugin.getLogger(), cost, Duration.ofMinutes(duration));
+                schedulerBridge, temporaryDimensionDao, factory, transfer,
+                plugin.getLogger(), Duration.ofMinutes(duration));
         manager.recoverOnStartup();
         new TemporaryDimensionLifecycle(schedulerBridge, manager, plugin.getLogger()).start();
         plugin.getServer().getPluginManager().registerEvents(

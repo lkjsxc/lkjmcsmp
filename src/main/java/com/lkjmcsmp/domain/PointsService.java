@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class PointsService {
     private final PointsDao pointsDao;
@@ -101,6 +102,10 @@ public final class PointsService {
     }
 
     public Result purchase(Player player, String itemKey, int quantity) throws Exception {
+        return purchase(player, itemKey, quantity, result -> { });
+    }
+
+    public Result purchase(Player player, String itemKey, int quantity, Consumer<ShopEffectExecutor.Result> serviceCallback) throws Exception {
         if (quantity < 1 || quantity > 64) {
             return Result.fail("quantity must be in 1..64");
         }
@@ -126,11 +131,31 @@ public final class PointsService {
             InventoryUtil.addMaterial(player, entry.material(), quantity);
         } else {
             ShopEffectExecutor executor = effectExecutors.get(entry.key());
-            if (executor != null) {
-                executor.execute(player, entry);
+            if (executor == null) {
+                refundServicePurchase(player, totalPoints, "missing_executor");
+                return Result.fail("service item is not available");
             }
+            try {
+                executor.execute(player, entry, totalPoints, result -> {
+                    if (!result.success()) {
+                        refundServicePurchase(player, totalPoints, "effect_failed");
+                    }
+                    serviceCallback.accept(result);
+                });
+            } catch (RuntimeException ex) {
+                refundServicePurchase(player, totalPoints, "executor_exception");
+                return Result.fail("service purchase failed: " + ex.getMessage());
+            }
+            return Result.pending("creating service purchase");
         }
         return Result.ok("purchased " + quantity + "x " + entry.displayName() + " for " + totalPoints + " Cobblestone Points");
+    }
+
+    private void refundServicePurchase(Player player, int amount, String reason) {
+        try {
+            pointsDao.addPoints(player.getUniqueId(), amount, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"" + reason + "\"}");
+        } catch (Exception ignored) {
+        }
     }
 
     public Result applyOverride(Player actor, String itemKey, int newPoints) throws Exception {
@@ -155,9 +180,18 @@ public final class PointsService {
         return Map.copyOf(shopItems);
     }
 
-    public record Result(boolean success, String message, int amount) {
-        public static Result ok(String message) { return new Result(true, message, 0); }
-        public static Result ok(String message, int amount) { return new Result(true, message, amount); }
-        public static Result fail(String message) { return new Result(false, message, 0); }
+    public record Result(Status status, String message, int amount) {
+        public boolean success() { return status == Status.SUCCESS; }
+        public boolean pending() { return status == Status.PENDING; }
+        public static Result ok(String message) { return new Result(Status.SUCCESS, message, 0); }
+        public static Result ok(String message, int amount) { return new Result(Status.SUCCESS, message, amount); }
+        public static Result pending(String message) { return new Result(Status.PENDING, message, 0); }
+        public static Result fail(String message) { return new Result(Status.FAILURE, message, 0); }
+    }
+
+    public enum Status {
+        SUCCESS,
+        PENDING,
+        FAILURE
     }
 }

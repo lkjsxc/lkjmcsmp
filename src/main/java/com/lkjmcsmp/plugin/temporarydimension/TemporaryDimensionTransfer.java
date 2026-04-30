@@ -47,15 +47,24 @@ public final class TemporaryDimensionTransfer {
                 Location playerLoc = player.getLocation();
                 NamedLocation returnLoc = new NamedLocation("", playerLoc.getWorld().getName(),
                         playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(), playerLoc.getYaw(), playerLoc.getPitch());
-                try {
-                    temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
-                } catch (Exception e) {
-                    logger.warning("Failed to insert participant: " + e.getMessage());
-                }
-                player.teleportAsync(spawn);
+                schedulerBridge.runAsyncTask(() -> persistThenTeleport(player, instanceId, returnLoc, spawn));
             });
         }
         logger.info("Scheduled transfers for temporary dimension instance " + instanceId);
+    }
+
+    private void persistThenTeleport(Player player, String instanceId, NamedLocation returnLoc, Location spawn) {
+        try {
+            temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
+        } catch (Exception e) {
+            logger.warning("Failed to insert participant: " + e.getMessage());
+            return;
+        }
+        schedulerBridge.runPlayerTask(player, () -> {
+            if (player.isOnline() && player.isValid()) {
+                player.teleportAsync(spawn);
+            }
+        });
     }
 
     public void evacuateAll(TemporaryDimensionInstance instance) {

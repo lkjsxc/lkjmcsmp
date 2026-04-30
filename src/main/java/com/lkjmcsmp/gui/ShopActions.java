@@ -105,7 +105,14 @@ final class ShopActions {
         ShopEntry entry = pointsService.getShopItems().get(selection.itemKey());
         boolean isService = entry != null && entry.service();
         int actualQuantity = isService ? 1 : quantity;
-        var result = pointsService.purchase(player, selection.itemKey(), actualQuantity);
+        var result = isService
+                ? pointsService.purchase(player, selection.itemKey(), actualQuantity,
+                finalResult -> finishServicePurchase(player, selection, entry, actualQuantity, finalResult))
+                : pointsService.purchase(player, selection.itemKey(), actualQuantity);
+        if (result.pending()) {
+            player.sendMessage(result.message());
+            return;
+        }
         if (result.success()) {
             achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", actualQuantity);
             int cost = entry != null ? entry.points() * actualQuantity : 0;
@@ -119,6 +126,22 @@ final class ShopActions {
         } else {
             views.openShopDetail(player, state.shopSelection(player.getUniqueId()));
         }
+    }
+
+    private void finishServicePurchase(Player player, ShopSelection selection, ShopEntry entry, int quantity,
+                                       com.lkjmcsmp.domain.ShopEffectExecutor.Result result) {
+        if (result.success()) {
+            try {
+                achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
+            } catch (Exception ignored) {
+            }
+            int cost = entry != null ? entry.points() * quantity : 0;
+            actionBarHudService.onShopPurchase(player, selection.itemKey(), cost);
+            actionBarHudService.refreshIdle(player);
+        }
+        player.sendMessage(result.message());
+        views.openShop(player, state.shopPage(player.getUniqueId()));
+        state.setShopPage(player.getUniqueId(), MenuPageStateSync.readCurrentPage(player, state.shopPage(player.getUniqueId())));
     }
 
     private static int countCobblestone(Player player) {

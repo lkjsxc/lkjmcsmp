@@ -5,7 +5,6 @@ import com.lkjmcsmp.domain.model.InstanceLifecycle;
 import com.lkjmcsmp.domain.model.NamedLocation;
 import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
-import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import org.bukkit.Bukkit;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public final class TemporaryDimensionManager implements ShopEffectExecutor {
@@ -28,37 +28,34 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final TemporaryDimensionWorldFactory worldFactory;
     private final TemporaryDimensionTransfer transfer;
     private final Logger logger;
-    private final int cost;
     private final Duration duration;
     private final Map<String, TemporaryDimensionInstance> activeInstances = new ConcurrentHashMap<>();
 
     public TemporaryDimensionManager(
-            SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao, PointsDao pointsDao,
+            SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao,
             TemporaryDimensionWorldFactory worldFactory, TemporaryDimensionTransfer transfer,
-            Logger logger, int cost, Duration duration) {
+            Logger logger, Duration duration) {
         this.schedulerBridge = schedulerBridge;
         this.temporaryDimensionDao = temporaryDimensionDao;
-        this.refund = new TemporaryDimensionRefund(schedulerBridge, temporaryDimensionDao, pointsDao, logger, cost);
+        this.refund = new TemporaryDimensionRefund(temporaryDimensionDao, logger);
         this.worldFactory = worldFactory;
         this.transfer = transfer;
         this.logger = logger;
-        this.cost = cost;
         this.duration = duration;
     }
 
-    public int cost() { return cost; }
     public Collection<TemporaryDimensionInstance> activeInstances() { return activeInstances.values(); }
     public TemporaryDimensionInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
     public boolean isTemporaryDimensionWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
 
     @Override
-    public void execute(Player player, ShopEntry entry) {
+    public void execute(Player player, ShopEntry entry, int deductedPoints, Consumer<ShopEffectExecutor.Result> callback) {
         World.Environment env = World.Environment.THE_END;
         if (entry != null && !entry.environment().isBlank()) {
             try { env = World.Environment.valueOf(entry.environment().toUpperCase()); }
             catch (IllegalArgumentException ignored) { }
         }
-        createInstance(player, player.getLocation(), env);
+        createInstance(player, player.getLocation().clone(), env, callback);
     }
 
     public void recoverOnStartup() {
@@ -95,17 +92,15 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         return activeInstances.values().stream().anyMatch(i -> i.creatorUuid().equals(playerUuid));
     }
 
-    public void createInstance(Player creator, Location origin, World.Environment environment) {
+    public void createInstance(Player creator, Location origin, World.Environment environment,
+                               Consumer<ShopEffectExecutor.Result> callback) {
         UUID creatorId = creator.getUniqueId();
         if (hasActiveInstanceByPlayer(creatorId)) {
             var existing = activeInstances.values().stream().filter(i -> i.creatorUuid().equals(creatorId)).findFirst().orElse(null);
             long remaining = existing != null ? Duration.between(Instant.now(), existing.expirationTime()).toMinutes() : 0;
-            try {
-                refund.refundAndNotify(creator, "duplicate_instance");
-            } catch (Exception ex) {
-                logger.severe("Duplicate-instance refund failed: " + ex.getMessage());
-            }
-            schedulerBridge.runPlayerTask(creator, () -> creator.sendMessage("\u00A7cYou already have an active temporary dimension. " + Math.max(0, remaining) + "m remaining. \u00A7a" + cost + " Cobblestone Points refunded."));
+            complete(creator, callback, ShopEffectExecutor.Result.fail(
+                    "\u00A7cYou already have an active temporary dimension. "
+                            + Math.max(0, remaining) + "m remaining. Purchase refunded."));
             return;
         }
         String instanceId = UUID.randomUUID().toString();
@@ -116,12 +111,12 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
                 world = worldFactory.createWorld(worldName, environment);
             } catch (Exception ex) {
                 logger.severe("Exception creating temporary dimension world: " + worldName + " \u2014 " + ex.getMessage());
-                refund.refundAndNotify(creator, "world_creation_failed");
+                complete(creator, callback, ShopEffectExecutor.Result.fail("Creation failed: world creation failed."));
                 return;
             }
             if (world == null) {
                 logger.severe("Failed to create temporary dimension world: " + worldName);
-                refund.refundAndNotify(creator, "world_creation_failed");
+                complete(creator, callback, ShopEffectExecutor.Result.fail("Creation failed: world creation failed."));
                 return;
             }
             Instant now = Instant.now();
@@ -133,12 +128,14 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             } catch (Exception e) {
                 logger.severe("Failed to persist temporary dimension instance: " + e.getMessage());
                 worldFactory.unloadAndDelete(worldName);
-                refund.refundAndNotify(creator, "db_persist_failed");
+                complete(creator, callback, ShopEffectExecutor.Result.fail("Creation failed: persistence failed."));
                 return;
             }
             activeInstances.put(instanceId, instance);
             logger.info("Created temporary dimension instance " + instanceId + " world=" + worldName + " env=" + environment);
             transfer.captureAndTransfer(origin, world, instanceId);
+            complete(creator, callback, ShopEffectExecutor.Result.ok(
+                    "\u00A7aTemporary dimension created. Nearby players are being transferred."));
         });
     }
 
@@ -192,5 +189,9 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
                 logger.warning("Failed to remove participant: " + e.getMessage());
             }
         }
+    }
+
+    private void complete(Player player, Consumer<ShopEffectExecutor.Result> callback, ShopEffectExecutor.Result result) {
+        schedulerBridge.runPlayerTask(player, () -> callback.accept(result));
     }
 }

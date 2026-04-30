@@ -44,12 +44,12 @@ public final class TemporaryDimensionCommand implements CommandExecutor {
             return true;
         }
         try {
-            var result = pointsService.purchase(player, "temporary_dimension_pass", 1);
+            var result = pointsService.purchase(player, "temporary_dimension_pass", 1,
+                    finalResult -> player.sendMessage(finalResult.message()));
             if (!result.success()) {
                 player.sendMessage(result.message());
                 return true;
             }
-            player.sendMessage("\u00A7aMysterious Egg purchased! Nearby players will be transferred.");
         } catch (Exception ex) {
             player.sendMessage("Purchase failed: " + ex.getMessage());
         }
