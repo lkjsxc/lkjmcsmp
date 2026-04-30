@@ -24,6 +24,10 @@ final class ListenerRegistry {
         plugin.getServer().getPluginManager().registerEvents(new MenuListener(services.menus()), plugin);
         HotbarMenuService hotbarMenuService = new HotbarMenuService(
                 plugin, services.menus(), services.settings(), services.messages());
+        services.settings().setHotbarChangeHandler(playerId -> {
+            var player = plugin.getServer().getPlayer(playerId);
+            if (player != null) hotbarMenuService.install(player);
+        });
         plugin.getServer().getPluginManager().registerEvents(new HotbarMenuListener(hotbarMenuService), plugin);
         for (var online : plugin.getServer().getOnlinePlayers()) {
             hotbarMenuService.install(online);

@@ -6,11 +6,13 @@ import com.lkjmcsmp.persistence.PlayerSettingsDao;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public final class PlayerSettingsService {
     private final PlayerSettingsDao dao;
     private final Set<String> supportedLanguages;
     private final ConcurrentHashMap<UUID, PlayerSettings> cache = new ConcurrentHashMap<>();
+    private Consumer<UUID> hotbarChangeHandler = playerId -> { };
 
     public PlayerSettingsService(PlayerSettingsDao dao, Set<String> supportedLanguages) {
         this.dao = dao;
@@ -48,6 +50,10 @@ public final class PlayerSettingsService {
         return setHotbarMenuEnabled(playerId, !hotbarMenuEnabled(playerId));
     }
 
+    public void setHotbarChangeHandler(Consumer<UUID> handler) {
+        this.hotbarChangeHandler = handler == null ? playerId -> { } : handler;
+    }
+
     private PlayerSettings load(UUID playerId) {
         try {
             PlayerSettings loaded = dao.find(playerId).orElse(PlayerSettings.DEFAULT);
@@ -68,5 +74,6 @@ public final class PlayerSettingsService {
     private void persist(UUID playerId, PlayerSettings settings) throws Exception {
         dao.upsert(playerId, settings);
         cache.put(playerId, settings);
+        hotbarChangeHandler.accept(playerId);
     }
 }
