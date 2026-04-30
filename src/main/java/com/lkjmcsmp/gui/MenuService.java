@@ -1,7 +1,9 @@
 package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.domain.PartyService;
+import com.lkjmcsmp.domain.PlayerSettingsService;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
@@ -28,10 +30,14 @@ public final class MenuService {
             WarpService warpService,
             PartyService partyService,
             TeleportService teleportService,
+            PlayerSettingsService settingsService,
+            MessageService messageService,
             SchedulerBridge schedulerBridge) {
         this.schedulerBridge = schedulerBridge;
         this.profileMenuView = new ProfileMenuView(pointsService, achievementService, partyService);
-        this.topLevelViews = new TopLevelMenuViews(pointsService, achievementService, profileMenuView);
+        RootSettingsMenuView rootSettingsView = new RootSettingsMenuView(settingsService, messageService);
+        this.topLevelViews = new TopLevelMenuViews(
+                pointsService, achievementService, profileMenuView, rootSettingsView);
         CoreMenuViews coreViews = new CoreMenuViews(
                 homeService,
                 warpService,
@@ -42,6 +48,8 @@ public final class MenuService {
                 pointsService,
                 achievementService,
                 actionBarHudService,
+                settingsService,
+                messageService,
                 topLevelViews,
                 coreMenus);
     }

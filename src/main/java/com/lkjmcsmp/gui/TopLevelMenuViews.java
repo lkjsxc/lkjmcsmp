@@ -19,26 +19,29 @@ final class TopLevelMenuViews {
     private final PointsService pointsService;
     private final AchievementService achievementService;
     private final ProfileMenuView profileMenuView;
+    private final RootSettingsMenuView rootSettingsView;
 
-    TopLevelMenuViews(PointsService pointsService, AchievementService achievementService, ProfileMenuView profileMenuView) {
+    TopLevelMenuViews(
+            PointsService pointsService,
+            AchievementService achievementService,
+            ProfileMenuView profileMenuView,
+            RootSettingsMenuView rootSettingsView) {
         this.pointsService = pointsService;
         this.achievementService = achievementService;
         this.profileMenuView = profileMenuView;
+        this.rootSettingsView = rootSettingsView;
     }
 
     void openRoot(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.ROOT);
-        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("lkjmcsmp Menu"));
-        inventory.setItem(10, MenuItems.named(Material.ENDER_PEARL, "Teleport"));
-        inventory.setItem(12, MenuItems.named(Material.RED_BED, "Homes"));
-        inventory.setItem(14, MenuItems.named(Material.COMPASS, "Warps"));
-        inventory.setItem(16, MenuItems.named(Material.PLAYER_HEAD, "Team"));
-        inventory.setItem(20, MenuItems.named(Material.COBBLESTONE, "Points Shop"));
-        inventory.setItem(22, MenuItems.named(Material.BOOK, "Achievement"));
-        inventory.setItem(24, MenuItems.named(Material.CLOCK, "Profile"));
-        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.BARRIER, "Close Menu"));
-        MenuDecor.fillBorder(inventory, MenuDecor.ROOT_BORDER);
-        player.openInventory(inventory);
+        rootSettingsView.openRoot(player);
+    }
+
+    void openSettings(Player player) {
+        rootSettingsView.openSettings(player);
+    }
+
+    void openLanguage(Player player) {
+        rootSettingsView.openLanguage(player);
     }
 
     void openShop(Player player, int page) {

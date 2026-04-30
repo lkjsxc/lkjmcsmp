@@ -26,6 +26,18 @@ final class MenuItems {
         return item;
     }
 
+    static ItemStack action(Material material, String action, String name, String... loreLines) {
+        ItemStack item = named(material, name, loreLines);
+        MenuAction.tag(item, action, "");
+        return item;
+    }
+
+    static ItemStack actionPayload(Material material, String action, String payload, String name, String... loreLines) {
+        ItemStack item = named(material, name, loreLines);
+        MenuAction.tag(item, action, payload);
+        return item;
+    }
+
     static ItemStack playerHead(Player player, String name, String... loreLines) {
         return playerHead(player.getUniqueId(), name, loreLines);
     }

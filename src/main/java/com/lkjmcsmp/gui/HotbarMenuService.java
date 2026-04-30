@@ -1,5 +1,7 @@
 package com.lkjmcsmp.gui;
 
+import com.lkjmcsmp.domain.MessageService;
+import com.lkjmcsmp.domain.PlayerSettingsService;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -13,11 +15,19 @@ public final class HotbarMenuService {
     private static final byte TOKEN_VALUE = 1;
     private final JavaPlugin plugin;
     private final MenuService menuService;
+    private final PlayerSettingsService settingsService;
+    private final MessageService messages;
     private final NamespacedKey tokenKey;
 
-    public HotbarMenuService(JavaPlugin plugin, MenuService menuService) {
+    public HotbarMenuService(
+            JavaPlugin plugin,
+            MenuService menuService,
+            PlayerSettingsService settingsService,
+            MessageService messages) {
         this.plugin = plugin;
         this.menuService = menuService;
+        this.settingsService = settingsService;
+        this.messages = messages;
         this.tokenKey = new NamespacedKey(plugin, "menu-hotbar-token");
     }
 
@@ -26,11 +36,19 @@ public final class HotbarMenuService {
     }
 
     public void install(Player player) {
+        if (!isEnabled(player)) {
+            removeStrayTokens(player);
+            return;
+        }
         removeStrayTokens(player);
         player.getInventory().setItem(HOTBAR_SLOT, createTokenItem());
     }
 
     public void ensureInstalled(Player player) {
+        if (!isEnabled(player)) {
+            removeStrayTokens(player);
+            return;
+        }
         if (!isToken(player.getInventory().getItem(HOTBAR_SLOT))) {
             install(player);
         } else {
@@ -39,11 +57,19 @@ public final class HotbarMenuService {
     }
 
     public void open(Player player) {
+        if (!isEnabled(player)) {
+            removeStrayTokens(player);
+            return;
+        }
         ensureInstalled(player);
         menuService.openRoot(player);
     }
 
     public void openFromInventoryInteraction(Player player) {
+        if (!isEnabled(player)) {
+            removeStrayTokens(player);
+            return;
+        }
         ensureInstalled(player);
         clearGhostCursorToken(player);
         menuService.openRoot(player);
@@ -71,6 +97,10 @@ public final class HotbarMenuService {
         }
         Byte marker = item.getItemMeta().getPersistentDataContainer().get(tokenKey, PersistentDataType.BYTE);
         return marker != null && marker == TOKEN_VALUE;
+    }
+
+    public boolean isEnabled(Player player) {
+        return settingsService.hotbarMenuEnabled(player.getUniqueId());
     }
 
     private void resyncNextTick(Player player) {
@@ -115,8 +145,8 @@ public final class HotbarMenuService {
     private ItemStack createTokenItem() {
         ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName("Open Menu");
-        meta.setLore(java.util.List.of("Click, drop, or click in inventory to open /menu"));
+        meta.setDisplayName(messages.get("en", "menu.hotbar.name"));
+        meta.setLore(java.util.List.of(messages.get("en", "menu.hotbar.lore")));
         meta.getPersistentDataContainer().set(tokenKey, PersistentDataType.BYTE, TOKEN_VALUE);
         item.setItemMeta(meta);
         return item;

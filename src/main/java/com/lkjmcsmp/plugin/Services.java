@@ -1,7 +1,9 @@
 package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.domain.PartyService;
+import com.lkjmcsmp.domain.PlayerSettingsService;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
@@ -15,6 +17,8 @@ public record Services(
         WarpService warps,
         PartyService parties,
         TeleportService teleports,
+        PlayerSettingsService settings,
+        MessageService messages,
         AchievementService achievement,
         ActionBarRouter hud,
         MenuService menus) {

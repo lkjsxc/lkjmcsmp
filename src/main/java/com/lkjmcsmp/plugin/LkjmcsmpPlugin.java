@@ -1,7 +1,9 @@
 package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.domain.PartyService;
+import com.lkjmcsmp.domain.PlayerSettingsService;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
@@ -12,6 +14,7 @@ import com.lkjmcsmp.persistence.FirstJoinDao;
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
+import com.lkjmcsmp.persistence.PlayerSettingsDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.SqliteDatabase;
 import com.lkjmcsmp.persistence.TemporaryDimensionDao;
@@ -27,6 +30,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Set;
 
 public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
@@ -80,6 +84,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         PartyDao partyDao = new PartyDao(database);
         AchievementDao achievementDao = new AchievementDao(database);
         AuditDao auditDao = new AuditDao(database);
+        PlayerSettingsService settingsService = new PlayerSettingsService(
+                new PlayerSettingsDao(database), Set.of("en", "ja"));
+        MessageService messageService = new MessageService(this, settingsService);
 
         FileConfiguration shopConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
         FileConfiguration achievementsConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "achievements.yml"));
@@ -128,6 +135,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 warpService,
                 partyService,
                 teleportService,
+                settingsService,
+                messageService,
                 schedulerBridge);
         return new Services(
                 pointsService,
@@ -135,6 +144,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 warpService,
                 partyService,
                 teleportService,
+                settingsService,
+                messageService,
                 achievementService,
                 actionBarHudService,
                 menuService);

@@ -129,6 +129,14 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
+                CREATE TABLE IF NOT EXISTS player_settings (
+                  player_uuid TEXT PRIMARY KEY,
+                  language TEXT NOT NULL,
+                  hotbar_menu_enabled INTEGER NOT NULL,
+                  updated_at TEXT NOT NULL
+                );
+                """);
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS temporary_dimension_instances (
                   instance_id TEXT PRIMARY KEY,
                   world_name TEXT NOT NULL UNIQUE,

@@ -45,6 +45,9 @@ public final class HotbarMenuListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent event) {
         hotbarMenuService.ensureInstalled(event.getPlayer());
+        if (!hotbarMenuService.isEnabled(event.getPlayer())) {
+            return;
+        }
         if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
             return;
         }
@@ -52,6 +55,9 @@ public final class HotbarMenuListener implements Listener {
                 && event.getAction() != Action.RIGHT_CLICK_BLOCK
                 && event.getAction() != Action.LEFT_CLICK_AIR
                 && event.getAction() != Action.LEFT_CLICK_BLOCK) {
+            return;
+        }
+        if (event.getPlayer().getInventory().getHeldItemSlot() != HotbarMenuService.HOTBAR_SLOT) {
             return;
         }
         var held = event.getItem() != null ? event.getItem() : event.getPlayer().getInventory().getItemInMainHand();
@@ -64,11 +70,7 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
-        hotbarMenuService.ensureInstalled(event.getPlayer());
-        if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
-            return;
-        }
-        if (!hotbarMenuService.isToken(event.getPlayer().getInventory().getItemInMainHand())) {
+        if (!canOpenHeld(event.getPlayer(), event.getHand())) {
             return;
         }
         event.setCancelled(true);
@@ -77,11 +79,7 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        hotbarMenuService.ensureInstalled(event.getPlayer());
-        if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
-            return;
-        }
-        if (!hotbarMenuService.isToken(event.getPlayer().getInventory().getItemInMainHand())) {
+        if (!canOpenHeld(event.getPlayer(), event.getHand())) {
             return;
         }
         event.setCancelled(true);
@@ -98,7 +96,10 @@ public final class HotbarMenuListener implements Listener {
         hotbarMenuService.install(player);
         player.updateInventory();
         hotbarMenuService.syncSoon(player);
-        hotbarMenuService.open(player);
+        if (hotbarMenuService.isEnabled(player)
+                && player.getInventory().getHeldItemSlot() == HotbarMenuService.HOTBAR_SLOT) {
+            hotbarMenuService.open(player);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
@@ -120,6 +121,13 @@ public final class HotbarMenuListener implements Listener {
         boolean tokenInteraction = clickedToken || cursorToken || numberKeyUsesToken
                 || (reservedSlotClick && reservedSlotHasToken)
                 || (reservedSlotNumberKey && (clickedToken || reservedSlotHasToken));
+        if (!hotbarMenuService.isEnabled(player)) {
+            if (tokenInteraction) {
+                event.setCancelled(true);
+                hotbarMenuService.syncSoon(player);
+            }
+            return;
+        }
         if (!tokenInteraction && !reservedSlotClick && !reservedSlotNumberKey) {
             return;
         }
@@ -175,5 +183,13 @@ public final class HotbarMenuListener implements Listener {
             return;
         }
         hotbarMenuService.resyncAfterMenuClose(player);
+    }
+
+    private boolean canOpenHeld(Player player, org.bukkit.inventory.EquipmentSlot hand) {
+        hotbarMenuService.ensureInstalled(player);
+        return hotbarMenuService.isEnabled(player)
+                && hand == org.bukkit.inventory.EquipmentSlot.HAND
+                && player.getInventory().getHeldItemSlot() == HotbarMenuService.HOTBAR_SLOT
+                && hotbarMenuService.isToken(player.getInventory().getItemInMainHand());
     }
 }
