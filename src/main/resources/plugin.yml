@@ -114,3 +114,5 @@ permissions:
     default: true
   lkjmcsmp.temporarydimension.admin:
     default: op
+  lkjmcsmp.sit.stairs:
+    default: true

@@ -31,6 +31,7 @@ final class ListenerRegistry {
         services.hud().start();
         services.hud().refreshIdleAllOnline();
         plugin.getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(logger), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new StairSitListener(plugin), plugin);
         if (config.getBoolean("teleport.first-join.enabled", true)) {
             String firstJoinWorld = Objects.requireNonNull(config.getString("teleport.first-join.world", ""));
             plugin.getServer().getPluginManager().registerEvents(
