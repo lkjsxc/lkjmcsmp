@@ -34,12 +34,7 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
-        Player player = event.getPlayer();
-        player.getScheduler().runDelayed(hotbarMenuService.plugin(), task -> {
-            hotbarMenuService.install(player);
-            player.updateInventory();
-        }, null, 2L);
-        hotbarMenuService.syncSoon(player);
+        hotbarMenuService.syncAfterRespawn(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

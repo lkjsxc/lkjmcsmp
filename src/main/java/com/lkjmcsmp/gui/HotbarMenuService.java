@@ -59,6 +59,12 @@ public final class HotbarMenuService {
         resyncDelayed(player, 5L);
     }
 
+    public void syncAfterRespawn(Player player) {
+        for (long delay : new long[] {1L, 2L, 5L, 10L, 20L, 40L}) {
+            resyncDelayed(player, delay, true);
+        }
+    }
+
     public boolean isToken(ItemStack item) {
         if (item == null || item.getType() != Material.NETHER_STAR || item.getItemMeta() == null) {
             return false;
@@ -72,8 +78,19 @@ public final class HotbarMenuService {
     }
 
     private void resyncDelayed(Player player, long delayTicks) {
+        resyncDelayed(player, delayTicks, false);
+    }
+
+    private void resyncDelayed(Player player, long delayTicks, boolean forceSlotRewrite) {
         player.getScheduler().runDelayed(plugin, task -> {
-            ensureInstalled(player);
+            if (!player.isOnline()) {
+                return;
+            }
+            if (forceSlotRewrite) {
+                install(player);
+            } else {
+                ensureInstalled(player);
+            }
             clearGhostCursorToken(player);
             player.updateInventory();
         }, null, delayTicks);

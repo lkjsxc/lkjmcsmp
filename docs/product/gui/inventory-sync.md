@@ -11,11 +11,12 @@ Plugin-owned inventory state must be corrected both server-side and client-side 
 3. If slot `8` is missing the token, the token is reinstalled.
 4. After correction, `Player#updateInventory()` is called from the player scheduler.
 5. Sync runs immediately and again after a short delay when the event is known to race with vanilla inventory updates.
+6. Respawn sync force-rewrites slot `8` over multiple delayed passes so the post-respawn client inventory handshake cannot hide the token.
 
 ## Sync Triggers
 
 1. Player join.
-2. Player respawn.
+2. Player respawn, with forced delayed retries at `1`, `2`, `5`, `10`, `20`, and `40` ticks.
 3. Inventory close after a plugin menu.
 4. Cancelled token click, drag, swap, drop, or offhand interaction.
 5. Player item pickup.

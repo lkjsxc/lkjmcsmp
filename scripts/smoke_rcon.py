@@ -138,7 +138,7 @@ def assert_reliability_markers():
         if expected not in respawn:
             raise RuntimeError(f"respawn RTP missing `{expected}`")
     hotbar = SOURCE_HOTBAR_LISTENER.read_text(encoding="utf-8")
-    for expected in ("EntityPickupItemEvent", "syncSoon", "reservedSlotHasToken", "tokenInteraction"):
+    for expected in ("EntityPickupItemEvent", "syncSoon", "syncAfterRespawn", "reservedSlotHasToken", "tokenInteraction"):
         if expected not in hotbar:
             raise RuntimeError(f"hotbar sync missing `{expected}`")
     menu = SOURCE_MENU_SERVICE.read_text(encoding="utf-8")
