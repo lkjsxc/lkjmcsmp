@@ -17,6 +17,12 @@ SOURCE_SLOT_MAP = WORKSPACE / "docs" / "product" / "gui" / "slot-maps.md"
 SOURCE_SHOP_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TopLevelMenuViews.java"
 SOURCE_TEAM_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TeamMenuView.java"
 SOURCE_ACTIONBAR_HUD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRouter.java"
+SOURCE_ACTIONBAR_RENDERER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRenderer.java"
+SOURCE_RESPAWN_RTP = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "RespawnRtpListener.java"
+SOURCE_HOTBAR_LISTENER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "HotbarMenuListener.java"
+SOURCE_MENU_SERVICE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuService.java"
+SOURCE_STAIR_SIT = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "StairSitListener.java"
+SOURCE_POINTS_SERVICE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "domain" / "PointsService.java"
 
 
 def run_cmd(client: RCONClient, command: str, must_contain: str | None = None):
@@ -123,6 +129,33 @@ def assert_actionbar_hud_markers():
     print("[ok] actionbar hud markers present")
 
 
+def assert_reliability_markers():
+    renderer = SOURCE_ACTIONBAR_RENDERER.read_text(encoding="utf-8")
+    if "player.sendActionBar(text)" not in renderer or "shouldSend(effective)" in renderer:
+        raise RuntimeError("actionbar renderer must continuously send effective text")
+    respawn = SOURCE_RESPAWN_RTP.read_text(encoding="utf-8")
+    for expected in ("runPlayerDelayedTask", "sameBlock", "temporaryDimensionManager.isTemporaryDimensionWorld"):
+        if expected not in respawn:
+            raise RuntimeError(f"respawn RTP missing `{expected}`")
+    hotbar = SOURCE_HOTBAR_LISTENER.read_text(encoding="utf-8")
+    for expected in ("EntityPickupItemEvent", "syncSoon", "reservedSlotHasToken", "tokenInteraction"):
+        if expected not in hotbar:
+            raise RuntimeError(f"hotbar sync missing `{expected}`")
+    menu = SOURCE_MENU_SERVICE.read_text(encoding="utf-8")
+    for expected in ("isInert", "STAINED_GLASS_PANE", "Selected ::"):
+        if expected not in menu:
+            raise RuntimeError(f"inert menu handling missing `{expected}`")
+    stair = SOURCE_STAIR_SIT.read_text(encoding="utf-8")
+    for expected in ("Stairs", "EntityDismountEvent", "PlayerTeleportEvent", "lkjmcsmp.sit.stairs"):
+        if expected not in stair:
+            raise RuntimeError(f"stair sitting missing `{expected}`")
+    points = SOURCE_POINTS_SERVICE.read_text(encoding="utf-8")
+    for expected in ("Status.PENDING", "TEMPORARY_DIMENSION_REFUND", "serviceCallback.accept"):
+        if expected not in points:
+            raise RuntimeError(f"service purchase handling missing `{expected}`")
+    print("[ok] reliability regression markers present")
+
+
 def main() -> int:
     client = connect_with_retry()
     try:
@@ -131,6 +164,7 @@ def main() -> int:
         assert_achievement_and_menu_contract_markers()
         assert_gui_slot_map_alignment_markers()
         assert_actionbar_hud_markers()
+        assert_reliability_markers()
         for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach", "profile"):
             run_cmd(client, f"help {command}", command)
         run_cmd(client, "help lkjmcsmp:tp", "lkjmcsmp:tp")
