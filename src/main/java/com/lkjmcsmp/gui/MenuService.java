@@ -77,6 +77,10 @@ public final class MenuService {
         coreMenus.open(player, MenuTitles.PICK_TP_ACCEPT);
     }
 
+    public void openTpDecision(Player player, java.util.UUID requesterId) throws Exception {
+        coreMenus.openTpDecision(player, requesterId);
+    }
+
     public void onClick(InventoryClickEvent event) {
         if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
             return;

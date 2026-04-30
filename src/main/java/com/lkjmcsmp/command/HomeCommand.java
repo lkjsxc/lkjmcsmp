@@ -68,7 +68,7 @@ public final class HomeCommand implements CommandExecutor {
 
     private void listHomesOrAddCurrent(org.bukkit.entity.Player player, String[] args) throws Exception {
         if (args.length > 0 && (args[0].equalsIgnoreCase("addcurrent") || args[0].equalsIgnoreCase("add-current-location"))) {
-            var result = homeService.setAutoHome(player);
+            var result = args.length > 1 ? homeService.setHome(player, args[1]) : homeService.setAutoHome(player);
             if (result.success()) {
                 achievementService.increment(player.getUniqueId(), "home_set", 1);
             }

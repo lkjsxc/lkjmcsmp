@@ -48,6 +48,7 @@ final class CoreMenuViews {
             case MenuTitles.WARPS -> homeWarpViews.openWarps(player, 0);
             case MenuTitles.TEAM -> teamMenuView.open(player);
             case MenuTitles.TEAM_DISBAND_CONFIRM -> teamMenuView.openDisbandConfirm(player);
+            case MenuTitles.TP_DECISION -> openTeleport(player);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     openPicker(player, title, 0);
             default -> throw new IllegalArgumentException("Unknown menu title: " + title);
@@ -108,6 +109,28 @@ final class CoreMenuViews {
                 canDirect ? "Direct Teleport" : "Direct Teleport (Locked)",
                 "Runs /tp <player>"));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        MenuDecor.fillBorder(inventory, MenuDecor.TELEPORT_BORDER);
+        player.openInventory(inventory);
+    }
+
+    void openTpDecision(Player player, java.util.UUID requesterId) {
+        var request = teleportService.pendingFor(player.getUniqueId()).stream()
+                .filter(pending -> pending.from().equals(requesterId))
+                .findFirst();
+        Player requester = Bukkit.getPlayer(requesterId);
+        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.TP_DECISION);
+        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Teleport Request"));
+        if (request.isEmpty() || requester == null) {
+            inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Pending Requests"));
+        } else {
+            String direction = request.get().summonHere() ? "Requested /tpahere" : "Requested /tpa";
+            inventory.setItem(13, MenuItems.playerHead(requester, "Requester :: " + requester.getName(), direction));
+            inventory.setItem(21, MenuItems.actionPayload(
+                    Material.LIME_DYE, "tpdecision.accept", requesterId.toString(), "Accept"));
+            inventory.setItem(23, MenuItems.actionPayload(
+                    Material.RED_DYE, "tpdecision.deny", requesterId.toString(), "Deny"));
+        }
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.TELEPORT_BORDER);
         player.openInventory(inventory);
     }

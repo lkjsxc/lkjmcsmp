@@ -16,6 +16,10 @@ final class CoreMenuActions {
     }
 
     boolean handleClick(InventoryClickEvent event, Player player, String title, String display) throws Exception {
+        String action = MenuAction.action(event.getCurrentItem());
+        if (!action.isBlank()) {
+            return handleAction(player, title, action, MenuAction.payload(event.getCurrentItem()));
+        }
         return switch (title) {
             case MenuTitles.TELEPORT -> handleTeleport(player, display);
             case MenuTitles.HOMES -> handleHomes(player, display);
@@ -23,10 +27,27 @@ final class CoreMenuActions {
             case MenuTitles.WARPS -> handleWarps(player, display);
             case MenuTitles.TEAM -> handleTeam(player, display);
             case MenuTitles.TEAM_DISBAND_CONFIRM -> handleTeamDisbandConfirm(player, display);
+            case MenuTitles.TP_DECISION -> false;
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
                     pickerActions.handle(player, title, display);
             default -> false;
         };
+    }
+
+    private boolean handleAction(Player player, String title, String action, String payload) throws Exception {
+        if (action.equals("nav.back") && title.equals(MenuTitles.TP_DECISION)) {
+            return open(player, MenuTitles.TELEPORT);
+        }
+        if (!action.equals("tpdecision.accept") && !action.equals("tpdecision.deny")) {
+            return false;
+        }
+        Player requester = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(payload));
+        if (requester == null) {
+            player.sendMessage("Requester is offline.");
+            return true;
+        }
+        player.performCommand((action.endsWith("accept") ? "tpaccept " : "tpdeny ") + requester.getName());
+        return true;
     }
 
     private boolean handleTeleport(Player player, String display) throws Exception {

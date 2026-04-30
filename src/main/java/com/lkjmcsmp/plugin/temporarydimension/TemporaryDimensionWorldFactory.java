@@ -19,14 +19,27 @@ public final class TemporaryDimensionWorldFactory {
     }
 
     public World createWorld(String worldName, World.Environment environment) {
-        WorldCreator creator = new WorldCreator(worldName);
-        creator.environment(environment);
-        World world = creator.createWorld();
+        World world = create(worldName, environment);
+        if (world == null && environment != World.Environment.NORMAL) {
+            logger.warning("Falling back to NORMAL temporary dimension world for " + worldName);
+            world = create(worldName, World.Environment.NORMAL);
+        }
         if (world != null) {
             world.setAutoSave(false);
             world.setGameRule(org.bukkit.GameRule.DO_MOB_SPAWNING, true);
         }
         return world;
+    }
+
+    private World create(String worldName, World.Environment environment) {
+        try {
+            WorldCreator creator = new WorldCreator(worldName);
+            creator.environment(environment);
+            return creator.createWorld();
+        } catch (RuntimeException ex) {
+            logger.warning("Temporary dimension world create failed for " + environment + ": " + ex.getMessage());
+            return null;
+        }
     }
 
     public Location resolveSpawnLocation(World world) {

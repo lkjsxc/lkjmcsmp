@@ -16,13 +16,17 @@ public final class RespawnRtpListener implements Listener {
     private final TeleportService teleportService;
     private final SchedulerBridge schedulerBridge;
     private final TemporaryDimensionManager temporaryDimensionManager;
+    private final InitialSpawnRegistry initialSpawns;
     private final Logger logger;
 
     public RespawnRtpListener(TeleportService teleportService, SchedulerBridge schedulerBridge,
-                              TemporaryDimensionManager temporaryDimensionManager, Logger logger) {
+                              TemporaryDimensionManager temporaryDimensionManager,
+                              InitialSpawnRegistry initialSpawns,
+                              Logger logger) {
         this.teleportService = teleportService;
         this.schedulerBridge = schedulerBridge;
         this.temporaryDimensionManager = temporaryDimensionManager;
+        this.initialSpawns = initialSpawns;
         this.logger = logger;
     }
 
@@ -46,7 +50,7 @@ public final class RespawnRtpListener implements Listener {
         if (world == null) {
             return;
         }
-        if (!sameBlock(respawn, world.getSpawnLocation())) {
+        if (!initialSpawns.isInitialSpawnBlock(respawn)) {
             return;
         }
         schedulerBridge.runPlayerDelayedTask(player, 1L, () -> teleportService.randomTeleport(player, world.getName(), true, false, result -> {
@@ -57,12 +61,4 @@ public final class RespawnRtpListener implements Listener {
         }));
     }
 
-    private static boolean sameBlock(Location first, Location second) {
-        return first.getWorld() != null
-                && second.getWorld() != null
-                && first.getWorld().equals(second.getWorld())
-                && first.getBlockX() == second.getBlockX()
-                && first.getBlockY() == second.getBlockY()
-                && first.getBlockZ() == second.getBlockZ();
-    }
 }

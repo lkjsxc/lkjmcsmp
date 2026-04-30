@@ -34,7 +34,8 @@ final class CoreMenuService {
         if (title.equals(MenuTitles.PICK_TPA)
                 || title.equals(MenuTitles.PICK_TPA_HERE)
                 || title.equals(MenuTitles.PICK_TP)
-                || title.equals(MenuTitles.PICK_TP_ACCEPT)) {
+                || title.equals(MenuTitles.PICK_TP_ACCEPT)
+                || title.equals(MenuTitles.TP_DECISION)) {
             open(player, MenuTitles.TELEPORT);
             return true;
         }
@@ -78,5 +79,9 @@ final class CoreMenuService {
     boolean open(Player player, String title) throws Exception {
         views.open(player, title);
         return true;
+    }
+
+    void openTpDecision(Player player, java.util.UUID requesterId) {
+        views.openTpDecision(player, requesterId);
     }
 }

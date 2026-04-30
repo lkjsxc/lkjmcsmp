@@ -2,6 +2,8 @@ package com.lkjmcsmp.plugin;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -62,7 +64,7 @@ public final class StairSitListener implements Listener {
             player.sendMessage("That stair is already occupied.");
             return;
         }
-        Location location = block.getLocation().add(0.5D, 0.2D, 0.5D);
+        Location location = seatLocation(block);
         ArmorStand stand = block.getWorld().spawn(location, ArmorStand.class, this::configureSeat);
         stand.addPassenger(player);
         seatsByPlayer.put(player.getUniqueId(), new Seat(key, stand));
@@ -129,6 +131,14 @@ public final class StairSitListener implements Listener {
             seat.stand().eject();
             seat.stand().remove();
         }
+    }
+
+    private static Location seatLocation(Block block) {
+        Stairs stairs = (Stairs) block.getBlockData();
+        double y = stairs.getHalf() == Bisected.Half.TOP ? 0.55D : 0.05D;
+        Location location = block.getLocation().add(0.5D, y, 0.5D);
+        BlockFace back = stairs.getFacing().getOppositeFace();
+        return location.add(back.getModX() * 0.18D, 0.0D, back.getModZ() * 0.18D);
     }
 
     private record Seat(SeatKey key, ArmorStand stand) {

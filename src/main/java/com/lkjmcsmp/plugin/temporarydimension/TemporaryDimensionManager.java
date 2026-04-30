@@ -25,6 +25,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final SchedulerBridge schedulerBridge;
     private final TemporaryDimensionDao temporaryDimensionDao;
     private final TemporaryDimensionRefund refund;
+    private final TemporaryDimensionActivationCleanup activationCleanup;
     private final TemporaryDimensionWorldFactory worldFactory;
     private final TemporaryDimensionTransfer transfer;
     private final Logger logger;
@@ -39,6 +40,8 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         this.temporaryDimensionDao = temporaryDimensionDao;
         this.refund = new TemporaryDimensionRefund(temporaryDimensionDao, logger);
         this.worldFactory = worldFactory;
+        this.activationCleanup = new TemporaryDimensionActivationCleanup(
+                schedulerBridge, temporaryDimensionDao, worldFactory, logger);
         this.transfer = transfer;
         this.logger = logger;
         this.duration = duration;
@@ -47,7 +50,6 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     public Collection<TemporaryDimensionInstance> activeInstances() { return activeInstances.values(); }
     public TemporaryDimensionInstance findInstance(String instanceId) { return activeInstances.get(instanceId); }
     public boolean isTemporaryDimensionWorld(String worldName) { return findInstanceByWorld(worldName) != null; }
-
     @Override
     public void execute(Player player, ShopEntry entry, int deductedPoints, Consumer<ShopEffectExecutor.Result> callback) {
         World.Environment env = World.Environment.THE_END;
@@ -106,14 +108,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         String instanceId = UUID.randomUUID().toString();
         String worldName = "lkjmcsmp_tempdim_" + instanceId.replace("-", "");
         schedulerBridge.runGlobalTask(() -> {
-            World world;
-            try {
-                world = worldFactory.createWorld(worldName, environment);
-            } catch (Exception ex) {
-                logger.severe("Exception creating temporary dimension world: " + worldName + " \u2014 " + ex.getMessage());
-                complete(creator, callback, ShopEffectExecutor.Result.fail("Creation failed: world creation failed."));
-                return;
-            }
+            World world = worldFactory.createWorld(worldName, environment);
             if (world == null) {
                 logger.severe("Failed to create temporary dimension world: " + worldName);
                 complete(creator, callback, ShopEffectExecutor.Result.fail("Creation failed: world creation failed."));
@@ -122,7 +117,8 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             Instant now = Instant.now();
             Instant expiration = now.plus(duration);
             NamedLocation originLoc = new NamedLocation("", origin.getWorld().getName(), origin.getX(), origin.getY(), origin.getZ(), origin.getYaw(), origin.getPitch());
-            TemporaryDimensionInstance instance = new TemporaryDimensionInstance(instanceId, worldName, creatorId, environment, originLoc, now, expiration, InstanceLifecycle.ACTIVE);
+            TemporaryDimensionInstance instance = new TemporaryDimensionInstance(
+                    instanceId, worldName, creatorId, world.getEnvironment(), originLoc, now, expiration, InstanceLifecycle.ACTIVE);
             try {
                 temporaryDimensionDao.insertInstance(instance);
             } catch (Exception e) {
@@ -133,9 +129,15 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
             }
             activeInstances.put(instanceId, instance);
             logger.info("Created temporary dimension instance " + instanceId + " world=" + worldName + " env=" + environment);
-            transfer.captureAndTransfer(origin, world, instanceId);
-            complete(creator, callback, ShopEffectExecutor.Result.ok(
-                    "\u00A7aTemporary dimension created. Nearby players are being transferred."));
+            transfer.captureAndTransfer(origin, world, instanceId, creator, ok -> {
+                if (ok) {
+                    complete(creator, callback, ShopEffectExecutor.Result.ok(
+                            "\u00A7aTemporary dimension created. Nearby players are being transferred."));
+                } else {
+                    activationCleanup.cleanup(instanceId, worldName, activeInstances);
+                    complete(creator, callback, ShopEffectExecutor.Result.fail("Creation failed: transfer failed."));
+                }
+            });
         });
     }
 

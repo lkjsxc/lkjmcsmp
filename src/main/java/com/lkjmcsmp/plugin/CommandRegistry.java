@@ -33,12 +33,15 @@ final class CommandRegistry {
         register(plugin, "delwarp", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
         register(plugin, "warps", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
         register(plugin, "team", new TeamCommand(services.parties(), services.teleports(), services.achievement()));
-        register(plugin, "tp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
-        register(plugin, "tpa", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
-        register(plugin, "tpahere", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
-        register(plugin, "tpaccept", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
-        register(plugin, "tpdeny", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
-        register(plugin, "rtp", new TeleportCommand(services.teleports(), services.menus(), services.achievement()));
+        TeleportCommand teleportCommand = new TeleportCommand(
+                services.teleports(), services.menus(), services.achievement(), services.messages());
+        register(plugin, "tp", teleportCommand);
+        register(plugin, "tpa", teleportCommand);
+        register(plugin, "tpahere", teleportCommand);
+        register(plugin, "tpaccept", teleportCommand);
+        register(plugin, "tpdeny", teleportCommand);
+        register(plugin, "tpdecision", teleportCommand);
+        register(plugin, "rtp", teleportCommand);
         register(plugin, "achievement", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
         register(plugin, "ach", new AchievementCommand(services.achievement(), services.menus(), services.hud()));
         register(plugin, "profile", new ProfileCommand(services.menus()));

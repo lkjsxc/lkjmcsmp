@@ -64,7 +64,10 @@ commands:
     usage: /tpaccept [player]
     permission: lkjmcsmp.tpa.use
   tpdeny:
-    usage: /tpdeny
+    usage: /tpdeny [player]
+    permission: lkjmcsmp.tpa.use
+  tpdecision:
+    usage: /tpdecision <requester-uuid>
     permission: lkjmcsmp.tpa.use
   rtp:
     usage: /rtp [world]
