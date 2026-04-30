@@ -19,7 +19,8 @@
 5. Points Shop
 6. Achievement
 7. Profile
-8. Close Menu
+8. Settings
+9. Close Menu
 
 ## Temporary Dimension Access
 
@@ -105,6 +106,18 @@
 - Team info and role
 - Achievement summary
 - Playtime
+- Back (`ARROW`)
+
+## Settings Menu
+
+- Language selector
+- Hotbar menu item toggle
+- Back (`ARROW`)
+
+## Language Selector
+
+- English
+- Japanese
 - Back (`ARROW`)
 
 ## Picker Menus (`pick-*`)

@@ -20,6 +20,7 @@ Define player-facing behavior for commands, menus, achievements, economy, social
 - [economy/README.md](economy/README.md): points generation and exchange rules
 - [achievements/README.md](achievements/README.md): achievement model and reward claim rules
 - [hud/README.md](hud/README.md): action-bar HUD contracts and priority rules
+- [settings/README.md](settings/README.md): player preferences, hotbar opt-out, and language selection
 - [social/README.md](social/README.md): party permissions and audit expectations
 - [temporary-dimension/README.md](temporary-dimension/README.md): temporary dimension purchase and lifecycle
 - [features/README.md](features/README.md): cross-cutting player-facing behaviors

@@ -25,7 +25,8 @@ For 54-slot menus, bottom-row control slots are:
 6. `20`: Points Shop
 7. `22`: Achievement
 8. `24`: Profile
-9. `50`: Close Menu
+9. `28`: Settings
+10. `50`: Close Menu
 
 ## Teleport Menu (`lkjmcsmp :: teleport`)
 
@@ -131,6 +132,20 @@ For 54-slot menus, bottom-row control slots are:
 4. `14`: Achievement Summary (`BOOK`)
 5. `16`: Playtime (`CLOCK`)
 6. `49`: Back (`ARROW`)
+
+## Settings Menu (`lkjmcsmp :: settings`)
+
+1. `4`: Info Panel — Current Language (`PAPER`)
+2. `20`: Language (`WRITABLE_BOOK`)
+3. `24`: Hotbar Menu Item (`NETHER_STAR` when enabled, `GRAY_DYE` when disabled)
+4. `49`: Back (`ARROW`)
+
+## Language Menu (`lkjmcsmp :: language`)
+
+1. `4`: Info Panel (`PAPER`)
+2. `20`: English (`BOOK`)
+3. `24`: Japanese (`BOOK`)
+4. `49`: Back (`ARROW`)
 
 ## Shop Service Detail Menu (`lkjmcsmp :: shop-detail` for service items)
 

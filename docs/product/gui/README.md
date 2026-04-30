@@ -9,7 +9,7 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 1. Every core system is reachable from root menu.
 2. GUI labels remain synchronized with command names and outcomes.
 3. Locked or denied actions always explain why they are denied.
-4. Menu entrypoint items remain hard-locked in their reserved positions.
+4. Menu entrypoint items remain hard-locked only for players whose setting enables the hotbar item.
 5. Manual `Refresh` controls are shown only for picker menus and hidden elsewhere.
 6. Primary action behavior must not depend on left-click vs right-click.
 7. Destructive operations use explicit dedicated flows (page or confirm step), not alternate click types.
@@ -25,6 +25,8 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 17. Service-type shop items (world effects, not inventory items) follow the same list-to-detail flow but execute effects on purchase.
 18. Service items in shop lists display their configured material and `"§dService Item — executes on purchase"` lore line.
 19. Decorative panes, info panels, page indicators, selected summaries, and balance indicators are inert and never emit unknown-action chat.
+20. The Settings page is reachable from root menu and owns player preference toggles.
+21. Player-facing labels and messages are rendered through the selected language where localized text exists.
 
 ## Visual Design System
 

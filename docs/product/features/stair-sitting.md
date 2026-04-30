@@ -14,11 +14,13 @@ Players can sit on stair blocks through a lightweight seat entity that is cleane
 
 ## Seat Behavior
 
-1. The plugin spawns an invisible marker ArmorStand at the stair center.
+1. The plugin spawns an invisible marker ArmorStand at a stair-shape-aware seat point.
 2. The player is mounted as the only passenger.
 3. The seat is scoped to the stair block location.
 4. One player may occupy a stair seat at a time.
 5. Sitting does not modify the stair block.
+6. Seat point defaults to the horizontal center of the stair and is nudged toward the back half so the player appears directly supported by the step.
+7. Seat height is low enough to look seated on the stair tread without clipping into the block.
 
 ## Cleanup Rules
 

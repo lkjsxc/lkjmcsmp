@@ -6,11 +6,12 @@ Expose `/menu` through a deterministic right-end hotbar control.
 
 ## Slot Contract
 
-1. Slot `8` (rightmost hotbar slot) is reserved for the menu item.
-2. Slot `8` lock is hard-enforced: item replacement/removal attempts are cancelled.
+1. Slot `8` (rightmost hotbar slot) is reserved for the menu item only when the player's setting enables it.
+2. Slot `8` lock is hard-enforced while enabled: item replacement/removal attempts are cancelled.
 3. Lock applies to click, drag, number-key swap, offhand swap, and inventory transfer vectors.
-4. Player join/respawn must restore the menu item in slot `8`.
-5. If slot `8` token is missing or tampered, it is reinstalled immediately.
+4. Player join/respawn must restore the menu item in slot `8` when enabled.
+5. If slot `8` token is missing or tampered while enabled, it is reinstalled immediately.
+6. If disabled, all plugin menu tokens are removed from the player's inventory and slot `8` becomes normal inventory space.
 
 ## Interaction Contract
 
@@ -20,6 +21,8 @@ Expose `/menu` through a deterministic right-end hotbar control.
 4. Slot `8` token interaction opens menu even when the underlying interaction is cancelled/blocked by reach or protection checks.
 5. Slot `8` token interaction with entities follows the same open-menu behavior as block/air interaction.
 6. Menu item interactions are silent on success (no extra spam messages).
+7. Non-token item interactions never open the menu, even when slot `8` currently contains a valid token.
+8. Inventory click handling may open the menu only for direct token interaction or direct slot `8` token click.
 
 ## Failure Contract
 

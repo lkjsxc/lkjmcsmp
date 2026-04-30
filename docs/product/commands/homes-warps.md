@@ -6,7 +6,7 @@
 - `/sethome <name>`
 - `/delhome <name>`
 - `/homes`
-- `/homes addcurrent`
+- `/homes addcurrent [name]`
 - `/warp <name>`
 - `/setwarp <name>`
 - `/delwarp <name>`
@@ -28,11 +28,12 @@
 5. `/homes` and `/warps` output sorted stable lists.
 6. GUI lists must mirror command list ordering.
 7. Homes GUI includes `Add Current Location`, equivalent to `/sethome <generated-name>`.
-8. Generated home names use `home-<n>` with the first available positive sequential index (`home-1`, `home-2`, ...).
-9. `Add Current Location` returns the chosen generated name in success feedback.
-10. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
-11. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
-12. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
+8. `/homes addcurrent <name>` creates or updates the named home at the current location.
+9. `/homes addcurrent` with no name generates `home-<n>` using the first available positive sequential index (`home-1`, `home-2`, ...).
+10. `Add Current Location` returns the chosen name in success feedback.
+11. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
+12. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
+13. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
 
 ## Failures
 

@@ -29,9 +29,12 @@ Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated 
 1. Creation queues on the global region scheduler for Folia safety.
 2. Each instance receives a unique world name: `lkjmcsmp_tempdim_<uuid>`.
 3. World generation uses the configured `Environment`.
-4. If creation fails after Cobblestone Points are deducted, the exact deducted amount is refunded immediately with reason `TEMPORARY_DIMENSION_REFUND` and logged.
-5. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance and an exact refund.
-6. Final success chat is sent only after world creation, spawn preparation, instance persistence, and transfer scheduling complete.
+4. World generation must use the most reliable available creation path for the runtime:
+   - primary: environment-specific world creation
+   - fallback: create a standard world when the requested environment cannot be created, then keep the purchased instance usable and clearly report the fallback
+5. If every creation path fails after Cobblestone Points are deducted, the exact deducted amount is refunded immediately with reason `TEMPORARY_DIMENSION_REFUND` and logged.
+6. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance and an exact refund.
+7. Final success chat is sent only after world creation, spawn preparation, instance persistence, and transfer scheduling complete.
 
 ## Player Transfer
 

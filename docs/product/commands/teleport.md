@@ -54,7 +54,7 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 2. Requests are tracked per target with one active request per requester-target pair; newest request from the same requester replaces their previous pending request.
 3. `tpa`/`tpahere` request creation notifies both players:
    - requester receives request-created result
-   - target receives requester name, direction (`tpa` or `tpahere`), timeout, and accept/deny hint
+   - target receives requester name, direction (`tpa` or `tpahere`), timeout, accept/deny hint, and a clickable chat action that opens the request decision screen
 4. `/tpaccept` request resolution:
    - no pending requests: explicit failure
    - one pending request: accept immediately without picker
@@ -73,6 +73,8 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 15. Action bar emits teleport state changes in parallel with chat messaging.
 16. Action bar countdown text includes remaining seconds during stability delay.
 17. Action bar completion/cancellation/failure events are explicit and state-change-driven.
+18. The request decision screen is the same requester-picker contract used by `/tpaccept` when more than one pending request exists.
+19. A clicked notification action opens the decision screen rather than accepting by accident.
 
 ## First-Join RTP Rules
 

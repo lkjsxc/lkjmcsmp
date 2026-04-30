@@ -95,6 +95,13 @@
 - `player_uuid` TEXT PRIMARY KEY
 - `completed_at` TEXT NOT NULL
 
+### `player_settings`
+
+- `player_uuid` TEXT PRIMARY KEY
+- `language` TEXT NOT NULL
+- `hotbar_menu_enabled` INTEGER NOT NULL
+- `updated_at` TEXT NOT NULL
+
 ### `temporary_dimension_instances`
 
 - `instance_id` TEXT PRIMARY KEY

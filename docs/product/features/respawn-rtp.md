@@ -7,11 +7,12 @@ When a player dies and would respawn at the world's initial spawn point, randoml
 ## Rules
 
 1. Triggered on `PlayerRespawnEvent`.
-2. Applies only when the respawn reason is `PlayerRespawnEvent.RespawnReason.DEATH` and the final respawn block equals the target world's spawn block.
+2. Applies only when the respawn reason is `PlayerRespawnEvent.RespawnReason.DEATH` and the final respawn block equals the target world's initial spawn block.
 3. Does not apply to bed respawns, anchor respawns, `END_PORTAL` exits, temporary-dimension death returns, or other plugin-set respawns.
 4. Runs one tick after respawn using `TeleportService.randomTeleport` with `bypassCooldown=true` and `applyStabilityDelay=false`.
 5. Requires permission `lkjmcsmp.rtp.use`.
 6. Config key `respawn-on-death.random-teleport.enabled` defaults to `true`.
+7. The initial spawn block is captured on plugin enable per world and must not drift if another plugin moves world spawn later.
 
 ## Failure Contract
 
