@@ -35,7 +35,10 @@ Extended smoke suite:
 - Hotbar slot `8` token cannot be moved by inventory manipulation vectors.
 - Hotbar slot `8` token opens menu from cancelled/blocked interaction contexts.
 - Hotbar slot `8` token does not appear in death drops.
+- Hotbar token is resynchronized after respawn and item pickup.
+- Non-token hotbar slot `5` interactions never open the menu.
 - GUI `Back` controls render as arrow items.
+- Decorative glass panes and info items do not emit unknown-action messages.
 - GUI menus avoid background auto-refresh reopen loops.
 - Picker menus render explicit manual `Refresh`.
 - Homes deletion uses dedicated explicit deletion flow (not right-click semantic split).
@@ -54,10 +57,13 @@ Extended smoke suite:
 - Action-bar source markers enforce deterministic state priority (teleport > combat > idle).
 - Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
 - Action bar never stays blank after combat or teleport overlay expires; idle reclaims immediately.
+- Action bar is re-sent continuously and does not rely on changed text to stay visible.
 - Combat overlay text omits the literal `"HP"`; shows target name followed by HP bar only.
-- Shop list renders service items with `ENDER_EYE` indicator and `"§dService Item — executes on purchase"` lore line.
+- Shop list renders service items with configured material and `"§dService Item — executes on purchase"` lore line.
 - Temporary End Pass shop item is visible and purchasable.
 - Temporary dimension creation respects the shop entry `environment` value (`THE_END`, `NETHER`, `NORMAL`).
+- Temporary dimension purchase success is reported only after creation succeeds; failures refund the exact deducted points.
+- Empty-hand right-click on stairs creates a seat and cleanup removes it on dismount/quit/death/teleport/block break.
 - GUI menus render decorative borders with stained glass panes.
 - `/profile` command opens the profile menu without error.
 

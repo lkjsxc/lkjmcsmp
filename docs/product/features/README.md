@@ -17,3 +17,4 @@ Define player-facing behaviors that span multiple menus, commands, or systems.
 - [first-join-rtp.md](first-join-rtp.md): random teleport on first join
 - [profile.md](profile.md): self-profile command and menu
 - [player-heads.md](player-heads.md): correct skin rendering for PLAYER_HEAD items
+- [stair-sitting.md](stair-sitting.md): empty-hand stair sitting and cleanup

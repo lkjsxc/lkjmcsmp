@@ -23,7 +23,8 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 15. Team menu slot mapping follows the canonical layout contract.
 16. Every plugin menu uses decorative borders for visual hierarchy and consistency.
 17. Service-type shop items (world effects, not inventory items) follow the same list-to-detail flow but execute effects on purchase.
-18. Service items in shop lists display an `ENDER_EYE` indicator and `"§dService Item — executes on purchase"` lore line.
+18. Service items in shop lists display their configured material and `"§dService Item — executes on purchase"` lore line.
+19. Decorative panes, info panels, page indicators, selected summaries, and balance indicators are inert and never emit unknown-action chat.
 
 ## Visual Design System
 
@@ -57,4 +58,5 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 - [interaction-rules.md](interaction-rules.md): inventory click and feedback behavior
 - [shop-actions.md](shop-actions.md): shop list, detail, and cobblestone conversion actions
 - [hotbar-entrypoint.md](hotbar-entrypoint.md): slot-8 menu token lock and interaction policy
+- [inventory-sync.md](inventory-sync.md): client/server hotbar and pickup synchronization
 - [team-layout.md](team-layout.md): team menu slot map and role-aware affordances

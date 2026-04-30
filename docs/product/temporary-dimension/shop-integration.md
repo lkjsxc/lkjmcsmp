@@ -22,6 +22,7 @@ The dimension pass is a service-type shop item placed among natural blocks for v
 2. Detail page shows a single **Purchase** button (no quantity selection for service items).
 3. On purchase, Cobblestone Points are deducted and a temporary dimension instance is created immediately.
 4. The environment is read from the shop entry configuration (`THE_END` by default).
+5. Final success is shown only after creation succeeds; failures refund the exact deducted points.
 
 ## Cross-References
 

@@ -21,7 +21,7 @@ The idle message is a permanent background layer. It is always present in state 
 ## Reclaim Rules
 
 1. When an overlay expires or is explicitly removed, idle becomes the effective message on the next periodic evaluation.
-2. The renderer clears its dedup key when the highest-priority overlay is removed, ensuring idle is sent immediately even if the text happens to match the last-sent value.
+2. Continuous rendering ensures idle is sent immediately even if the text happens to match the last visible value.
 3. If no idle message exists in state (an illegal condition), the composer must synthesize a fallback idle string before rendering.
 
 ## Cross-References

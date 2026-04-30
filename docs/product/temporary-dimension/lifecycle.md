@@ -37,11 +37,12 @@ Instances move through three states with deterministic expiry, evacuation, and c
 1. If a player dies inside a temporary dimension, their respawn location is overridden to their recorded origin.
 2. If no origin record exists, the main overworld spawn is used.
 3. This prevents respawning in a world that may be deleted on expiry.
+4. This override takes precedence over normal respawn RTP.
 
 ## Portal Handling
 
-1. `PlayerPortalEvent` inside a temporary dimension is cancelled.
-2. This prevents accidental escape to the main world network via Nether or End portals.
+1. `PlayerPortalEvent` inside any temporary dimension is cancelled.
+2. This prevents escape to the main world network via Nether or End portals.
 
 ## Startup Recovery
 

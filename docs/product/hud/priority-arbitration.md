@@ -28,8 +28,8 @@ Priority enum values (lower ordinal = higher precedence):
 2. Lower-priority events that occur during preemption are not lost; latest state is rendered after preemption clears.
 3. Overlay expiration is deterministic and player-scoped.
 4. Equal-priority ties break by newest message timestamp.
-5. No redundant packet sends: the effective text must change before a new action-bar packet is emitted.
-6. When the highest-priority overlay source is removed, the send-dedup key is cleared so idle text is re-emitted immediately.
+5. No visible gaps: the effective text is emitted every renderer tick.
+6. When the highest-priority overlay source is removed, idle text is re-emitted on the next renderer tick.
 
 ## Cross-References
 

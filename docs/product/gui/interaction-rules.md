@@ -10,6 +10,7 @@
 6. Clicking slot `8` while another inventory is open opens root menu.
 7. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
 8. Destructive actions (for example home deletion) are reachable only through explicit dedicated views.
+9. Decorative panes, blank-name fillers, info panels, page indicators, selected summaries, and balance indicators are inert.
 
 ## Service Item Rules
 
@@ -43,3 +44,4 @@
 11. Shop detail uses direct-buy final quantities (`1`, `2`, `4`, `8`, `16`, `32`, `64`) with no separate buy button.
 12. Team disband from GUI requires explicit confirm screen before execution.
 13. `/tpaccept`-linked accept flows open requester picker when 2+ pending requests exist.
+14. Inert clicks are silently consumed and must not display unknown-action messages.

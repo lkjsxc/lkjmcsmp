@@ -28,11 +28,11 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 
 ### Service Items
 
-1. **Purchase** (slot `22`): deduct Cobblestone Points and execute the registered service effect.
+1. **Purchase** (slot `22`): deduct Cobblestone Points and start the registered service effect.
 2. **Back** (slot `49`): return to shop list at the previously viewed page.
 3. Info panel (slot `4`) shows selected service summary.
 4. Points balance indicator (slot `50`) shows current Cobblestone Points.
-5. After successful purchase, return to shop list.
+5. After the service effect reports final success, return to shop list.
 6. After failed purchase, return to shop list with exact reason.
 
 ## Cobblestone Conversion Rules
@@ -49,7 +49,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 1. Every service item has a registered `ShopEffectExecutor` keyed by its shop item key.
 2. The executor receives the `ShopEntry` so it can read configuration such as `environment`.
 3. The executor runs only after Cobblestone Points deduction succeeds and is ledgered.
-4. If the executor throws or returns failure, the Cobblestone Points deduction is NOT rolled back automatically; the executor must handle its own compensating transactions.
+4. The executor receives the deducted amount and must report final success or failure through a completion callback.
 5. No inventory capacity check is performed for service items.
 6. The `temporary_dimension_pass` executor calls `TemporaryDimensionManager.createInstance` with the entry's configured environment.
 
@@ -58,7 +58,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 1. **Insufficient Cobblestone Points**: action is rejected before deduction; no side effects run.
 2. **Unknown shop item**: rejected with explicit "unknown shop item" message.
 3. **Inventory full (physical items only)**: rejected before deduction.
-4. **Effect execution failure**: Cobblestone Points remain deducted; player receives explicit failure reason; audit log captures the failure.
+4. **Effect execution failure**: exact deducted Cobblestone Points are refunded; player receives explicit failure reason; audit log captures the failure.
 
 ## Cross-References
 

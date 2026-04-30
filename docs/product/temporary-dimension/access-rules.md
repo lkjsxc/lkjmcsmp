@@ -11,8 +11,8 @@ Gameplay behavior inside a temporary dimension depends on its environment type.
 3. Respawn follows normal bed/spawn behavior (overworld spawn if no bed).
 4. Each instance spawns its own Ender Dragon.
 5. Dragon kill behaves per-world; loot and experience drop normally.
-6. Exit portal generates normally upon dragon death.
-7. Exit portal behavior is vanilla: returns player to the main overworld spawn.
+6. Exit portal may generate normally upon dragon death.
+7. Exit portal use is cancelled by the common portal rule.
 8. End cities and End ships generate as part of vanilla End generation.
 9. Elytra discovery is possible and behaves normally.
 
@@ -21,7 +21,7 @@ Gameplay behavior inside a temporary dimension depends on its environment type.
 1. Beds explode when used.
 2. Respawn anchors function normally.
 3. Nether fortresses and bastions generate as part of vanilla Nether generation.
-4. Portal behavior is vanilla: links to the main overworld at proportional coordinates.
+4. Portal use is cancelled by the common portal rule.
 
 ## NORMAL Behavior
 
@@ -36,7 +36,7 @@ Gameplay behavior inside a temporary dimension depends on its environment type.
 
 ## Portal and Escape Rules
 
-1. `PlayerPortalEvent` is cancelled inside temporary dimensions to prevent accidental main-world network linkage.
+1. `PlayerPortalEvent` is cancelled inside all temporary dimensions to prevent main-world network linkage.
 2. Death respawn is redirected to the participant's recorded origin.
 
 ## Cross-References

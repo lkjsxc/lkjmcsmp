@@ -11,7 +11,7 @@ Player-facing heads-up display is delivered exclusively through the action bar. 
 3. Priority is deterministic across all overlapping systems.
 4. Overlays are temporary and expire logically via TTL; expiry is evaluated during periodic ticks.
 5. Messages are scoped by `source`, carry an explicit priority, and may include a TTL.
-6. The renderer suppresses redundant action-bar packet sends when visible text has not changed.
+6. The renderer sends the visible action-bar text every `2` ticks so it remains visible.
 7. Idle text must never be blank for an online player.
 
 ## Child Index

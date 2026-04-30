@@ -2,7 +2,7 @@
 
 ## Summary
 
-A per-player periodic task evaluates HUD state, evicts expired messages, and dispatches action-bar packets with strict deduplication.
+A per-player periodic task evaluates HUD state, evicts expired messages, and dispatches action-bar packets often enough that the client action bar never fades out.
 
 ## Per-Player Periodic Task
 
@@ -12,17 +12,16 @@ A per-player periodic task evaluates HUD state, evicts expired messages, and dis
    - Evict expired messages from the player's state.
    - Compute the effective message by priority and timestamp.
    - If effective is null, synthesize a fallback idle string.
-   - Compare effective text against `lastSent`; send only if changed.
-   - Dispatch `player.sendActionBar(text)` in player-safe context.
+   - Dispatch `player.sendActionBar(text)` in player-safe context every evaluation.
 4. On player join, the periodic task starts immediately.
 5. On player quit, the periodic task stops and state is dropped.
 6. On plugin disable, all periodic tasks stop.
 
-## Deduplication
+## Continuous Send Rule
 
-1. `lastSent` stores the most recently emitted action-bar text per player.
-2. If computed effective text equals `lastSent`, no packet is sent.
-3. When the highest-priority overlay is removed from state, `lastSent` is cleared so the next evaluation always sends.
+1. The renderer sends the effective action-bar text every `2` ticks, even when the text is unchanged.
+2. This intentionally avoids relying on client-side action-bar retention.
+3. State may still remember the last text for diagnostics, but it must not suppress periodic sends.
 
 ## Immediate Trigger
 
