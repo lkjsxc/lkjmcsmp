@@ -39,7 +39,7 @@ final class ListenerRegistry {
         }
         if (config.getBoolean("respawn-on-death.random-teleport.enabled", true)) {
             plugin.getServer().getPluginManager().registerEvents(
-                    new RespawnRtpListener(services.teleports(), logger), plugin);
+                    new RespawnRtpListener(services.teleports(), schedulerBridge, temporaryDimensionManager, logger), plugin);
         }
     }
 }
