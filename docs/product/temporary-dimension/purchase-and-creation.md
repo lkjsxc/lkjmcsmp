@@ -34,7 +34,8 @@ Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated 
    - fallback: create a standard world when the requested environment cannot be created, then keep the purchased instance usable and clearly report the fallback
 5. If every creation path fails after Cobblestone Points are deducted, the exact deducted amount is refunded immediately with reason `TEMPORARY_DIMENSION_REFUND` and logged.
 6. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance and an exact refund.
-7. Final success chat is sent only after world creation, spawn preparation, instance persistence, and transfer scheduling complete.
+7. Final success chat is sent only after world creation, spawn preparation, instance persistence, creator participant persistence, and creator teleport completion succeed.
+8. Nearby-player transfers may partially fail after creator activation; each failed participant is logged and skipped without failing the creator purchase.
 
 ## Player Transfer
 

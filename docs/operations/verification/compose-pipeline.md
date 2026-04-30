@@ -5,6 +5,7 @@
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.verify.yml build verify smoke
 docker compose -f docker-compose.yml -f docker-compose.verify.yml run --rm verify
+docker compose -f docker-compose.verify.yml run --rm verify
 docker compose -f docker-compose.yml -f docker-compose.verify.yml up -d folia
 docker compose -f docker-compose.yml -f docker-compose.verify.yml run --rm smoke
 docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
@@ -16,7 +17,8 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 2. `smoke` runs scripted command checks against a live Folia container.
 3. Non-zero from any step blocks acceptance.
 4. Final `down -v` removes test state.
-5. Verification expectations include:
+5. `docker-compose.verify.yml` must be valid by itself for the `verify` service.
+6. Verification expectations include:
     - slot-8 hotbar open reliability in blocked/cancelled interaction contexts
     - homes add-current and dedicated deletion flow
     - shop list-to-detail purchase behavior with direct final-quantity (`1`, `2`, `4`, `8`, `16`, `32`, `64`) semantics

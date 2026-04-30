@@ -12,6 +12,7 @@
 3. Missing translation keys fall back to English.
 4. Unsupported stored language codes fall back to English and are corrected on next mutation.
 5. Language choice persists across sessions.
+6. New players default to English until they choose another language.
 
 ## Japanese UX Rules
 
@@ -19,3 +20,7 @@
 2. Command literals such as `/menu`, `/tpaccept`, and permission nodes remain ASCII.
 3. Names supplied by players are never translated.
 4. Numeric values and item quantities remain Arabic numerals.
+
+## Cross-References
+
+- [message-catalog.md](message-catalog.md): JSON message format

@@ -22,3 +22,4 @@ Define player preference behavior for menus, language, and persistent UX choices
 
 - [player-preferences.md](player-preferences.md): persistence and application rules
 - [language.md](language.md): localization and language switching rules
+- [message-catalog.md](message-catalog.md): JSON message file and key rules

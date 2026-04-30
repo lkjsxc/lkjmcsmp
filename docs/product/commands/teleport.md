@@ -75,6 +75,8 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 17. Action bar completion/cancellation/failure events are explicit and state-change-driven.
 18. The request decision screen is the same requester-picker contract used by `/tpaccept` when more than one pending request exists.
 19. A clicked notification action opens the decision screen rather than accepting by accident.
+20. The request decision screen for a clicked request shows requester details, Accept, Deny, and Back.
+21. Accept/Deny actions resolve the requester UUID encoded in the clicked notification.
 
 ## First-Join RTP Rules
 

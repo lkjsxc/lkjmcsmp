@@ -3,14 +3,15 @@
 ## Input Rules
 
 1. Item click behavior is action-stable across left/right click.
-2. Shift-click is ignored unless explicitly documented.
-3. Closed inventories clear temporary session context.
-4. Slot `8` hotbar menu item click/use opens root menu.
-5. Slot `8` drop intent is cancelled and treated as menu-open input.
-6. Clicking slot `8` while another inventory is open opens root menu.
-7. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
-8. Destructive actions (for example home deletion) are reachable only through explicit dedicated views.
-9. Decorative panes, blank-name fillers, info panels, page indicators, selected summaries, and balance indicators are inert.
+2. GUI behavior is dispatched by plugin action metadata, not display text.
+3. Shift-click is ignored unless explicitly documented.
+4. Closed inventories clear temporary session context.
+5. Slot `8` hotbar menu item click/use opens root menu.
+6. Slot `8` drop intent is cancelled and treated as menu-open input.
+7. Clicking slot `8` while another inventory is open opens root menu.
+8. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
+9. Destructive actions (for example home deletion) are reachable only through explicit dedicated views.
+10. Decorative panes, blank-name fillers, info panels, page indicators, selected summaries, and balance indicators are inert.
 
 ## Service Item Rules
 
