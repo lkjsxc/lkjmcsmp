@@ -17,6 +17,8 @@
 2. Party membership cardinality is max one party per player.
 3. Home and warp names are normalized lowercase for keys.
 4. Achievement status transitions are monotonic unless explicitly reset by admin command.
+5. Temporary-dimension participant rows outlive world deletion until pending returns are consumed.
+6. Temporary-dimension instance environment equals the actual created world environment.
 
 ## Retry Rules
 

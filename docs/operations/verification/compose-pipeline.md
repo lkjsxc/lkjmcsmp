@@ -28,6 +28,8 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
     - picker-menu manual refresh visibility with no background auto-refresh reopen loop
     - team disband confirm screen flow and post-action refresh
     - GUI slot-map alignment markers for shop-detail direct-buy cluster
+    - metadata-based GUI action routing and dynamic language registry markers
+    - current-world-spawn respawn RTP marker
     - action-bar idle/teleport/combat contract markers with always-on guarantee
 
 ## Stop Rule

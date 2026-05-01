@@ -4,14 +4,16 @@
 
 1. Item click behavior is action-stable across left/right click.
 2. GUI behavior is dispatched by plugin action metadata, not display text.
-3. Shift-click is ignored unless explicitly documented.
-4. Closed inventories clear temporary session context.
-5. Slot `8` hotbar menu item click/use opens root menu.
-6. Slot `8` drop intent is cancelled and treated as menu-open input.
-7. Clicking slot `8` while another inventory is open opens root menu.
-8. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
-9. Destructive actions (for example home deletion) are reachable only through explicit dedicated views.
-10. Decorative panes, blank-name fillers, info panels, page indicators, selected summaries, and balance indicators are inert.
+3. Every interactive plugin item carries a stable action key and optional payload.
+4. Player-facing names and lore may be translated without changing behavior.
+5. Shift-click is ignored unless explicitly documented.
+6. Closed inventories clear temporary session context.
+7. Slot `8` hotbar menu item click/use opens root menu.
+8. Slot `8` drop intent is cancelled and treated as menu-open input.
+9. Clicking slot `8` while another inventory is open opens root menu.
+10. Slot `8` hotbar token cannot be moved via drag, swap, number-key swap, offhand swap, or inventory transfer.
+11. Destructive actions (for example home deletion) are reachable only through explicit dedicated views.
+12. Decorative panes, blank-name fillers, info panels, page indicators, selected summaries, and balance indicators are inert.
 
 ## Service Item Rules
 
@@ -46,3 +48,4 @@
 12. Team disband from GUI requires explicit confirm screen before execution.
 13. `/tpaccept`-linked accept flows open requester picker when 2+ pending requests exist.
 14. Inert clicks are silently consumed and must not display unknown-action messages.
+15. Unknown action metadata is a failure; unknown display text is inert.

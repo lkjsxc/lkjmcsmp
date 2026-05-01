@@ -62,7 +62,10 @@ Extended smoke suite:
 - Shop list renders service items with configured material and `"§dService Item — executes on purchase"` lore line.
 - Temporary End Pass shop item is visible and purchasable.
 - Temporary dimension creation respects the shop entry `environment` value (`THE_END`, `NETHER`, `NORMAL`).
-- Temporary dimension purchase success is reported only after creation succeeds; failures refund the exact deducted points.
+- Temporary dimension purchase success is reported only after creator teleport succeeds; failures refund the exact deducted points.
+- Temporary dimension closed rows survive until offline participant pending returns are consumed.
+- GUI action routing uses `lkjmcsmp:menu_action` metadata and does not branch on translated display labels.
+- Language selector options are loaded from `lang/languages.yml`.
 - Empty-hand right-click on stairs creates a seat and cleanup removes it on dismount/quit/death/teleport/block break.
 - GUI menus render decorative borders with stained glass panes.
 - `/profile` command opens the profile menu without error.

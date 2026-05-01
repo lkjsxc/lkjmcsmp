@@ -19,17 +19,19 @@ Instances move through three states with deterministic expiry, evacuation, and c
 ## Expiry Sequence
 
 1. Transition to `EXPIRING`.
-2. Teleport all online participants in the world back to their recorded origin.
-3. Unload the world with `save = false`.
-4. Delete the world folder; if locked files prevent deletion, retry once after a short delay.
-5. Transition to `CLOSED`.
-6. Remove DB records.
+2. Teleport all online tracked participants in the world back to their recorded origin.
+3. Teleport online untracked occupants to the main overworld spawn.
+4. Unload the world with `save = false`.
+5. Delete the world folder; if locked files prevent deletion, retry once after a short delay.
+6. Transition to `CLOSED`.
+7. Keep `CLOSED` instance and participant rows while offline participants still have pending returns.
+8. Remove the instance row only after all pending participant return rows are consumed.
 
 ## Offline and Join Handling
 
 1. If a participant is offline during expiry, their return is deferred.
-2. On next `PlayerJoinEvent`, if they have a participant record for a `CLOSED` instance, teleport them to the origin and delete the record.
-3. The `CLOSED` state covers both record-pending and record-removed phases for simplicity.
+2. On next `PlayerJoinEvent`, if they have a participant record for a `CLOSED` instance, teleport them to the origin and delete only that participant record after scheduling the return.
+3. Once the last participant record for a `CLOSED` instance is deleted, the instance row is removed.
 4. This handles disconnect-during-expiry and server restart recovery.
 
 ## Death Handling
@@ -48,7 +50,7 @@ Instances move through three states with deterministic expiry, evacuation, and c
 
 1. On startup, load all persisted `ACTIVE` instances.
 2. If the world exists in `Bukkit.getWorlds()`, register it and schedule expiry checks.
-3. If the world is missing, transition to `CLOSED` and clean up records.
+3. If the world is missing, transition to `CLOSED` and keep participant records for deferred return.
 4. Orphaned world folders without DB records are ignored.
 
 ## Multi-Instance Safety

@@ -22,7 +22,8 @@ Expose `/menu` through a deterministic right-end hotbar control.
 5. Slot `8` token interaction with entities follows the same open-menu behavior as block/air interaction.
 6. Menu item interactions are silent on success (no extra spam messages).
 7. Non-token item interactions never open the menu, even when slot `8` currently contains a valid token.
-8. Inventory click handling may open the menu only for direct token interaction or direct slot `8` token click.
+8. Tokens outside slot `8` are stale duplicates; interacting with them only cancels movement and schedules cleanup.
+9. Inventory click handling may open the menu only for direct slot `8` token interaction.
 
 ## Failure Contract
 

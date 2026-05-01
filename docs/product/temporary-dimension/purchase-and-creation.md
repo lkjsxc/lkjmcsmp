@@ -2,7 +2,7 @@
 
 ## Summary
 
-Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated world of the configured environment type, then reports final success only after creation and transfer scheduling succeed.
+Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated world, then reports final success only after creator activation fully completes.
 
 ## Cost and Trigger
 
@@ -22,7 +22,8 @@ Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated 
 
 1. Shop entries specify `environment` in `shop.yml`. Supported values: `THE_END`, `NETHER`, `NORMAL`.
 2. Command path uses the same shop entry configuration.
-3. The environment is stored in the instance record and determines world generation rules.
+3. The instance record stores the actual created world environment, not merely the requested environment.
+4. If fallback creation is used, player-facing success feedback names the actual environment.
 
 ## Instance Creation
 
@@ -36,6 +37,8 @@ Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated 
 6. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance and an exact refund.
 7. Final success chat is sent only after world creation, spawn preparation, instance persistence, creator participant persistence, and creator teleport completion succeed.
 8. Nearby-player transfers may partially fail after creator activation; each failed participant is logged and skipped without failing the creator purchase.
+9. A creator may have only one in-flight creation attempt; concurrent attempts are rejected and refunded.
+10. If creator participant persistence or creator teleport fails, the world and DB records are cleaned up and the purchase is refunded.
 
 ## Player Transfer
 
