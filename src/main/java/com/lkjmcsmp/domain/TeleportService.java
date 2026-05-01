@@ -67,24 +67,18 @@ public final class TeleportService {
                 this.teleportHudSink);
     }
 
-    public long requestTimeoutSeconds() {
-        return requestTimeout.getSeconds();
-    }
+    public long requestTimeoutSeconds() { return requestTimeout.getSeconds(); }
     public Result requestTeleport(Player from, Player to, boolean summonHere) {
         pendingRequests.put(new TpaRequest(from.getUniqueId(), to.getUniqueId(), summonHere, Instant.now().plus(requestTimeout)));
         return Result.ok("request sent");
     }
-    public Result denyRequest(Player target) {
-        return denyRequest(target, null);
-    }
+    public Result denyRequest(Player target) { return denyRequest(target, null); }
     public Result denyRequest(Player target, UUID requesterId) {
         return pendingRequests.remove(target.getUniqueId(), requesterId).isPresent()
                 ? Result.ok("request denied")
                 : Result.fail("no pending request");
     }
-    public void acceptRequest(Player target, Consumer<Result> callback) {
-        acceptRequest(target, null, callback);
-    }
+    public void acceptRequest(Player target, Consumer<Result> callback) { acceptRequest(target, null, callback); }
     public void acceptRequest(Player target, UUID requesterId, Consumer<Result> callback) {
         Optional<TpaRequest> removed = pendingRequests.remove(target.getUniqueId(), requesterId);
         if (removed.isEmpty()) {
@@ -105,19 +99,13 @@ public final class TeleportService {
         Player source = request.summonHere() ? from : target;
         moveActorToSource(actor, source, target, "teleport request accepted", true, callback);
     }
-    public void directTeleport(Player actor, Player target, Consumer<Result> callback) {
-        moveActorToSource(actor, target, actor, "teleported to " + target.getName(), true, callback);
-    }
-    public void teleportToLocation(Player actor, Location destination, String successMessage, Consumer<Result> callback) {
-        teleportToLocation(actor, destination, successMessage, true, callback);
-    }
+    public void directTeleport(Player actor, Player target, Consumer<Result> callback) { moveActorToSource(actor, target, actor, "teleported to " + target.getName(), true, callback); }
+    public void teleportToLocation(Player actor, Location destination, String successMessage, Consumer<Result> callback) { teleportToLocation(actor, destination, successMessage, true, callback); }
     public void teleportToLocation(Player actor, Location destination, String successMessage, boolean applyStabilityDelay,
                                    Consumer<Result> callback) {
         teleportExecution.teleport(actor, destination, successMessage, applyStabilityDelay, callback);
     }
-    public void randomTeleport(Player player, String worldName, boolean bypassCooldown, Consumer<Result> callback) {
-        randomTeleport(player, worldName, bypassCooldown, true, callback);
-    }
+    public void randomTeleport(Player player, String worldName, boolean bypassCooldown, Consumer<Result> callback) { randomTeleport(player, worldName, bypassCooldown, true, callback); }
     public void randomTeleport(Player player, String worldName, boolean bypassCooldown, boolean applyStabilityDelay,
                                Consumer<Result> callback) {
         if (!bypassCooldown) {
@@ -135,12 +123,18 @@ public final class TeleportService {
         }
         runRandomTeleportAttempt(player, world, 1, applyStabilityDelay, callback);
     }
-    public List<TpaRequest> pendingFor(UUID targetId) {
-        return pendingRequests.list(targetId);
+    public Optional<Location> selectRandomRespawnLocation(World world) {
+        for (int attempt = 1; attempt <= rtpAttempts; attempt++) {
+            Location probe = rtpSelector.createProbeLocation(world);
+            Location destination = rtpSelector.resolveSafeDestination(world, probe.getBlockX(), probe.getBlockZ());
+            if (destination != null) {
+                return Optional.of(destination);
+            }
+        }
+        return Optional.empty();
     }
-    public int pendingCount(UUID targetId) {
-        return pendingFor(targetId).size();
-    }
+    public List<TpaRequest> pendingFor(UUID targetId) { return pendingRequests.list(targetId); }
+    public int pendingCount(UUID targetId) { return pendingFor(targetId).size(); }
     private void moveActorToSource(Player actor, Player source, Player callbackPlayer, String successMessage,
                                    boolean applyStabilityDelay, Consumer<Result> callback) {
         schedulerBridge.runPlayerTask(source, () -> {
@@ -155,9 +149,7 @@ public final class TeleportService {
     }
     private World resolveWorld(String worldName) {
         String name = worldName == null || worldName.isBlank() ? "world" : worldName;
-        if (!worldWhitelist.contains(name.toLowerCase())) {
-            return null;
-        }
+        if (!worldWhitelist.contains(name.toLowerCase())) return null;
         return Bukkit.getWorld(name);
     }
     private void runRandomTeleportAttempt(Player player, World world, int attempt, boolean applyStabilityDelay,

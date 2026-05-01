@@ -27,7 +27,7 @@ public final class RespawnRtpListener implements Listener {
         this.logger = logger;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         if (!player.hasPermission("lkjmcsmp.rtp.use")) {
@@ -50,12 +50,14 @@ public final class RespawnRtpListener implements Listener {
         if (!isCurrentSpawnBlock(respawn)) {
             return;
         }
-        schedulerBridge.runPlayerDelayedTask(player, 1L, () -> teleportService.randomTeleport(player, world.getName(), true, false, result -> {
-            if (!result.success()) {
-                player.sendMessage("Respawn RTP failed: " + result.message());
-                logger.warning("Respawn RTP failed for " + player.getUniqueId() + ": " + result.message());
-            }
-        }));
+        var destination = teleportService.selectRandomRespawnLocation(world);
+        if (destination.isPresent()) {
+            event.setRespawnLocation(destination.get());
+            return;
+        }
+        schedulerBridge.runPlayerDelayedTask(player, 1L, () -> player.sendMessage(
+                "Respawn RTP failed: no safe random teleport location found"));
+        logger.warning("Respawn RTP failed for " + player.getUniqueId() + ": no safe random teleport location found");
     }
 
     static boolean isCurrentSpawnBlock(Location location) {
