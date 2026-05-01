@@ -21,6 +21,8 @@ SOURCE_ACTIONBAR_RENDERER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmc
 SOURCE_RESPAWN_RTP = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "RespawnRtpListener.java"
 SOURCE_HOTBAR_LISTENER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "HotbarMenuListener.java"
 SOURCE_MENU_SERVICE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuService.java"
+SOURCE_MENU_ACTION = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuAction.java"
+SOURCE_LANGUAGE_REGISTRY = WORKSPACE / "src" / "main" / "resources" / "lang" / "languages.yml"
 SOURCE_STAIR_SIT = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "StairSitListener.java"
 SOURCE_POINTS_SERVICE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "domain" / "PointsService.java"
 
@@ -134,17 +136,25 @@ def assert_reliability_markers():
     if "player.sendActionBar(text)" not in renderer or "shouldSend(effective)" in renderer:
         raise RuntimeError("actionbar renderer must continuously send effective text")
     respawn = SOURCE_RESPAWN_RTP.read_text(encoding="utf-8")
-    for expected in ("runPlayerDelayedTask", "sameBlock", "temporaryDimensionManager.isTemporaryDimensionWorld"):
+    for expected in ("runPlayerDelayedTask", "isCurrentSpawnBlock", "getSpawnLocation", "temporaryDimensionManager.isTemporaryDimensionWorld"):
         if expected not in respawn:
             raise RuntimeError(f"respawn RTP missing `{expected}`")
     hotbar = SOURCE_HOTBAR_LISTENER.read_text(encoding="utf-8")
-    for expected in ("EntityPickupItemEvent", "syncSoon", "syncAfterRespawn", "reservedSlotHasToken", "tokenInteraction"):
+    for expected in ("EntityPickupItemEvent", "syncSoon", "syncAfterRespawn", "opensReservedToken", "staleTokenInteraction"):
         if expected not in hotbar:
             raise RuntimeError(f"hotbar sync missing `{expected}`")
     menu = SOURCE_MENU_SERVICE.read_text(encoding="utf-8")
-    for expected in ("isInert", "STAINED_GLASS_PANE", "Selected ::"):
+    for expected in ("isInert", "STAINED_GLASS_PANE", "MenuAction.action", "action.isBlank()"):
         if expected not in menu:
             raise RuntimeError(f"inert menu handling missing `{expected}`")
+    menu_action = SOURCE_MENU_ACTION.read_text(encoding="utf-8")
+    for expected in ("lkjmcsmp:menu_action", "lkjmcsmp:menu_payload"):
+        if expected not in menu_action:
+            raise RuntimeError(f"metadata menu action missing `{expected}`")
+    languages = SOURCE_LANGUAGE_REGISTRY.read_text(encoding="utf-8")
+    for expected in ("default: en", "languages:", "ja:"):
+        if expected not in languages:
+            raise RuntimeError(f"language registry missing `{expected}`")
     stair = SOURCE_STAIR_SIT.read_text(encoding="utf-8")
     for expected in ("Stairs", "EntityDismountEvent", "PlayerTeleportEvent", "lkjmcsmp.sit.stairs"):
         if expected not in stair:
