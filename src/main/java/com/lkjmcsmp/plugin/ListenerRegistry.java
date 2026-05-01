@@ -44,10 +44,9 @@ final class ListenerRegistry {
                     plugin);
         }
         if (config.getBoolean("respawn-on-death.random-teleport.enabled", true)) {
-            InitialSpawnRegistry initialSpawns = new InitialSpawnRegistry(plugin.getServer().getWorlds());
             plugin.getServer().getPluginManager().registerEvents(
                     new RespawnRtpListener(
-                            services.teleports(), schedulerBridge, temporaryDimensionManager, initialSpawns, logger),
+                            services.teleports(), schedulerBridge, temporaryDimensionManager, logger),
                     plugin);
         }
     }

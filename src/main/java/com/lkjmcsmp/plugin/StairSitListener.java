@@ -135,7 +135,7 @@ public final class StairSitListener implements Listener {
 
     private static Location seatLocation(Block block) {
         Stairs stairs = (Stairs) block.getBlockData();
-        double y = stairs.getHalf() == Bisected.Half.TOP ? 0.55D : 0.05D;
+        double y = stairs.getHalf() == Bisected.Half.TOP ? 0.35D : -0.15D;
         Location location = block.getLocation().add(0.5D, y, 0.5D);
         BlockFace back = stairs.getFacing().getOppositeFace();
         return location.add(back.getModX() * 0.18D, 0.0D, back.getModZ() * 0.18D);

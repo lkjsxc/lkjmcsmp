@@ -28,13 +28,13 @@ commands:
     usage: /home [name]
     permission: lkjmcsmp.home.use
   sethome:
-    usage: /sethome <name>
+    usage: /sethome [name]
     permission: lkjmcsmp.home.manage
   delhome:
     usage: /delhome <name>
     permission: lkjmcsmp.home.manage
   homes:
-    usage: /homes [addcurrent]
+    usage: /homes [addcurrent [name]]
     permission: lkjmcsmp.home.use
   warp:
     usage: /warp <name>

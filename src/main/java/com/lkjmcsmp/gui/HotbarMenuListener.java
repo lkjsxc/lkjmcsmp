@@ -118,21 +118,20 @@ public final class HotbarMenuListener implements Listener {
         boolean numberKeyUsesToken = event.getClick() == ClickType.NUMBER_KEY
                 && event.getHotbarButton() >= 0
                 && hotbarMenuService.isToken(player.getInventory().getItem(event.getHotbarButton()));
-        boolean tokenInteraction = clickedToken || cursorToken || numberKeyUsesToken
-                || (reservedSlotClick && reservedSlotHasToken)
-                || (reservedSlotNumberKey && (clickedToken || reservedSlotHasToken));
+        boolean staleTokenInteraction = clickedToken || cursorToken || numberKeyUsesToken;
+        boolean opensReservedToken = reservedSlotHasToken && (reservedSlotClick || reservedSlotNumberKey);
         if (!hotbarMenuService.isEnabled(player)) {
-            if (tokenInteraction) {
+            if (staleTokenInteraction || reservedSlotHasToken) {
                 event.setCancelled(true);
                 hotbarMenuService.syncSoon(player);
             }
             return;
         }
-        if (!tokenInteraction && !reservedSlotClick && !reservedSlotNumberKey) {
+        if (!opensReservedToken && !reservedSlotClick && !reservedSlotNumberKey && !staleTokenInteraction) {
             return;
         }
         event.setCancelled(true);
-        if (!tokenInteraction) {
+        if (!opensReservedToken) {
             hotbarMenuService.syncSoon(player);
             return;
         }

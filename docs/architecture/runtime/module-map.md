@@ -27,7 +27,7 @@
 - `hud` runtime components: idle rendering, teleport/combat overlays, and periodic re-evaluation
 - `HotbarMenuService`: slot-8 menu token lifecycle and lock enforcement
 - `TemporaryDimensionManager`: registry, creation, expiry, evacuation, and cleanup of temporary dimension instances
-- `RespawnRtpListener`: overrides initial-spawn respawn with random teleport
+- `RespawnRtpListener`: overrides current-world-spawn death respawn with random teleport
 - `StairSitService`: stair seat entity lifecycle and cleanup
 
 ## HUD Reliability Boundary
