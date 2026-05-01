@@ -51,10 +51,14 @@ final class RootSettingsMenuView {
     void openLanguage(Player player) {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.LANGUAGE);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(messages.get(player, "menu.language.info")));
-        inventory.setItem(20, MenuItems.actionPayload(
-                Material.BOOK, "language.set", "en", messages.get(player, "menu.language.english")));
-        inventory.setItem(24, MenuItems.actionPayload(
-                Material.BOOK, "language.set", "ja", messages.get(player, "menu.language.japanese")));
+        int[] slots = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
+        int index = 0;
+        for (var entry : messages.languages().languages().entrySet()) {
+            if (index >= slots.length) break;
+            inventory.setItem(slots[index], MenuItems.actionPayload(
+                    Material.BOOK, "language.set", entry.getKey(), entry.getValue()));
+            index++;
+        }
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", messages.get(player, "action.back")));
         MenuDecor.fillBorder(inventory, MenuDecor.ROOT_BORDER);
         player.openInventory(inventory);

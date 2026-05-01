@@ -11,12 +11,21 @@ import java.util.function.Consumer;
 public final class PlayerSettingsService {
     private final PlayerSettingsDao dao;
     private final Set<String> supportedLanguages;
+    private final String defaultLanguage;
     private final ConcurrentHashMap<UUID, PlayerSettings> cache = new ConcurrentHashMap<>();
     private Consumer<UUID> hotbarChangeHandler = playerId -> { };
 
     public PlayerSettingsService(PlayerSettingsDao dao, Set<String> supportedLanguages) {
         this.dao = dao;
         this.supportedLanguages = supportedLanguages;
+        this.defaultLanguage = supportedLanguages.contains(PlayerSettings.DEFAULT_LANGUAGE)
+                ? PlayerSettings.DEFAULT_LANGUAGE : supportedLanguages.iterator().next();
+    }
+
+    public PlayerSettingsService(PlayerSettingsDao dao, Set<String> supportedLanguages, String defaultLanguage) {
+        this.dao = dao;
+        this.supportedLanguages = supportedLanguages;
+        this.defaultLanguage = supportedLanguages.contains(defaultLanguage) ? defaultLanguage : PlayerSettings.DEFAULT_LANGUAGE;
     }
 
     public PlayerSettings get(UUID playerId) {
@@ -58,17 +67,17 @@ public final class PlayerSettingsService {
         try {
             PlayerSettings loaded = dao.find(playerId).orElse(PlayerSettings.DEFAULT);
             if (!supportedLanguages.contains(loaded.language())) {
-                return new PlayerSettings(PlayerSettings.DEFAULT_LANGUAGE, loaded.hotbarMenuEnabled());
+                return new PlayerSettings(defaultLanguage, loaded.hotbarMenuEnabled());
             }
             return loaded;
         } catch (Exception ignored) {
-            return PlayerSettings.DEFAULT;
+            return new PlayerSettings(defaultLanguage, true);
         }
     }
 
     private String normalizeLanguage(String language) {
         String normalized = language == null ? "" : language.trim().toLowerCase();
-        return supportedLanguages.contains(normalized) ? normalized : PlayerSettings.DEFAULT_LANGUAGE;
+        return supportedLanguages.contains(normalized) ? normalized : defaultLanguage;
     }
 
     private void persist(UUID playerId, PlayerSettings settings) throws Exception {

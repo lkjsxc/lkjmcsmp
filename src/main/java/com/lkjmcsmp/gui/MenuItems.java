@@ -42,6 +42,18 @@ final class MenuItems {
         return playerHead(player.getUniqueId(), name, loreLines);
     }
 
+    static ItemStack playerHeadActionPayload(Player player, String action, String payload, String name, String... loreLines) {
+        ItemStack item = playerHead(player, name, loreLines);
+        MenuAction.tag(item, action, payload);
+        return item;
+    }
+
+    static ItemStack playerHeadActionPayload(UUID playerUuid, String action, String payload, String name, String... loreLines) {
+        ItemStack item = playerHead(playerUuid, name, loreLines);
+        MenuAction.tag(item, action, payload);
+        return item;
+    }
+
     static ItemStack playerHead(UUID playerUuid, String name, String... loreLines) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         if (item.getItemMeta() instanceof SkullMeta skullMeta) {

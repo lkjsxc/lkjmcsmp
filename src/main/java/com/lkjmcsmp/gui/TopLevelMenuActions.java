@@ -43,14 +43,7 @@ final class TopLevelMenuActions {
         if (!action.isBlank()) {
             return handleAction(player, title, action, MenuAction.payload(event.getCurrentItem()));
         }
-        return switch (title) {
-            case MenuTitles.ROOT, MenuTitles.SETTINGS, MenuTitles.LANGUAGE -> false;
-            case MenuTitles.SHOP -> shopActions.handleShop(player, display);
-            case MenuTitles.SHOP_DETAIL -> shopActions.handleShopDetail(player, display);
-            case MenuTitles.ACHIEVEMENT -> handleAchievement(event, player, display);
-            case MenuTitles.PROFILE -> handleProfile(player, display);
-            default -> false;
-        };
+        return false;
     }
 
     private boolean handleAction(Player player, String title, String action, String payload) throws Exception {
@@ -68,6 +61,17 @@ final class TopLevelMenuActions {
             case "settings.hotbar" -> toggleHotbar(player);
             case "language.set" -> setLanguage(player, payload);
             case "nav.back" -> backFromAction(player, title);
+            case "shop.convert", "shop.select", "page.prev", "page.next" -> MenuTitles.SHOP.equals(title)
+                    ? shopActions.handleShop(player, action, payload) : handlePagedAction(player, title, action, payload);
+            case "shop.purchase.service", "shop.purchase.quantity" -> shopActions.handleShopDetail(player, action, payload);
+            case "achievement.claim" -> handleAchievement(player, payload);
+            case "profile.team" -> { coreMenus.open(player, MenuTitles.TEAM); yield true; }
+            case "profile.achievements" -> {
+                setAchievementPage(player.getUniqueId(), 0);
+                views.openAchievement(player, achievementPage(player.getUniqueId()));
+                yield true;
+            }
+            case "locked" -> true;
             default -> false;
         };
     }
@@ -94,8 +98,8 @@ final class TopLevelMenuActions {
 
     private boolean setLanguage(Player player, String language) throws Exception {
         settingsService.setLanguage(player.getUniqueId(), language);
-        player.sendMessage(messages.get(player, language.equals("ja")
-                ? "settings.language.changed.ja" : "settings.language.changed"));
+        String label = messages.languages().languages().getOrDefault(language, language);
+        player.sendMessage(messages.get(player, "settings.language.changed", "language", label));
         views.openLanguage(player);
         return true;
     }
@@ -112,24 +116,32 @@ final class TopLevelMenuActions {
         return false;
     }
 
-    private boolean handleAchievement(InventoryClickEvent event, Player player, String display) throws Exception {
+    private boolean handlePagedAction(Player player, String title, String action, String payload) throws Exception {
+        if (MenuTitles.ACHIEVEMENT.equals(title)) {
+            return handleAchievementPage(player, action);
+        }
+        return MenuTitles.SHOP_DETAIL.equals(title) && shopActions.handleShopDetail(player, action, payload);
+    }
+
+    private boolean handleAchievementPage(Player player, String action) {
         UUID playerId = player.getUniqueId();
-        if (display.equals("Page Prev")) {
+        if (action.equals("page.prev")) {
             setAchievementPage(playerId, Math.max(0, achievementPage(playerId) - 1));
             views.openAchievement(player, achievementPage(playerId));
             setAchievementPage(playerId, MenuPageStateSync.readCurrentPage(player, achievementPage(playerId)));
             return true;
         }
-        if (display.equals("Page Next")) {
+        if (action.equals("page.next")) {
             setAchievementPage(playerId, achievementPage(playerId) + 1);
             views.openAchievement(player, achievementPage(playerId));
             setAchievementPage(playerId, MenuPageStateSync.readCurrentPage(player, achievementPage(playerId)));
             return true;
         }
-        String achievementKey = AchievementMenuSupport.extractKey(event.getCurrentItem());
-        if (achievementKey == null) {
-            return true;
-        }
+        return false;
+    }
+
+    private boolean handleAchievement(Player player, String achievementKey) throws Exception {
+        UUID playerId = player.getUniqueId();
         var claimResult = achievementService.claim(player.getUniqueId(), achievementKey);
         player.sendMessage(claimResult.message());
         if (claimResult.success()) {
@@ -137,25 +149,6 @@ final class TopLevelMenuActions {
         }
         views.openAchievement(player, achievementPage(playerId));
         return true;
-    }
-
-    private boolean handleProfile(Player player, String display) throws Exception {
-        return switch (display) {
-            case "Team" -> {
-                coreMenus.open(player, MenuTitles.TEAM);
-                yield true;
-            }
-            case "Achievements" -> {
-                setAchievementPage(player.getUniqueId(), 0);
-                views.openAchievement(player, achievementPage(player.getUniqueId()));
-                yield true;
-            }
-            case "Back" -> {
-                coreMenus.openBack(player, MenuTitles.PROFILE);
-                yield true;
-            }
-            default -> true;
-        };
     }
 
     void resetShopSelection(UUID playerId) { state.resetShopSelection(playerId); }

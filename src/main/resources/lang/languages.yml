@@ -1,0 +1,6 @@
+default: en
+languages:
+  en:
+    display: English
+  ja:
+    display: 日本語

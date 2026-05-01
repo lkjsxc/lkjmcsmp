@@ -71,6 +71,7 @@ final class TopLevelMenuViews {
             lore.add("Click to open purchase details");
             meta.setLore(lore);
             item.setItemMeta(meta);
+            MenuAction.tag(item, "shop.select", entry.getKey());
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
                 inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], item);
             }
@@ -79,13 +80,14 @@ final class TopLevelMenuViews {
         if (sorted.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Shop Items"));
         }
-        inventory.setItem(MenuLayout.SHOP_CONVERT_SLOT, MenuItems.named(
+        inventory.setItem(MenuLayout.SHOP_CONVERT_SLOT, MenuItems.action(
                 Material.COBBLESTONE,
+                "shop.convert",
                 "Convert Cobblestone",
                 "Converts all cobblestone in inventory to Cobblestone Points"));
         inventory.setItem(50, playerPointsItem(player));
         MenuPagination.renderControls(inventory, bounded, sorted.size());
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.SHOP_BORDER);
         player.openInventory(inventory);
     }
@@ -94,7 +96,7 @@ final class TopLevelMenuViews {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.SHOP_DETAIL);
         if (selection == null) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Item Selected", "Return to shop list."));
-            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
             MenuDecor.fillBorder(inventory, MenuDecor.SHOP_BORDER);
             player.openInventory(inventory);
             return;
@@ -102,7 +104,7 @@ final class TopLevelMenuViews {
         ShopEntry selected = pointsService.getShopItems().get(selection.itemKey());
         if (selected == null) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "Unknown Item", "Return to shop list."));
-            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
             MenuDecor.fillBorder(inventory, MenuDecor.SHOP_BORDER);
             player.openInventory(inventory);
             return;
@@ -124,8 +126,9 @@ final class TopLevelMenuViews {
         if (selected.service()) {
             int total = selected.points();
             boolean affordable = points >= total;
-            inventory.setItem(22, MenuItems.named(
+            inventory.setItem(22, MenuItems.action(
                     affordable ? Material.LIME_DYE : Material.GRAY_DYE,
+                    affordable ? "shop.purchase.service" : "locked",
                     affordable ? "Purchase" : "Purchase (Locked)",
                     "Cost: " + total + " Cobblestone Points",
                     affordable ? "Click to purchase now" : "Not enough Cobblestone Points"));
@@ -138,7 +141,7 @@ final class TopLevelMenuViews {
             inventory.setItem(24, quantityItem(selected.points(), points, 32));
             inventory.setItem(25, quantityItem(selected.points(), points, 64));
         }
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.SHOP_BORDER);
         player.openInventory(inventory);
     }
@@ -147,10 +150,7 @@ final class TopLevelMenuViews {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.ACHIEVEMENT);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Achievements"));
         try {
-            List<AchievementService.AchievementView> views = achievementService.getViews(player.getUniqueId())
-                    .values()
-                    .stream()
-                    .toList();
+            List<AchievementService.AchievementView> views = achievementService.getViews(player.getUniqueId()).values().stream().toList();
             int bounded = MenuPagination.clampPage(page, views.size());
             int slotIdx = 0;
             for (var view : MenuPagination.pageSlice(views, bounded)) {
@@ -159,14 +159,12 @@ final class TopLevelMenuViews {
                 }
                 slotIdx++;
             }
-            if (views.isEmpty()) {
-                inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Achievements"));
-            }
+            if (views.isEmpty()) inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Achievements"));
             MenuPagination.renderControls(inventory, bounded, views.size());
         } catch (Exception ex) {
             player.sendMessage("Failed to load achievement: " + ex.getMessage());
         }
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.ACHIEVEMENT_BORDER);
         player.openInventory(inventory);
     }
@@ -178,8 +176,10 @@ final class TopLevelMenuViews {
     private static ItemStack quantityItem(int pointsPerItem, int balance, int quantity) {
         int total = pointsPerItem * quantity;
         boolean affordable = balance >= total;
-        return MenuItems.named(
+        return MenuItems.actionPayload(
                 affordable ? Material.LIME_DYE : Material.GRAY_DYE,
+                affordable ? "shop.purchase.quantity" : "locked",
+                String.valueOf(quantity),
                 "Buy x" + quantity,
                 "Cost: " + total + " Cobblestone Points",
                 affordable ? "Click to purchase now" : "Not enough Cobblestone Points");

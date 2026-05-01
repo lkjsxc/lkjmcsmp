@@ -11,35 +11,26 @@ final class PickerActions {
         this.tracker = tracker;
     }
 
-    boolean handle(Player player, String title, String display) throws Exception {
-        if (display.equals("Refresh")) {
+    boolean handle(Player player, String title, String action, String payload) throws Exception {
+        if (action.equals("picker.refresh")) {
             views.openPicker(player, title, tracker.page(player.getUniqueId(), title));
             return true;
         }
-        if (display.equals("Page Prev")) {
+        if (action.equals("page.prev")) {
             return turnPage(player, title, -1);
         }
-        if (display.equals("Page Next")) {
+        if (action.equals("page.next")) {
             return turnPage(player, title, 1);
         }
-        if (display.equals("No Players Online")) {
-            return tell(player, "No other players online.");
-        }
-        if (display.equals("No Pending Requests")) {
-            return tell(player, "No pending teleport request.");
-        }
-        if (!(display.startsWith("Player :: ") || display.startsWith("Requester :: "))) {
+        if (!(action.equals("picker.player") || action.equals("picker.requester"))) {
             return false;
         }
-        String target = display.startsWith("Player :: ")
-                ? display.substring("Player :: ".length())
-                : display.substring("Requester :: ".length());
         return switch (title) {
-            case MenuTitles.PICK_TPA -> command(player, "tpa " + target);
-            case MenuTitles.PICK_TPA_HERE -> command(player, "tpahere " + target);
-            case MenuTitles.PICK_TP -> command(player, "tp " + target);
-            case MenuTitles.PICK_TP_ACCEPT -> command(player, "tpaccept " + target);
-            case MenuTitles.PICK_INVITE -> command(player, "team invite " + target);
+            case MenuTitles.PICK_TPA -> command(player, "tpa " + payload);
+            case MenuTitles.PICK_TPA_HERE -> command(player, "tpahere " + payload);
+            case MenuTitles.PICK_TP -> command(player, "tp " + payload);
+            case MenuTitles.PICK_TP_ACCEPT -> command(player, "tpaccept " + payload);
+            case MenuTitles.PICK_INVITE -> command(player, "team invite " + payload);
             default -> false;
         };
     }
@@ -48,11 +39,6 @@ final class PickerActions {
         tracker.setPage(player.getUniqueId(), title, tracker.page(player.getUniqueId(), title) + delta);
         views.openPicker(player, title, tracker.page(player.getUniqueId(), title));
         tracker.setPage(player.getUniqueId(), title, MenuPageStateSync.readCurrentPage(player, tracker.page(player.getUniqueId(), title)));
-        return true;
-    }
-
-    private static boolean tell(Player player, String message) {
-        player.sendMessage(message);
         return true;
     }
 

@@ -15,8 +15,11 @@ final class AchievementMenuSupport {
         int target = Math.max(1, view.definition().target());
         int current = Math.max(0, view.progress());
         int percent = Math.min(100, (int) Math.round((current * 100.0D) / target));
-        return MenuItems.named(
+        String action = view.status() == AchievementStatus.COMPLETED_UNCLAIMED ? "achievement.claim" : "locked";
+        return MenuItems.actionPayload(
                 statusMaterial(view.status()),
+                action,
+                view.definition().key(),
                 view.definition().title(),
                 KEY_PREFIX + view.definition().key(),
                 "Status: " + view.status().name(),

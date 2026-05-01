@@ -17,27 +17,25 @@ final class CoreMenuActions {
 
     boolean handleClick(InventoryClickEvent event, Player player, String title, String display) throws Exception {
         String action = MenuAction.action(event.getCurrentItem());
-        if (!action.isBlank()) {
-            return handleAction(player, title, action, MenuAction.payload(event.getCurrentItem()));
+        if (action.isBlank()) {
+            return false;
         }
+        String payload = MenuAction.payload(event.getCurrentItem());
         return switch (title) {
-            case MenuTitles.TELEPORT -> handleTeleport(player, display);
-            case MenuTitles.HOMES -> handleHomes(player, display);
-            case MenuTitles.HOMES_DELETE -> handleHomesDelete(player, display);
-            case MenuTitles.WARPS -> handleWarps(player, display);
-            case MenuTitles.TEAM -> handleTeam(player, display);
-            case MenuTitles.TEAM_DISBAND_CONFIRM -> handleTeamDisbandConfirm(player, display);
-            case MenuTitles.TP_DECISION -> false;
+            case MenuTitles.TELEPORT -> handleTeleport(player, action);
+            case MenuTitles.HOMES -> handleHomes(player, action, payload);
+            case MenuTitles.HOMES_DELETE -> handleHomesDelete(player, action, payload);
+            case MenuTitles.WARPS -> handleWarps(player, action, payload);
+            case MenuTitles.TEAM -> handleTeam(player, action);
+            case MenuTitles.TEAM_DISBAND_CONFIRM -> handleTeamDisbandConfirm(player, action);
+            case MenuTitles.TP_DECISION -> handleTeleportDecision(player, action, payload);
             case MenuTitles.PICK_TPA, MenuTitles.PICK_TPA_HERE, MenuTitles.PICK_TP, MenuTitles.PICK_TP_ACCEPT, MenuTitles.PICK_INVITE ->
-                    pickerActions.handle(player, title, display);
+                    pickerActions.handle(player, title, action, payload);
             default -> false;
         };
     }
 
-    private boolean handleAction(Player player, String title, String action, String payload) throws Exception {
-        if (action.equals("nav.back") && title.equals(MenuTitles.TP_DECISION)) {
-            return open(player, MenuTitles.TELEPORT);
-        }
+    private boolean handleTeleportDecision(Player player, String action, String payload) {
         if (!action.equals("tpdecision.accept") && !action.equals("tpdecision.deny")) {
             return false;
         }
@@ -50,94 +48,84 @@ final class CoreMenuActions {
         return true;
     }
 
-    private boolean handleTeleport(Player player, String display) throws Exception {
-        return switch (display) {
-            case "Random Teleport" -> command(player, "rtp");
-            case "Request Teleport" -> open(player, MenuTitles.PICK_TPA);
-            case "Request Here" -> open(player, MenuTitles.PICK_TPA_HERE);
-            case "Accept Request" -> command(player, "tpaccept");
-            case "Deny Request" -> command(player, "tpdeny");
-            case "Direct Teleport" -> open(player, MenuTitles.PICK_TP);
-            case "Direct Teleport (Locked)" -> tell(player, "Missing permission: lkjmcsmp.tp.use");
-            case "No Pending Requests" -> tell(player, "No pending teleport request.");
+    private boolean handleTeleport(Player player, String action) throws Exception {
+        return switch (action) {
+            case "teleport.rtp" -> command(player, "rtp");
+            case "teleport.pick.tpa" -> open(player, MenuTitles.PICK_TPA);
+            case "teleport.pick.tpahere" -> open(player, MenuTitles.PICK_TPA_HERE);
+            case "teleport.accept" -> command(player, "tpaccept");
+            case "teleport.deny" -> command(player, "tpdeny");
+            case "teleport.pick.direct" -> open(player, MenuTitles.PICK_TP);
+            case "teleport.direct.locked" -> tell(player, "Missing permission: lkjmcsmp.tp.use");
+            case "teleport.none" -> tell(player, "No pending teleport request.");
             default -> false;
         };
     }
 
-    private boolean handleHomes(Player player, String display) throws Exception {
-        if (display.startsWith("Home :: ")) {
-            return command(player, "home " + display.substring("Home :: ".length()));
-        }
-        return switch (display) {
-            case "Add Current Location" -> {
+    private boolean handleHomes(Player player, String action, String payload) throws Exception {
+        return switch (action) {
+            case "home.teleport" -> command(player, "home " + payload);
+            case "home.addcurrent" -> {
                 command(player, "homes addcurrent");
                 views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
                 yield true;
             }
-            case "Delete Homes" -> {
+            case "home.delete.open" -> {
                 tracker.setPage(player.getUniqueId(), MenuTitles.HOMES_DELETE, 0);
                 views.openHomesDelete(player, 0);
                 yield true;
             }
-            case "No Homes Set" -> tell(player, "No homes set.");
-            case "Page Prev" -> turnPage(player, MenuTitles.HOMES, -1);
-            case "Page Next" -> turnPage(player, MenuTitles.HOMES, 1);
+            case "page.prev" -> turnPage(player, MenuTitles.HOMES, -1);
+            case "page.next" -> turnPage(player, MenuTitles.HOMES, 1);
             default -> false;
         };
     }
 
-    private boolean handleHomesDelete(Player player, String display) throws Exception {
-        if (display.startsWith("Delete Home :: ")) {
-            String name = display.substring("Delete Home :: ".length());
-            command(player, "delhome " + name);
-            views.openHomesDelete(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES_DELETE));
-            return true;
-        }
-        return switch (display) {
-            case "Cancel Deletion" -> {
+    private boolean handleHomesDelete(Player player, String action, String payload) throws Exception {
+        return switch (action) {
+            case "home.delete" -> {
+                command(player, "delhome " + payload);
+                views.openHomesDelete(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES_DELETE));
+                yield true;
+            }
+            case "home.delete.cancel" -> {
                 views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
                 yield true;
             }
-            case "No Homes Set" -> tell(player, "No homes set.");
-            case "Page Prev" -> turnPage(player, MenuTitles.HOMES_DELETE, -1);
-            case "Page Next" -> turnPage(player, MenuTitles.HOMES_DELETE, 1);
+            case "page.prev" -> turnPage(player, MenuTitles.HOMES_DELETE, -1);
+            case "page.next" -> turnPage(player, MenuTitles.HOMES_DELETE, 1);
             default -> false;
         };
     }
 
-    private boolean handleWarps(Player player, String display) throws Exception {
-        if (display.startsWith("Warp :: ")) {
-            return command(player, "warp " + display.substring("Warp :: ".length()));
-        }
-        return switch (display) {
-            case "No Warps Set" -> tell(player, "No warps set.");
-            case "Page Prev" -> turnPage(player, MenuTitles.WARPS, -1);
-            case "Page Next" -> turnPage(player, MenuTitles.WARPS, 1);
+    private boolean handleWarps(Player player, String action, String payload) throws Exception {
+        return switch (action) {
+            case "warp.teleport" -> command(player, "warp " + payload);
+            case "page.prev" -> turnPage(player, MenuTitles.WARPS, -1);
+            case "page.next" -> turnPage(player, MenuTitles.WARPS, 1);
             default -> false;
         };
     }
 
-    private boolean handleTeam(Player player, String display) throws Exception {
-        if (display.endsWith("(Locked)")) {
-            return tell(player, "Action is locked. Read the item description for details.");
-        }
-        return switch (display) {
-            case "Team Info" -> open(player, MenuTitles.TEAM);
-            case "Create Team" -> commandAndRefreshTeam(player, "team create");
-            case "Invite Player" -> open(player, MenuTitles.PICK_INVITE);
-            case "Accept Invite" -> commandAndRefreshTeam(player, "team accept");
-            case "Leave Team" -> commandAndRefreshTeam(player, "team leave");
-            case "Team Home" -> command(player, "team home");
-            case "Set Team Home" -> commandAndRefreshTeam(player, "team sethome");
-            case "Disband Team" -> open(player, MenuTitles.TEAM_DISBAND_CONFIRM);
+    private boolean handleTeam(Player player, String action) throws Exception {
+        return switch (action) {
+            case "locked" -> tell(player, "Action is locked. Read the item description for details.");
+            case "team.info" -> open(player, MenuTitles.TEAM);
+            case "team.create" -> commandAndRefreshTeam(player, "team create");
+            case "team.invite" -> open(player, MenuTitles.PICK_INVITE);
+            case "team.accept" -> commandAndRefreshTeam(player, "team accept");
+            case "team.leave" -> commandAndRefreshTeam(player, "team leave");
+            case "team.home" -> command(player, "team home");
+            case "team.sethome" -> commandAndRefreshTeam(player, "team sethome");
+            case "team.disband.open" -> open(player, MenuTitles.TEAM_DISBAND_CONFIRM);
             default -> false;
         };
     }
 
-    private boolean handleTeamDisbandConfirm(Player player, String display) throws Exception {
-        return switch (display) {
-            case "Confirm Disband" -> commandAndRefreshTeam(player, "team disband");
-            case "Cancel", "Disband Unavailable" -> open(player, MenuTitles.TEAM);
+    private boolean handleTeamDisbandConfirm(Player player, String action) throws Exception {
+        return switch (action) {
+            case "team.disband.confirm" -> commandAndRefreshTeam(player, "team disband");
+            case "team.disband.cancel" -> open(player, MenuTitles.TEAM);
             default -> false;
         };
     }

@@ -31,8 +31,10 @@ final class ProfileMenuView {
         try {
             var partyId = partyService.getPartyId(player.getUniqueId());
             boolean leader = partyId.isPresent() && partyService.isLeader(player.getUniqueId());
-            inventory.setItem(12, MenuItems.playerHead(
+            inventory.setItem(12, MenuItems.playerHeadActionPayload(
                     player,
+                    "profile.team",
+                    "",
                     "Team",
                     "Party: " + partyId.orElse("<none>"),
                     "Role: " + (leader ? "leader" : partyId.isPresent() ? "member" : "none"),
@@ -45,7 +47,7 @@ final class ProfileMenuView {
             Map<String, AchievementService.AchievementView> views = achievementService.getViews(player.getUniqueId());
             long completed = views.values().stream().filter(v -> v.status().name().startsWith("COMPLETED")).count();
             long inProgress = views.values().stream().filter(v -> v.status().name().equals("IN_PROGRESS")).count();
-            inventory.setItem(14, MenuItems.named(Material.BOOK, "Achievements",
+            inventory.setItem(14, MenuItems.action(Material.BOOK, "profile.achievements", "Achievements",
                     "Completed: " + completed + "/" + views.size(),
                     "In progress: " + inProgress,
                     "Click to open Achievement menu"));
@@ -56,7 +58,7 @@ final class ProfileMenuView {
         int minutes = player.getStatistic(org.bukkit.Statistic.PLAY_ONE_MINUTE) / 20 / 60;
         inventory.setItem(16, MenuItems.named(Material.CLOCK, "Playtime", "Total: " + minutes + " minutes"));
 
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.PROFILE_BORDER);
         player.openInventory(inventory);
     }

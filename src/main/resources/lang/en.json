@@ -30,7 +30,7 @@
   "menu.language.japanese": "Japanese",
   "settings.hotbar.enabled": "Hotbar menu item enabled.",
   "settings.hotbar.disabled": "Hotbar menu item disabled.",
-  "settings.language.changed": "Language changed to English.",
+  "settings.language.changed": "Language changed to {language}.",
   "settings.language.changed.ja": "言語を日本語に変更しました。",
   "teleport.request.open": "Open Request",
   "teleport.request.sent": "Request sent to {target}.",

@@ -22,7 +22,8 @@ final class PlayerPickerMenuView {
         int slotIdx = 0;
         for (Player online : MenuPagination.pageSlice(players, bounded)) {
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.playerHead(online, "Player :: " + online.getName(), actionHint));
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.playerHeadActionPayload(
+                        online, "picker.player", online.getName(), "Player :: " + online.getName(), actionHint));
             }
             slotIdx++;
         }
@@ -30,10 +31,10 @@ final class PlayerPickerMenuView {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Players Online"));
         }
         if (showRefreshControl) {
-            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.action(Material.SUNFLOWER, "picker.refresh", "Refresh"));
         }
         MenuPagination.renderControls(inventory, bounded, players.size());
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.PICKER_BORDER);
         player.openInventory(inventory);
     }
@@ -55,8 +56,10 @@ final class PlayerPickerMenuView {
                 continue;
             }
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.playerHead(
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.playerHeadActionPayload(
                         requester,
+                        "picker.requester",
+                        requester.getName(),
                         "Requester :: " + requester.getName(),
                         request.summonHere() ? "Requested /tpahere" : "Requested /tpa"));
             }
@@ -66,10 +69,10 @@ final class PlayerPickerMenuView {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Pending Requests"));
         }
         if (showRefreshControl) {
-            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(Material.SUNFLOWER, "Refresh"));
+            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.action(Material.SUNFLOWER, "picker.refresh", "Refresh"));
         }
         MenuPagination.renderControls(inventory, bounded, onlineRequests.size());
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.PICKER_BORDER);
         player.openInventory(inventory);
     }

@@ -28,19 +28,21 @@ final class TeamMenuView {
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
                 "Team", "Party: " + partyId.orElse("<none>")));
 
-        inventory.setItem(10, MenuItems.playerHead(
+        inventory.setItem(10, MenuItems.playerHeadActionPayload(
                 player,
+                "team.info",
+                "",
                 "Team Info",
                 "Party: " + partyId.orElse("<none>"),
                 "Role: " + (leader ? "leader" : inTeam ? "member" : "none"),
                 "Members: " + memberList.size()));
-        inventory.setItem(12, actionItem(!inTeam, Material.CRAFTING_TABLE, "Create Team", "Runs /team create", "Leave your current team first."));
-        inventory.setItem(13, actionItem(!inTeam, Material.LIME_DYE, "Accept Invite", "Runs /team accept", "Leave your current team first."));
-        inventory.setItem(14, actionItem(leader, Material.NAME_TAG, "Invite Player", "Runs /team invite <player>", inTeam ? "Only leaders can invite players." : "Join or create a team first."));
-        inventory.setItem(15, actionItem(inTeam, Material.ENDER_PEARL, "Team Home", "Runs /team home", "Join or create a team first."));
-        inventory.setItem(16, actionItem(leader, Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome", inTeam ? "Only leaders can set team home." : "Join or create a team first."));
-        inventory.setItem(21, actionItem(inTeam, Material.BARRIER, "Leave Team", "Runs /team leave", "Join or create a team first."));
-        inventory.setItem(25, actionItem(leader, Material.TNT, "Disband Team", "Runs /team disband", inTeam ? "Only leaders can disband teams." : "Join or create a team first."));
+        inventory.setItem(12, actionItem(!inTeam, "team.create", Material.CRAFTING_TABLE, "Create Team", "Runs /team create", "Leave your current team first."));
+        inventory.setItem(13, actionItem(!inTeam, "team.accept", Material.LIME_DYE, "Accept Invite", "Runs /team accept", "Leave your current team first."));
+        inventory.setItem(14, actionItem(leader, "team.invite", Material.NAME_TAG, "Invite Player", "Runs /team invite <player>", inTeam ? "Only leaders can invite players." : "Join or create a team first."));
+        inventory.setItem(15, actionItem(inTeam, "team.home", Material.ENDER_PEARL, "Team Home", "Runs /team home", "Join or create a team first."));
+        inventory.setItem(16, actionItem(leader, "team.sethome", Material.RESPAWN_ANCHOR, "Set Team Home", "Runs /team sethome", inTeam ? "Only leaders can set team home." : "Join or create a team first."));
+        inventory.setItem(21, actionItem(inTeam, "team.leave", Material.BARRIER, "Leave Team", "Runs /team leave", "Join or create a team first."));
+        inventory.setItem(25, actionItem(leader, "team.disband.open", Material.TNT, "Disband Team", "Runs /team disband", inTeam ? "Only leaders can disband teams." : "Join or create a team first."));
 
         int memberSlotIdx = 0;
         int[] memberSlots = {28, 29, 30, 31, 32, 33, 34};
@@ -60,7 +62,7 @@ final class TeamMenuView {
             memberSlotIdx++;
         }
 
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.TEAM_BORDER);
         player.openInventory(inventory);
     }
@@ -76,8 +78,8 @@ final class TeamMenuView {
                     Material.BARRIER,
                     "Disband Unavailable",
                     "Only current team leaders can disband."));
-            inventory.setItem(32, MenuItems.named(Material.RED_DYE, "Cancel"));
-            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+            inventory.setItem(32, MenuItems.action(Material.RED_DYE, "team.disband.cancel", "Cancel"));
+            inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
             MenuDecor.fillBorder(inventory, MenuDecor.TEAM_BORDER);
             player.openInventory(inventory);
             return;
@@ -88,16 +90,16 @@ final class TeamMenuView {
                 "Team: " + partyId.get(),
                 "This removes all team memberships and team home.",
                 "This action cannot be undone."));
-        inventory.setItem(30, MenuItems.named(Material.TNT, "Confirm Disband"));
-        inventory.setItem(32, MenuItems.named(Material.RED_DYE, "Cancel"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(30, MenuItems.action(Material.TNT, "team.disband.confirm", "Confirm Disband"));
+        inventory.setItem(32, MenuItems.action(Material.RED_DYE, "team.disband.cancel", "Cancel"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.TEAM_BORDER);
         player.openInventory(inventory);
     }
 
-    private static ItemStack actionItem(boolean enabled, Material material, String name, String commandLore, String lockedReason) {
+    private static ItemStack actionItem(boolean enabled, String action, Material material, String name, String commandLore, String lockedReason) {
         return enabled
-                ? MenuItems.named(material, name, commandLore)
-                : MenuItems.named(Material.GRAY_DYE, name + " (Locked)", lockedReason);
+                ? MenuItems.action(material, action, name, commandLore)
+                : MenuItems.action(Material.GRAY_DYE, "locked", name + " (Locked)", lockedReason);
     }
 }

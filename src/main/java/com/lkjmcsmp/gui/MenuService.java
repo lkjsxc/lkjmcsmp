@@ -92,14 +92,12 @@ public final class MenuService {
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         String display = displayName(event);
+        String action = MenuAction.action(event.getCurrentItem());
         if (isInert(event, display)) {
             return;
         }
         try {
-            if (MenuTitles.ROOT.equals(title) && topLevelActions.handleClick(event, player, title, display)) {
-                return;
-            }
-            if (display.equals("Back")) {
+            if (action.equals("nav.back")) {
                 if (!coreMenus.openBack(player, title)) {
                     if (MenuTitles.SHOP_DETAIL.equals(title)) {
                         topLevelViews.openShop(player, topLevelActions.shopPage(player.getUniqueId()));
@@ -109,6 +107,9 @@ public final class MenuService {
                         openRoot(player);
                     }
                 }
+                return;
+            }
+            if (action.isBlank()) {
                 return;
             }
             if (topLevelActions.handleClick(event, player, title, display)) {

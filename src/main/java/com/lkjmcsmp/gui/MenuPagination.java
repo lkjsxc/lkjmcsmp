@@ -27,12 +27,14 @@ final class MenuPagination {
     static void renderControls(Inventory inventory, int page, int itemCount) {
         int bounded = clampPage(page, itemCount);
         int max = maxPage(itemCount);
-        inventory.setItem(MenuLayout.PREV_PAGE_SLOT, MenuItems.named(
+        inventory.setItem(MenuLayout.PREV_PAGE_SLOT, MenuItems.action(
                 bounded > 0 ? Material.ARROW : Material.GRAY_DYE,
+                "page.prev",
                 "Page Prev",
                 bounded > 0 ? "Open previous page" : "Already at first page"));
-        inventory.setItem(MenuLayout.NEXT_PAGE_SLOT, MenuItems.named(
+        inventory.setItem(MenuLayout.NEXT_PAGE_SLOT, MenuItems.action(
                 bounded < max ? Material.ARROW : Material.GRAY_DYE,
+                "page.next",
                 "Page Next",
                 bounded < max ? "Open next page" : "Already at last page"));
         inventory.setItem(MenuLayout.PAGE_INFO_SLOT, MenuItems.named(

@@ -30,28 +30,28 @@ final class ShopActions {
         this.state = state;
     }
 
-    boolean handleShop(Player player, String display) throws Exception {
+    boolean handleShop(Player player, String action, String payload) throws Exception {
         UUID playerId = player.getUniqueId();
-        if (display.equals("Convert Cobblestone")) {
+        if (action.equals("shop.convert")) {
             convertAllCobblestone(player);
             return true;
         }
-        if (display.equals("Page Prev")) {
+        if (action.equals("page.prev")) {
             state.setShopPage(playerId, Math.max(0, state.shopPage(playerId) - 1));
             views.openShop(player, state.shopPage(playerId));
             state.setShopPage(playerId, MenuPageStateSync.readCurrentPage(player, state.shopPage(playerId)));
             return true;
         }
-        if (display.equals("Page Next")) {
+        if (action.equals("page.next")) {
             state.setShopPage(playerId, state.shopPage(playerId) + 1);
             views.openShop(player, state.shopPage(playerId));
             state.setShopPage(playerId, MenuPageStateSync.readCurrentPage(player, state.shopPage(playerId)));
             return true;
         }
-        if (!display.startsWith("Item :: ")) {
+        if (!action.equals("shop.select")) {
             return false;
         }
-        String key = display.substring("Item :: ".length()).trim().toLowerCase();
+        String key = payload.trim().toLowerCase();
         if (!pointsService.getShopItems().containsKey(key)) {
             player.sendMessage("Unknown shop item.");
             return true;
@@ -61,17 +61,17 @@ final class ShopActions {
         return true;
     }
 
-    boolean handleShopDetail(Player player, String display) throws Exception {
-        if (display.equals("Purchase")) {
+    boolean handleShopDetail(Player player, String action, String payload) throws Exception {
+        if (action.equals("shop.purchase.service")) {
             buySelected(player, 1);
             return true;
         }
-        if (!display.startsWith("Buy x")) {
+        if (!action.equals("shop.purchase.quantity")) {
             return false;
         }
         int quantity;
         try {
-            quantity = Integer.parseInt(display.substring("Buy x".length()));
+            quantity = Integer.parseInt(payload);
         } catch (NumberFormatException ex) {
             return false;
         }

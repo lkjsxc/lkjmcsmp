@@ -30,7 +30,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.time.Duration;
 import java.util.Objects;
-import java.util.Set;
 
 public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
@@ -84,9 +83,10 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         PartyDao partyDao = new PartyDao(database);
         AchievementDao achievementDao = new AchievementDao(database);
         AuditDao auditDao = new AuditDao(database);
+        MessageService.LanguageRegistry languages = MessageService.loadRegistry(this);
         PlayerSettingsService settingsService = new PlayerSettingsService(
-                new PlayerSettingsDao(database), Set.of("en", "ja"));
-        MessageService messageService = new MessageService(this, settingsService);
+                new PlayerSettingsDao(database), languages.codes(), languages.defaultLanguage());
+        MessageService messageService = new MessageService(this, settingsService, languages);
 
         FileConfiguration shopConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
         FileConfiguration achievementsConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "achievements.yml"));

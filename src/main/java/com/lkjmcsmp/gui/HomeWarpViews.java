@@ -26,8 +26,10 @@ final class HomeWarpViews {
         int slotIdx = 0;
         for (var home : MenuPagination.pageSlice(homes, bounded)) {
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.actionPayload(
                         Material.RED_BED,
+                        "home.teleport",
+                        home.name(),
                         "Home :: " + home.name(),
                         "Run /home " + home.name()));
             }
@@ -36,16 +38,18 @@ final class HomeWarpViews {
         if (homes.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Homes Set"));
         }
-        inventory.setItem(MenuLayout.CONTEXT_SLOT, MenuItems.named(
+        inventory.setItem(MenuLayout.CONTEXT_SLOT, MenuItems.action(
                 Material.RESPAWN_ANCHOR,
+                "home.addcurrent",
                 "Add Current Location",
                 "Runs /homes addcurrent"));
-        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(
+        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.action(
                 Material.BARRIER,
+                "home.delete.open",
                 "Delete Homes",
                 "Open dedicated deletion page"));
         MenuPagination.renderControls(inventory, bounded, homes.size());
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.HOMES_BORDER);
         player.openInventory(inventory);
     }
@@ -58,8 +62,10 @@ final class HomeWarpViews {
         int slotIdx = 0;
         for (var home : MenuPagination.pageSlice(homes, bounded)) {
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.actionPayload(
                         Material.TNT,
+                        "home.delete",
+                        home.name(),
                         "Delete Home :: " + home.name(),
                         "Delete /home " + home.name()));
             }
@@ -68,12 +74,13 @@ final class HomeWarpViews {
         if (homes.isEmpty()) {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Homes Set"));
         }
-        inventory.setItem(MenuLayout.CONTEXT_SLOT, MenuItems.named(
+        inventory.setItem(MenuLayout.CONTEXT_SLOT, MenuItems.action(
                 Material.RED_DYE,
+                "home.delete.cancel",
                 "Cancel Deletion",
                 "Return to Homes"));
         MenuPagination.renderControls(inventory, bounded, homes.size());
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.HOMES_BORDER);
         player.openInventory(inventory);
     }
@@ -86,8 +93,10 @@ final class HomeWarpViews {
         int slotIdx = 0;
         for (var warp : MenuPagination.pageSlice(warps, bounded)) {
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.named(
+                inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], MenuItems.actionPayload(
                         Material.COMPASS,
+                        "warp.teleport",
+                        warp.name(),
                         "Warp :: " + warp.name(),
                         "Run /warp " + warp.name()));
             }
@@ -97,7 +106,7 @@ final class HomeWarpViews {
             inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Warps Set"));
         }
         MenuPagination.renderControls(inventory, bounded, warps.size());
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.WARPS_BORDER);
         player.openInventory(inventory);
     }

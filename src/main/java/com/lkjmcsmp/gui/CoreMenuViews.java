@@ -93,22 +93,25 @@ final class CoreMenuViews {
         boolean pending = pendingCount > 0;
         boolean canDirect = player.hasPermission("lkjmcsmp.tp.use");
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Teleport"));
-        inventory.setItem(10, MenuItems.named(Material.ENDER_PEARL, "Random Teleport", "Runs /rtp"));
-        inventory.setItem(11, MenuItems.named(Material.COMPASS, "Request Teleport", "Pick target for /tpa"));
-        inventory.setItem(12, MenuItems.named(Material.RECOVERY_COMPASS, "Request Here", "Pick target for /tpahere"));
-        inventory.setItem(13, MenuItems.named(
+        inventory.setItem(10, MenuItems.action(Material.ENDER_PEARL, "teleport.rtp", "Random Teleport", "Runs /rtp"));
+        inventory.setItem(11, MenuItems.action(Material.COMPASS, "teleport.pick.tpa", "Request Teleport", "Pick target for /tpa"));
+        inventory.setItem(12, MenuItems.action(Material.RECOVERY_COMPASS, "teleport.pick.tpahere", "Request Here", "Pick target for /tpahere"));
+        inventory.setItem(13, MenuItems.action(
                 pending ? Material.LIME_DYE : Material.GRAY_DYE,
+                pending ? "teleport.accept" : "teleport.none",
                 pending ? "Accept Request" : "No Pending Requests",
                 pendingCount > 1 ? "Runs /tpaccept (opens requester picker)" : "Runs /tpaccept"));
-        inventory.setItem(14, MenuItems.named(
+        inventory.setItem(14, MenuItems.action(
                 pending ? Material.RED_DYE : Material.GRAY_DYE,
+                pending ? "teleport.deny" : "teleport.none",
                 pending ? "Deny Request" : "No Pending Requests",
                 "Runs /tpdeny"));
-        inventory.setItem(15, MenuItems.named(
+        inventory.setItem(15, MenuItems.action(
                 canDirect ? Material.DIAMOND_SWORD : Material.GRAY_DYE,
+                canDirect ? "teleport.pick.direct" : "teleport.direct.locked",
                 canDirect ? "Direct Teleport" : "Direct Teleport (Locked)",
                 "Runs /tp <player>"));
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.named(Material.ARROW, "Back"));
+        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.TELEPORT_BORDER);
         player.openInventory(inventory);
     }
