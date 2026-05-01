@@ -24,6 +24,8 @@ Expose `/menu` through a deterministic right-end hotbar control.
 7. Non-token item interactions never open the menu, even when slot `8` currently contains a valid token.
 8. Tokens outside slot `8` are stale duplicates; interacting with them only cancels movement and schedules cleanup.
 9. Inventory click handling may open the menu only for direct slot `8` token interaction.
+10. Slot `8` means the player inventory hotbar index, never a global/raw inventory-view slot number.
+11. Number-key swaps involving hotbar slot `8` are cancelled and resynced, but do not open the menu.
 
 ## Failure Contract
 

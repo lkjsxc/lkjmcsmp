@@ -108,8 +108,9 @@ public final class HotbarMenuListener implements Listener {
             return;
         }
         hotbarMenuService.ensureInstalled(player);
-        int playerHotbarRawSlot = event.getView().getTopInventory().getSize() + HotbarMenuService.HOTBAR_SLOT;
-        boolean reservedSlotClick = event.getRawSlot() == playerHotbarRawSlot;
+        boolean reservedSlotClick = event.getClickedInventory() != null
+                && event.getClickedInventory().equals(player.getInventory())
+                && event.getSlot() == HotbarMenuService.HOTBAR_SLOT;
         boolean reservedSlotNumberKey = event.getClick() == ClickType.NUMBER_KEY
                 && event.getHotbarButton() == HotbarMenuService.HOTBAR_SLOT;
         boolean reservedSlotHasToken = hotbarMenuService.isToken(player.getInventory().getItem(HotbarMenuService.HOTBAR_SLOT));
@@ -119,7 +120,7 @@ public final class HotbarMenuListener implements Listener {
                 && event.getHotbarButton() >= 0
                 && hotbarMenuService.isToken(player.getInventory().getItem(event.getHotbarButton()));
         boolean staleTokenInteraction = clickedToken || cursorToken || numberKeyUsesToken;
-        boolean opensReservedToken = reservedSlotHasToken && (reservedSlotClick || reservedSlotNumberKey);
+        boolean opensReservedToken = reservedSlotHasToken && reservedSlotClick;
         if (!hotbarMenuService.isEnabled(player)) {
             if (staleTokenInteraction || reservedSlotHasToken) {
                 event.setCancelled(true);
@@ -140,8 +141,11 @@ public final class HotbarMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
-        int playerHotbarRawSlot = event.getView().getTopInventory().getSize() + HotbarMenuService.HOTBAR_SLOT;
-        if (!event.getRawSlots().contains(playerHotbarRawSlot)) {
+        int topSize = event.getView().getTopInventory().getSize();
+        boolean touchesReservedSlot = event.getRawSlots().stream()
+                .anyMatch(rawSlot -> rawSlot >= topSize
+                        && event.getView().convertSlot(rawSlot) == HotbarMenuService.HOTBAR_SLOT);
+        if (!touchesReservedSlot) {
             return;
         }
         event.setCancelled(true);
