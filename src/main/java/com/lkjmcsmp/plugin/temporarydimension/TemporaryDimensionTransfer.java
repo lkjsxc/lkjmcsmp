@@ -10,8 +10,11 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -99,19 +102,69 @@ public final class TemporaryDimensionTransfer {
         return new NamedLocation("", loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
     }
 
-    public void evacuateAll(TemporaryDimensionInstance instance) {
+    public void evacuateAll(TemporaryDimensionInstance instance, Runnable callback) {
+        schedulerBridge.runAsyncTask(() -> {
+            Map<UUID, NamedLocation> tracked = new HashMap<>();
+            try {
+                for (var participant : temporaryDimensionDao.listParticipants(instance.instanceId())) {
+                    tracked.put(participant.playerUuid(), participant.location());
+                }
+            } catch (Exception e) {
+                logger.warning("Failed to load temporary dimension participants: " + e.getMessage());
+            }
+            schedulerBridge.runGlobalTask(() -> scheduleEvacuation(instance, tracked, callback));
+        });
+    }
+
+    private void scheduleEvacuation(TemporaryDimensionInstance instance, Map<UUID, NamedLocation> tracked,
+                                    Runnable callback) {
         World world = Bukkit.getWorld(instance.worldName());
-        if (world == null) return;
-        for (Player player : world.getPlayers()) {
-            schedulerBridge.runPlayerTask(player, () -> returnPlayer(player, instance.origin()));
+        if (world == null) {
+            callback.run();
+            return;
+        }
+        List<Player> occupants = new ArrayList<>(world.getPlayers());
+        if (occupants.isEmpty()) {
+            callback.run();
+            return;
+        }
+        AtomicInteger remaining = new AtomicInteger(occupants.size());
+        for (Player player : occupants) {
+            NamedLocation origin = tracked.get(player.getUniqueId());
+            schedulerBridge.runPlayerTask(player, () -> returnPlayer(player, instance.instanceId(), origin, () -> {
+                if (remaining.decrementAndGet() == 0) {
+                    schedulerBridge.runGlobalTask(callback);
+                }
+            }));
         }
     }
 
-    private void returnPlayer(Player player, NamedLocation origin) {
-        if (!player.isOnline()) return;
+    private void returnPlayer(Player player, String instanceId, NamedLocation origin, Runnable callback) {
+        if (!player.isOnline()) {
+            callback.run();
+            return;
+        }
+        Location loc = origin == null ? Bukkit.getWorlds().get(0).getSpawnLocation() : toBukkit(origin);
+        player.teleportAsync(loc).whenComplete((ok, ex) -> {
+            if (origin != null && ex == null && Boolean.TRUE.equals(ok)) {
+                schedulerBridge.runAsyncTask(() -> deleteParticipant(instanceId, player.getUniqueId()));
+            }
+            callback.run();
+        });
+    }
+
+    private Location toBukkit(NamedLocation origin) {
         World ow = Bukkit.getWorld(origin.world());
         if (ow == null) ow = Bukkit.getWorlds().get(0);
-        Location loc = new Location(ow, origin.x(), origin.y(), origin.z(), origin.yaw(), origin.pitch());
-        player.teleportAsync(loc);
+        return new Location(ow, origin.x(), origin.y(), origin.z(), origin.yaw(), origin.pitch());
+    }
+
+    private void deleteParticipant(String instanceId, UUID playerId) {
+        try {
+            temporaryDimensionDao.deleteParticipant(instanceId, playerId);
+            temporaryDimensionDao.deleteClosedInstanceIfNoParticipants(instanceId);
+        } catch (Exception e) {
+            logger.warning("Failed to delete returned participant: " + e.getMessage());
+        }
     }
 }

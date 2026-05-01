@@ -3,11 +3,8 @@ package com.lkjmcsmp.persistence;
 import com.lkjmcsmp.domain.model.InstanceLifecycle;
 import com.lkjmcsmp.domain.model.NamedLocation;
 import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
-import org.bukkit.World;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +68,7 @@ public final class TemporaryDimensionDao {
             statement.setString(1, state.name());
             try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
-                    results.add(mapInstance(rs));
+                    results.add(TemporaryDimensionMapper.instance(rs));
                 }
             }
         }
@@ -104,6 +101,25 @@ public final class TemporaryDimensionDao {
             statement.setString(1, instanceId);
             statement.executeUpdate();
         }
+    }
+
+    public List<ParticipantRecord> listParticipants(String instanceId) throws Exception {
+        List<ParticipantRecord> results = new ArrayList<>();
+        try (var connection = database.open();
+             PreparedStatement statement = connection.prepareStatement("""
+                     SELECT player_uuid, return_world, return_x, return_y, return_z, return_yaw, return_pitch
+                     FROM temporary_dimension_participants WHERE instance_id = ?
+                     """)) {
+            statement.setString(1, instanceId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    results.add(new ParticipantRecord(
+                            UUID.fromString(rs.getString("player_uuid")),
+                            TemporaryDimensionMapper.location(rs, "return_")));
+                }
+            }
+        }
+        return results;
     }
 
     public List<ParticipantReturn> findPendingReturns(UUID playerUuid) throws Exception {
@@ -142,10 +158,7 @@ public final class TemporaryDimensionDao {
             statement.setString(1, playerUuid.toString());
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new NamedLocation("", rs.getString("return_world"),
-                            rs.getDouble("return_x"), rs.getDouble("return_y"),
-                            rs.getDouble("return_z"), rs.getFloat("return_yaw"),
-                            rs.getFloat("return_pitch")));
+                    return Optional.of(TemporaryDimensionMapper.location(rs, "return_"));
                 }
             }
         }
@@ -162,27 +175,25 @@ public final class TemporaryDimensionDao {
         }
     }
 
-    private static TemporaryDimensionInstance mapInstance(ResultSet rs) throws Exception {
-        World.Environment env;
-        try {
-            env = World.Environment.valueOf(rs.getString("environment"));
-        } catch (Exception e) {
-            env = World.Environment.THE_END;
+    public void deleteClosedInstanceIfNoParticipants(String instanceId) throws Exception {
+        try (var connection = database.open()) {
+            try (PreparedStatement count = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM temporary_dimension_participants WHERE instance_id = ?")) {
+                count.setString(1, instanceId);
+                try (ResultSet rs = count.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        return;
+                    }
+                }
+            }
+            try (PreparedStatement delete = connection.prepareStatement(
+                    "DELETE FROM temporary_dimension_instances WHERE instance_id = ? AND state = 'CLOSED'")) {
+                delete.setString(1, instanceId);
+                delete.executeUpdate();
+            }
         }
-        return new TemporaryDimensionInstance(
-                rs.getString("instance_id"),
-                rs.getString("world_name"),
-                UUID.fromString(rs.getString("creator_uuid")),
-                env,
-                new NamedLocation("", rs.getString("origin_world"),
-                        rs.getDouble("origin_x"), rs.getDouble("origin_y"),
-                        rs.getDouble("origin_z"), rs.getFloat("origin_yaw"),
-                        rs.getFloat("origin_pitch")),
-                Instant.parse(rs.getString("creation_time")),
-                Instant.parse(rs.getString("expiration_time")),
-                InstanceLifecycle.valueOf(rs.getString("state")));
     }
 
-    public record ParticipantReturn(String instanceId, NamedLocation location) {
-    }
+    public record ParticipantReturn(String instanceId, NamedLocation location) { }
+    public record ParticipantRecord(UUID playerUuid, NamedLocation location) { }
 }

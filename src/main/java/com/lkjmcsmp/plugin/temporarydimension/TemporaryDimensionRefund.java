@@ -17,8 +17,7 @@ final class TemporaryDimensionRefund {
         try {
             temporaryDimensionDao.updateState(instanceId, InstanceLifecycle.CLOSED);
             if (deleted) {
-                temporaryDimensionDao.deleteParticipantsByInstance(instanceId);
-                temporaryDimensionDao.deleteInstance(instanceId);
+                temporaryDimensionDao.deleteClosedInstanceIfNoParticipants(instanceId);
             }
             logger.info("Cleaned up temporary dimension instance " + instanceId);
         } catch (Exception e) {
