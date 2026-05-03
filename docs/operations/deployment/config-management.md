@@ -21,8 +21,15 @@
 - `teleport.rtp-max-radius` (default `100000`)
 - `teleport.rtp-attempts`
 - `teleport.rtp-world-whitelist`
-- `teleport.first-join.enabled`
-- `teleport.first-join.world`
+- `teleport.initial-trigger.enabled`
+- `teleport.initial-trigger.trigger-world`
+- `teleport.initial-trigger.target-world`
+- `teleport.initial-trigger.center-x`
+- `teleport.initial-trigger.center-z`
+- `teleport.initial-trigger.trigger-radius-blocks`
+- `teleport.initial-trigger.countdown-seconds`
+- `teleport.initial-trigger.cancel-on-exit`
+- `teleport.initial-trigger.once-per-player`
 
 ## Menu Refresh Contract
 

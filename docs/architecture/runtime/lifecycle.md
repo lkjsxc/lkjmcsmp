@@ -8,7 +8,7 @@
 4. Bootstrap `TemporaryDimensionManager` and run startup recovery for active instances.
 5. Register commands.
 6. Register GUI listeners (inventory + hotbar menu entrypoint).
-7. Register teleport override and first-join listeners.
+7. Register teleport override and initial trigger RTP listeners.
 8. Construct `ActionBarRouter` with scheduler bridge + points dependencies.
 9. Register HUD listeners for join/quit and combat triggers.
 10. Prime idle HUD state for already-online players and start per-player periodic tasks.

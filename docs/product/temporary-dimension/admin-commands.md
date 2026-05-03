@@ -7,7 +7,7 @@ Operators can inspect and forcibly close active temporary dimension instances.
 ## Commands
 
 - `/tempdim list` — list active instances.
-- `/tempdim info <id>` — show instance details (creator, remaining time, state, participant count, world, environment).
+- `/tempdim info <id>` — show instance details (creator, remaining time, state, participant counts by state, world, environment).
 - `/tempdim forceclose <id>` — immediately expire and clean up an instance.
 
 ## Permissions

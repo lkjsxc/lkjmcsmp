@@ -29,7 +29,7 @@ Extended smoke suite:
 - Teleport request creation emits requester and target notifications.
 - Teleport stability delay enforces movement radius and emits cancellation when exceeded.
 - RTP path does not emit thread-context failure errors in server logs.
-- First-join RTP marker state persists once per UUID.
+- Initial trigger RTP completion state persists once per UUID.
 - Hotbar slot `8` opens root menu on click/use.
 - Hotbar menu item drop intent does not lose item and opens root menu.
 - Hotbar slot `8` token cannot be moved by inventory manipulation vectors.
@@ -64,6 +64,7 @@ Extended smoke suite:
 - Temporary dimension creation respects the shop entry `environment` value (`THE_END`, `NETHER`, `NORMAL`).
 - Temporary dimension purchase success is reported only after creator teleport succeeds; failures refund the exact deducted points.
 - Temporary dimension closed rows survive until offline participant pending returns are consumed.
+- Failed pending temporary-dimension transfers do not leave active participant rows.
 - GUI action routing uses `lkjmcsmp:menu_action` metadata and does not branch on translated display labels.
 - Language selector options are loaded from `lang/languages.yml`.
 - Empty-hand right-click on stairs creates a seat and cleanup removes it on dismount/quit/death/teleport/block break.

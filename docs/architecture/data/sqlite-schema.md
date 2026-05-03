@@ -90,7 +90,7 @@
 - `after_json` TEXT NOT NULL
 - `created_at` TEXT NOT NULL
 
-### `first_join_rtp`
+### `initial_rtp_completed`
 
 - `player_uuid` TEXT PRIMARY KEY
 - `completed_at` TEXT NOT NULL
@@ -122,10 +122,19 @@
 
 - `instance_id` TEXT NOT NULL
 - `player_uuid` TEXT NOT NULL
+- `state` TEXT NOT NULL
 - `return_world` TEXT NOT NULL
 - `return_x` REAL NOT NULL
 - `return_y` REAL NOT NULL
 - `return_z` REAL NOT NULL
 - `return_yaw` REAL NOT NULL
 - `return_pitch` REAL NOT NULL
+- `created_at` TEXT NOT NULL
+- `updated_at` TEXT NOT NULL
 - PRIMARY KEY (`instance_id`, `player_uuid`)
+
+Valid `state` values:
+
+- `PENDING_TRANSFER`
+- `ACTIVE`
+- `RETURN_PENDING`

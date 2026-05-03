@@ -37,7 +37,8 @@ Gameplay behavior inside a temporary dimension depends on its environment type.
 ## Portal and Escape Rules
 
 1. `PlayerPortalEvent` is cancelled inside all temporary dimensions to prevent main-world network linkage.
-2. Death respawn is redirected to the participant's recorded origin.
+2. End-portal teleport attempts are cancelled and do not consume participant records.
+3. Death respawn is redirected to the participant's recorded origin.
 
 ## Cross-References
 

@@ -31,11 +31,11 @@ Define strict per-item base rates with optional seasonal Cobblestone Point overr
 6. Total cost is `points-per-item * selected-quantity`.
 7. Purchase succeeds only when Cobblestone Points balance and inventory capacity are sufficient.
 8. Purchase grants items or executes service effects only after Cobblestone Points deduction succeeds.
-9. Failed physical item insertion or service effect execution does **not** roll back Cobblestone Points; callers must handle compensating transactions if needed.
-    - Exception: temporary dimension world creation failures are refunded automatically with reason `TEMPORARY_DIMENSION_REFUND`.
-10. Log purchases use per-item semantics (`1` log = `16` Cobblestone Points).
-11. Quantity selection is not interpreted as multiplier units.
-12. Service items (e.g., `temporary_dimension_pass`) deduct Cobblestone Points and trigger effects; no inventory capacity check is performed.
+9. Failed service effect execution does **not** roll back Cobblestone Points; callers must handle compensating transactions.
+10. Temporary dimension creation failures are refunded automatically with reason `TEMPORARY_DIMENSION_REFUND`.
+11. Log purchases use per-item semantics (`1` log = `16` Cobblestone Points).
+12. Quantity selection is not interpreted as multiplier units.
+13. Service items (e.g., `temporary_dimension_pass`) deduct Cobblestone Points and trigger effects; no inventory capacity check is performed.
 
 ## Item Keys and Display Names
 

@@ -78,12 +78,12 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 20. The request decision screen for a clicked request shows requester details, Accept, Deny, and Back.
 21. Accept/Deny actions resolve the requester UUID encoded in the clicked notification.
 
-## First-Join RTP Rules
+## Initial Trigger RTP Rules
 
-1. First-join RTP runs once per player UUID globally.
-2. First-join RTP bypasses cooldown checks only.
-3. First-join RTP still obeys whitelist, range, attempts, and safety rules.
-4. If no valid location is found, player stays at spawn and receives explicit failure feedback.
+1. Initial trigger RTP is owned by [../features/initial-trigger-rtp.md](../features/initial-trigger-rtp.md).
+2. Trigger RTP bypasses cooldown and does not apply a second stability delay after its own countdown.
+3. Trigger RTP still obeys whitelist, range, attempts, and safety rules.
+4. If no valid location is found, player stays in place and receives explicit failure feedback.
 
 ## Stability Delay Rules
 

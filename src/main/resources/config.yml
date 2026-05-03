@@ -13,9 +13,16 @@ teleport:
   rtp-attempts: 10
   rtp-world-whitelist:
     - world
-  first-join:
+  initial-trigger:
     enabled: true
-    world: ""
+    trigger-world: world
+    target-world: world
+    center-x: 0
+    center-z: 0
+    trigger-radius-blocks: 200
+    countdown-seconds: 5
+    cancel-on-exit: true
+    once-per-player: true
 homes:
   max-per-player: 3
 economy:
@@ -27,7 +34,6 @@ respawn-on-death:
   random-teleport:
     enabled: true
 temporary-dimension:
-  cost: 10000
   transfer-radius: 5
   duration-minutes: 180
 database:

@@ -24,7 +24,7 @@ The canonical documentation lives in [docs/README.md](docs/README.md).
 ## Key Systems
 
 - **Economy**: Cobblestone Points from cobblestone conversion.
-- **Teleport**: `/tp`, `/tpa`, `/tpahere`, `/rtp` with stability delay.
+- **Teleport**: `/tp`, `/tpa`, `/tpahere`, `/rtp`, and initial trigger-zone RTP.
 - **Homes/Warps**: GUI-first with pagination.
 - **Party**: lightweight teams with invites and homes.
 - **Shop**: list-to-detail purchase with direct quantity buttons.
