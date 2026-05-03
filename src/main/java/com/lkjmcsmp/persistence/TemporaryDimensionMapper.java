@@ -19,6 +19,15 @@ final class TemporaryDimensionMapper {
                 rs.getFloat(prefix + "yaw"), rs.getFloat(prefix + "pitch"));
     }
 
+    static void bindLocation(java.sql.PreparedStatement statement, int start, NamedLocation loc) throws Exception {
+        statement.setString(start, loc.world());
+        statement.setDouble(start + 1, loc.x());
+        statement.setDouble(start + 2, loc.y());
+        statement.setDouble(start + 3, loc.z());
+        statement.setFloat(start + 4, loc.yaw());
+        statement.setFloat(start + 5, loc.pitch());
+    }
+
     static TemporaryDimensionInstance instance(ResultSet rs) throws Exception {
         return new TemporaryDimensionInstance(
                 rs.getString("instance_id"),

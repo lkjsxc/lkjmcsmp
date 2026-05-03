@@ -3,18 +3,17 @@ package com.lkjmcsmp.plugin.temporarydimension;
 import com.lkjmcsmp.domain.ShopEffectExecutor;
 import com.lkjmcsmp.domain.model.InstanceLifecycle;
 import com.lkjmcsmp.domain.model.NamedLocation;
+import com.lkjmcsmp.domain.model.ParticipantLifecycle;
 import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
 import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.plugin.SchedulerBridge;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +26,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     private final TemporaryDimensionDao temporaryDimensionDao;
     private final TemporaryDimensionRefund refund;
     private final TemporaryDimensionActivationCleanup activationCleanup;
+    private final TemporaryDimensionRecovery recovery;
     private final TemporaryDimensionWorldFactory worldFactory;
     private final TemporaryDimensionTransfer transfer;
     private final Logger logger;
@@ -42,6 +42,7 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         this.refund = new TemporaryDimensionRefund(temporaryDimensionDao, logger);
         this.worldFactory = worldFactory;
         this.activationCleanup = new TemporaryDimensionActivationCleanup(schedulerBridge, temporaryDimensionDao, worldFactory, logger);
+        this.recovery = new TemporaryDimensionRecovery(schedulerBridge, temporaryDimensionDao, activeInstances, logger);
         this.transfer = transfer;
         this.logger = logger;
         this.duration = duration;
@@ -60,32 +61,14 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
     }
 
     public void recoverOnStartup() {
-        schedulerBridge.runAsyncTask(() -> {
-            try {
-                List<TemporaryDimensionInstance> active = temporaryDimensionDao.listByState(InstanceLifecycle.ACTIVE);
-                schedulerBridge.runGlobalTask(() -> {
-                    for (TemporaryDimensionInstance instance : active) {
-                        if (Bukkit.getWorld(instance.worldName()) != null) {
-                            activeInstances.put(instance.instanceId(), instance);
-                            logger.info("Recovered temporary dimension instance: " + instance.instanceId());
-                        } else {
-                            try {
-                                temporaryDimensionDao.updateState(instance.instanceId(), InstanceLifecycle.CLOSED);
-                                temporaryDimensionDao.deleteClosedInstanceIfNoParticipants(instance.instanceId());
-                                logger.info("Cleaned up orphaned temporary dimension record: " + instance.instanceId());
-                            } catch (Exception e) {
-                                logger.warning("Cleanup failed for orphaned record: " + e.getMessage());
-                            }
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                logger.warning("Temporary dimension startup recovery failed: " + e.getMessage());
-            }
-        });
+        recovery.recoverOnStartup();
     }
 
     public java.util.Optional<NamedLocation> findParticipantReturn(UUID playerUuid) throws Exception { return temporaryDimensionDao.findParticipantReturn(playerUuid); }
+
+    public Map<ParticipantLifecycle, Integer> countParticipantsByState(String instanceId) throws Exception {
+        return temporaryDimensionDao.countParticipantsByState(instanceId);
+    }
 
     public boolean hasActiveInstanceByPlayer(UUID playerUuid) { return activeInstances.values().stream().anyMatch(i -> i.creatorUuid().equals(playerUuid)); }
 
@@ -150,19 +133,25 @@ public final class TemporaryDimensionManager implements ShopEffectExecutor {
         schedulerBridge.runGlobalTask(() -> transfer.evacuateAll(instance, () -> unloadAndCleanup(instanceId, instance.worldName())));
     }
 
-    public NamedLocation pollPendingReturns(UUID playerUuid) {
+    public TemporaryDimensionDao.ParticipantReturn findPendingReturn(UUID playerUuid) {
         try {
             var pending = temporaryDimensionDao.findPendingReturns(playerUuid);
             if (!pending.isEmpty()) {
-                var first = pending.get(0);
-                temporaryDimensionDao.deleteParticipant(first.instanceId(), playerUuid);
-                temporaryDimensionDao.deleteClosedInstanceIfNoParticipants(first.instanceId());
-                return first.location();
+                return pending.get(0);
             }
         } catch (Exception e) {
-            logger.warning("Failed to poll pending returns: " + e.getMessage());
+            logger.warning("Failed to find pending returns: " + e.getMessage());
         }
         return null;
+    }
+
+    public void consumePendingReturn(String instanceId, UUID playerUuid) {
+        try {
+            temporaryDimensionDao.deleteParticipant(instanceId, playerUuid);
+            temporaryDimensionDao.deleteClosedInstanceIfNoParticipants(instanceId);
+        } catch (Exception e) {
+            logger.warning("Failed to consume pending return: " + e.getMessage());
+        }
     }
 
     public TemporaryDimensionInstance findInstanceByWorld(String worldName) {

@@ -1,6 +1,7 @@
 package com.lkjmcsmp.plugin.temporarydimension;
 
 import com.lkjmcsmp.domain.model.NamedLocation;
+import com.lkjmcsmp.domain.model.ParticipantLifecycle;
 import com.lkjmcsmp.domain.model.TemporaryDimensionInstance;
 import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.plugin.SchedulerBridge;
@@ -10,11 +11,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -24,6 +22,7 @@ public final class TemporaryDimensionTransfer {
     private final Logger logger;
     private final int transferRadius;
     private final TemporaryDimensionWorldFactory worldFactory;
+    private final TemporaryDimensionEvacuation evacuation;
 
     public TemporaryDimensionTransfer(SchedulerBridge schedulerBridge, TemporaryDimensionDao temporaryDimensionDao,
                                       Logger logger, int transferRadius, TemporaryDimensionWorldFactory worldFactory) {
@@ -32,6 +31,7 @@ public final class TemporaryDimensionTransfer {
         this.logger = logger;
         this.transferRadius = transferRadius;
         this.worldFactory = worldFactory;
+        this.evacuation = new TemporaryDimensionEvacuation(schedulerBridge, temporaryDimensionDao, logger);
     }
 
     public void captureAndTransfer(Location origin, World world, String instanceId, Player creator,
@@ -64,7 +64,12 @@ public final class TemporaryDimensionTransfer {
                 if (eligible(player, origin, radiusSq)) {
                     NamedLocation returnLoc = returnLocation(player);
                     schedulerBridge.runAsyncTask(() -> persistThenTeleport(
-                            player, instanceId, returnLoc, spawn, ok -> { }));
+                            player, instanceId, returnLoc, spawn, ok -> {
+                                if (!ok) {
+                                    logger.warning("Nearby tempdim transfer failed player=" + playerId
+                                            + " instance=" + instanceId);
+                                }
+                            }));
                 }
             });
         }
@@ -74,7 +79,8 @@ public final class TemporaryDimensionTransfer {
     private void persistThenTeleport(Player player, String instanceId, NamedLocation returnLoc, Location spawn,
                                      Consumer<Boolean> callback) {
         try {
-            temporaryDimensionDao.insertParticipant(instanceId, player.getUniqueId(), returnLoc);
+            temporaryDimensionDao.insertParticipant(
+                    instanceId, player.getUniqueId(), ParticipantLifecycle.PENDING_TRANSFER, returnLoc);
         } catch (Exception e) {
             logger.warning("Failed to insert participant: " + e.getMessage());
             callback.accept(false);
@@ -82,10 +88,46 @@ public final class TemporaryDimensionTransfer {
         }
         schedulerBridge.runPlayerTask(player, () -> {
             if (player.isOnline() && player.isValid()) {
-                player.teleportAsync(spawn).whenComplete((ok, ex) -> callback.accept(ex == null && Boolean.TRUE.equals(ok)));
+                player.teleportAsync(spawn).whenComplete((ok, ex) ->
+                        finishTransfer(player, instanceId, returnLoc, ex == null && Boolean.TRUE.equals(ok), callback));
             } else {
+                cleanupPending(instanceId, player.getUniqueId(), callback);
+            }
+        });
+    }
+
+    private void finishTransfer(Player player, String instanceId, NamedLocation returnLoc, boolean teleported,
+                                Consumer<Boolean> callback) {
+        schedulerBridge.runAsyncTask(() -> {
+            try {
+                if (!teleported) {
+                    temporaryDimensionDao.deleteParticipant(instanceId, player.getUniqueId());
+                    callback.accept(false);
+                    return;
+                }
+                temporaryDimensionDao.updateParticipantState(
+                        instanceId, player.getUniqueId(), ParticipantLifecycle.ACTIVE);
+                callback.accept(true);
+            } catch (Exception e) {
+                logger.warning("Failed to activate tempdim participant: " + e.getMessage());
+                try {
+                    temporaryDimensionDao.deleteParticipant(instanceId, player.getUniqueId());
+                } catch (Exception ignored) {
+                }
+                schedulerBridge.runPlayerTask(player, () -> player.teleportAsync(toBukkit(returnLoc)));
                 callback.accept(false);
             }
+        });
+    }
+
+    private void cleanupPending(String instanceId, UUID playerId, Consumer<Boolean> callback) {
+        schedulerBridge.runAsyncTask(() -> {
+            try {
+                temporaryDimensionDao.deleteParticipant(instanceId, playerId);
+            } catch (Exception e) {
+                logger.warning("Failed to cleanup pending tempdim participant: " + e.getMessage());
+            }
+            callback.accept(false);
         });
     }
 
@@ -103,54 +145,7 @@ public final class TemporaryDimensionTransfer {
     }
 
     public void evacuateAll(TemporaryDimensionInstance instance, Runnable callback) {
-        schedulerBridge.runAsyncTask(() -> {
-            Map<UUID, NamedLocation> tracked = new HashMap<>();
-            try {
-                for (var participant : temporaryDimensionDao.listParticipants(instance.instanceId())) {
-                    tracked.put(participant.playerUuid(), participant.location());
-                }
-            } catch (Exception e) {
-                logger.warning("Failed to load temporary dimension participants: " + e.getMessage());
-            }
-            schedulerBridge.runGlobalTask(() -> scheduleEvacuation(instance, tracked, callback));
-        });
-    }
-
-    private void scheduleEvacuation(TemporaryDimensionInstance instance, Map<UUID, NamedLocation> tracked,
-                                    Runnable callback) {
-        World world = Bukkit.getWorld(instance.worldName());
-        if (world == null) {
-            callback.run();
-            return;
-        }
-        List<Player> occupants = new ArrayList<>(world.getPlayers());
-        if (occupants.isEmpty()) {
-            callback.run();
-            return;
-        }
-        AtomicInteger remaining = new AtomicInteger(occupants.size());
-        for (Player player : occupants) {
-            NamedLocation origin = tracked.get(player.getUniqueId());
-            schedulerBridge.runPlayerTask(player, () -> returnPlayer(player, instance.instanceId(), origin, () -> {
-                if (remaining.decrementAndGet() == 0) {
-                    schedulerBridge.runGlobalTask(callback);
-                }
-            }));
-        }
-    }
-
-    private void returnPlayer(Player player, String instanceId, NamedLocation origin, Runnable callback) {
-        if (!player.isOnline()) {
-            callback.run();
-            return;
-        }
-        Location loc = origin == null ? Bukkit.getWorlds().get(0).getSpawnLocation() : toBukkit(origin);
-        player.teleportAsync(loc).whenComplete((ok, ex) -> {
-            if (origin != null && ex == null && Boolean.TRUE.equals(ok)) {
-                schedulerBridge.runAsyncTask(() -> deleteParticipant(instanceId, player.getUniqueId()));
-            }
-            callback.run();
-        });
+        evacuation.evacuateAll(instance, callback);
     }
 
     private Location toBukkit(NamedLocation origin) {
@@ -159,12 +154,4 @@ public final class TemporaryDimensionTransfer {
         return new Location(ow, origin.x(), origin.y(), origin.z(), origin.yaw(), origin.pitch());
     }
 
-    private void deleteParticipant(String instanceId, UUID playerId) {
-        try {
-            temporaryDimensionDao.deleteParticipant(instanceId, playerId);
-            temporaryDimensionDao.deleteClosedInstanceIfNoParticipants(instanceId);
-        } catch (Exception e) {
-            logger.warning("Failed to delete returned participant: " + e.getMessage());
-        }
-    }
 }

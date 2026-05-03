@@ -23,26 +23,44 @@ public final class PointsDao {
         }
     }
 
-    public void addPoints(UUID playerId, int delta, String reasonCode, String metaJson) throws Exception {
-        int nextBalance = getBalance(playerId) + delta;
-        if (nextBalance < 0) {
-            throw new IllegalArgumentException("balance cannot go below zero");
-        }
+    public int addPoints(UUID playerId, int delta, String reasonCode, String metaJson) throws Exception {
         try (var connection = database.open()) {
             connection.setAutoCommit(false);
-            try (PreparedStatement upsert = connection.prepareStatement("""
-                    INSERT INTO player_points (player_uuid, balance, updated_at) VALUES (?, ?, ?)
-                    ON CONFLICT(player_uuid) DO UPDATE SET balance = excluded.balance, updated_at = excluded.updated_at
+            try (PreparedStatement insert = connection.prepareStatement("""
+                    INSERT INTO player_points (player_uuid, balance, updated_at)
+                    VALUES (?, 0, ?)
+                    ON CONFLICT(player_uuid) DO NOTHING
+                    """);
+                 PreparedStatement update = connection.prepareStatement("""
+                    UPDATE player_points
+                    SET balance = balance + ?, updated_at = ?
+                    WHERE player_uuid = ?
+                    """);
+                 PreparedStatement balance = connection.prepareStatement("""
+                    SELECT balance FROM player_points WHERE player_uuid = ?
                     """);
                  PreparedStatement ledger = connection.prepareStatement("""
                     INSERT INTO points_ledger (id, player_uuid, delta, reason_code, meta_json, created_at)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """)) {
                 String now = Instant.now().toString();
-                upsert.setString(1, playerId.toString());
-                upsert.setInt(2, nextBalance);
-                upsert.setString(3, now);
-                upsert.executeUpdate();
+                insert.setString(1, playerId.toString());
+                insert.setString(2, now);
+                insert.executeUpdate();
+
+                update.setInt(1, delta);
+                update.setString(2, now);
+                update.setString(3, playerId.toString());
+                update.executeUpdate();
+
+                balance.setString(1, playerId.toString());
+                int nextBalance;
+                try (ResultSet rs = balance.executeQuery()) {
+                    nextBalance = rs.next() ? rs.getInt(1) : 0;
+                }
+                if (nextBalance < 0) {
+                    throw new IllegalArgumentException("balance cannot go below zero");
+                }
 
                 ledger.setString(1, UUID.randomUUID().toString());
                 ledger.setString(2, playerId.toString());
@@ -52,6 +70,7 @@ public final class PointsDao {
                 ledger.setString(6, now);
                 ledger.executeUpdate();
                 connection.commit();
+                return nextBalance;
             } catch (Exception ex) {
                 connection.rollback();
                 throw ex;

@@ -2,6 +2,7 @@ package com.lkjmcsmp.plugin.temporarydimension;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
@@ -44,7 +45,10 @@ public final class TemporaryDimensionWorldFactory {
 
     public Location resolveSpawnLocation(World world) {
         return switch (world.getEnvironment()) {
-            case THE_END -> new Location(world, 100.5, 49, 0.5);
+            case THE_END -> {
+                prepareEndPlatform(world);
+                yield new Location(world, 100.5, 49, 0.5);
+            }
             default -> {
                 int x = 0;
                 int z = 0;
@@ -52,6 +56,17 @@ public final class TemporaryDimensionWorldFactory {
                 yield new Location(world, x + 0.5, Math.max(y, 70), z + 0.5);
             }
         };
+    }
+
+    private void prepareEndPlatform(World world) {
+        world.loadChunk(100 >> 4, 0);
+        for (int x = 98; x <= 102; x++) {
+            for (int z = -2; z <= 2; z++) {
+                world.getBlockAt(x, 48, z).setType(Material.OBSIDIAN, false);
+                world.getBlockAt(x, 49, z).setType(Material.AIR, false);
+                world.getBlockAt(x, 50, z).setType(Material.AIR, false);
+            }
+        }
     }
 
     public boolean unloadAndDelete(String worldName) {

@@ -87,8 +87,13 @@ public final class TemporaryDimensionCommand implements CommandExecutor {
         sender.sendMessage("ID: " + instance.instanceId());
         sender.sendMessage("World: " + instance.worldName());
         sender.sendMessage("Environment: " + instance.environment());
-        sender.sendMessage("State: " + instance.state());
-        sender.sendMessage("Remaining: " + Math.max(0, remaining) + " minutes");
+            sender.sendMessage("State: " + instance.state());
+            sender.sendMessage("Remaining: " + Math.max(0, remaining) + " minutes");
+            try {
+                sender.sendMessage("Participants: " + manager.countParticipantsByState(instance.instanceId()));
+            } catch (Exception ex) {
+                sender.sendMessage("Participants: unavailable");
+            }
         return true;
     }
 

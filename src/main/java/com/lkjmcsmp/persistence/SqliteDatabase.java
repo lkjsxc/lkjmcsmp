@@ -15,7 +15,12 @@ public final class SqliteDatabase {
     }
 
     public Connection open() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:" + filePath);
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:" + filePath);
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("PRAGMA foreign_keys = ON");
+            statement.execute("PRAGMA busy_timeout = 5000");
+        }
+        return connection;
     }
 
     public void initialize() throws Exception {
@@ -123,7 +128,7 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
-                CREATE TABLE IF NOT EXISTS first_join_rtp (
+                CREATE TABLE IF NOT EXISTS initial_rtp_completed (
                   player_uuid TEXT PRIMARY KEY,
                   completed_at TEXT NOT NULL
                 );
@@ -157,12 +162,15 @@ public final class SqliteDatabase {
                 CREATE TABLE IF NOT EXISTS temporary_dimension_participants (
                   instance_id TEXT NOT NULL,
                   player_uuid TEXT NOT NULL,
+                  state TEXT NOT NULL,
                   return_world TEXT NOT NULL,
                   return_x REAL NOT NULL,
                   return_y REAL NOT NULL,
                   return_z REAL NOT NULL,
                   return_yaw REAL NOT NULL,
                   return_pitch REAL NOT NULL,
+                  created_at TEXT NOT NULL,
+                  updated_at TEXT NOT NULL,
                   PRIMARY KEY (instance_id, player_uuid)
                 );
                 """);

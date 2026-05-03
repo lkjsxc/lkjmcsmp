@@ -3,7 +3,7 @@ package com.lkjmcsmp.plugin;
 import com.lkjmcsmp.gui.HotbarMenuListener;
 import com.lkjmcsmp.gui.HotbarMenuService;
 import com.lkjmcsmp.gui.MenuListener;
-import com.lkjmcsmp.persistence.FirstJoinDao;
+import com.lkjmcsmp.persistence.InitialRtpDao;
 import com.lkjmcsmp.plugin.hud.ActionBarHudListener;
 import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +16,7 @@ final class ListenerRegistry {
     private ListenerRegistry() {
     }
 
-    static void registerAll(JavaPlugin plugin, Services services, FirstJoinDao firstJoinDao,
+    static void registerAll(JavaPlugin plugin, Services services, InitialRtpDao initialRtpDao,
                             SchedulerBridge schedulerBridge, TemporaryDimensionManager temporaryDimensionManager) {
         Logger logger = plugin.getLogger();
         FileConfiguration config = plugin.getConfig();
@@ -37,10 +37,16 @@ final class ListenerRegistry {
         services.hud().refreshIdleAllOnline();
         plugin.getServer().getPluginManager().registerEvents(new TeleportCommandOverrideListener(logger), plugin);
         plugin.getServer().getPluginManager().registerEvents(new StairSitListener(plugin), plugin);
-        if (config.getBoolean("teleport.first-join.enabled", true)) {
-            String firstJoinWorld = Objects.requireNonNull(config.getString("teleport.first-join.world", ""));
+        if (config.getBoolean("teleport.initial-trigger.enabled", true)) {
+            var section = Objects.requireNonNull(config.getConfigurationSection("teleport.initial-trigger"));
             plugin.getServer().getPluginManager().registerEvents(
-                    new FirstJoinTeleportListener(services.teleports(), firstJoinDao, schedulerBridge, firstJoinWorld, logger),
+                    new InitialTriggerRtpListener(
+                            services.teleports(),
+                            initialRtpDao,
+                            services.hud(),
+                            schedulerBridge,
+                            InitialTriggerRtpConfig.from(section),
+                            logger),
                     plugin);
         }
         if (config.getBoolean("respawn-on-death.random-teleport.enabled", true)) {

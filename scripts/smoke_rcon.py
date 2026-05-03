@@ -19,12 +19,19 @@ SOURCE_TEAM_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "g
 SOURCE_ACTIONBAR_HUD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRouter.java"
 SOURCE_ACTIONBAR_RENDERER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRenderer.java"
 SOURCE_RESPAWN_RTP = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "RespawnRtpListener.java"
+SOURCE_INITIAL_RTP = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "InitialTriggerRtpListener.java"
 SOURCE_HOTBAR_LISTENER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "HotbarMenuListener.java"
 SOURCE_MENU_SERVICE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuService.java"
 SOURCE_MENU_ACTION = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "MenuAction.java"
 SOURCE_LANGUAGE_REGISTRY = WORKSPACE / "src" / "main" / "resources" / "lang" / "languages.yml"
 SOURCE_STAIR_SIT = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "StairSitListener.java"
 SOURCE_POINTS_SERVICE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "domain" / "PointsService.java"
+SOURCE_POINTS_DAO = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "persistence" / "PointsDao.java"
+SOURCE_TEMP_DAO = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "persistence" / "TemporaryDimensionDao.java"
+SOURCE_TEMP_PARTICIPANTS = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "persistence" / "TemporaryDimensionParticipants.java"
+SOURCE_TEMP_TRANSFER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "temporarydimension" / "TemporaryDimensionTransfer.java"
+SOURCE_TEMP_LISTENER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "temporarydimension" / "TemporaryDimensionListener.java"
+SOURCE_TEMP_WORLD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "temporarydimension" / "TemporaryDimensionWorldFactory.java"
 
 
 def run_cmd(client: RCONClient, command: str, must_contain: str | None = None):
@@ -50,7 +57,14 @@ def assert_radius_defaults():
     if not SOURCE_CONFIG.exists():
         raise RuntimeError(f"source config missing: {SOURCE_CONFIG}")
     text = SOURCE_CONFIG.read_text(encoding="utf-8")
-    for expected in ("rtp-min-radius: 1000", "rtp-max-radius: 100000", "temporary-dimension:", "respawn-on-death:"):
+    for expected in (
+        "rtp-min-radius: 1000",
+        "rtp-max-radius: 100000",
+        "initial-trigger:",
+        "trigger-radius-blocks: 200",
+        "temporary-dimension:",
+        "respawn-on-death:",
+    ):
         if expected not in text:
             raise RuntimeError(f"config missing `{expected}`")
     print("[ok] source config defaults for RTP radius")
@@ -163,7 +177,41 @@ def assert_reliability_markers():
     for expected in ("Status.PENDING", "TEMPORARY_DIMENSION_REFUND", "serviceCallback.accept"):
         if expected not in points:
             raise RuntimeError(f"service purchase handling missing `{expected}`")
+    points_dao = SOURCE_POINTS_DAO.read_text(encoding="utf-8")
+    for expected in ("balance = balance + ?", "balance cannot go below zero", "connection.rollback()"):
+        if expected not in points_dao:
+            raise RuntimeError(f"atomic points handling missing `{expected}`")
     print("[ok] reliability regression markers present")
+
+
+def assert_initial_trigger_and_tempdim_markers():
+    initial = SOURCE_INITIAL_RTP.read_text(encoding="utf-8")
+    for expected in (
+        "InitialTriggerRtpListener",
+        "initialRtpDao.hasCompleted",
+        "onTeleportCountdown",
+        "randomTeleport(player, targetWorld, true, false",
+        "initialRtpDao.markCompleted",
+    ):
+        if expected not in initial:
+            raise RuntimeError(f"initial trigger RTP missing `{expected}`")
+    temp_state = SOURCE_TEMP_DAO.read_text(encoding="utf-8") + SOURCE_TEMP_PARTICIPANTS.read_text(encoding="utf-8")
+    for expected in ("ParticipantLifecycle", "RETURN_PENDING", "countParticipantsByState"):
+        if expected not in temp_state:
+            raise RuntimeError(f"tempdim DAO state handling missing `{expected}`")
+    transfer = SOURCE_TEMP_TRANSFER.read_text(encoding="utf-8")
+    for expected in ("PENDING_TRANSFER", "updateParticipantState", "deleteParticipant"):
+        if expected not in transfer:
+            raise RuntimeError(f"tempdim transfer state handling missing `{expected}`")
+    listener = SOURCE_TEMP_LISTENER.read_text(encoding="utf-8")
+    for expected in ("findPendingReturn", "consumePendingReturn", "event.setCancelled(true)"):
+        if expected not in listener:
+            raise RuntimeError(f"tempdim listener return/portal handling missing `{expected}`")
+    world = SOURCE_TEMP_WORLD.read_text(encoding="utf-8")
+    for expected in ("prepareEndPlatform", "Material.OBSIDIAN", "Material.AIR"):
+        if expected not in world:
+            raise RuntimeError(f"tempdim End platform handling missing `{expected}`")
+    print("[ok] initial trigger RTP and tempdim state markers present")
 
 
 def main() -> int:
@@ -175,7 +223,8 @@ def main() -> int:
         assert_gui_slot_map_alignment_markers()
         assert_actionbar_hud_markers()
         assert_reliability_markers()
-        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach", "profile"):
+        assert_initial_trigger_and_tempdim_markers()
+        for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach", "profile", "tempdim"):
             run_cmd(client, f"help {command}", command)
         run_cmd(client, "help lkjmcsmp:tp", "lkjmcsmp:tp")
         return 0

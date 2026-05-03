@@ -40,16 +40,20 @@ public final class TemporaryDimensionListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         schedulerBridge.runAsyncTask(() -> {
-            var pending = manager.pollPendingReturns(player.getUniqueId());
+            var pending = manager.findPendingReturn(player.getUniqueId());
             if (pending == null) return;
             schedulerBridge.runPlayerTask(player, () -> {
                 if (!player.isOnline()) return;
-                World world = Bukkit.getWorld(pending.world());
+                NamedLocation location = pending.location();
+                World world = Bukkit.getWorld(location.world());
                 if (world == null) world = Bukkit.getWorlds().get(0);
-                Location loc = new Location(world, pending.x(), pending.y(), pending.z(), pending.yaw(), pending.pitch());
+                Location loc = new Location(world, location.x(), location.y(), location.z(), location.yaw(), location.pitch());
                 player.teleportAsync(loc).whenComplete((ok, ex) -> {
                     if (ex != null) {
                         logger.warning("Deferred return failed for " + player.getUniqueId() + ": " + ex.getMessage());
+                    } else if (Boolean.TRUE.equals(ok)) {
+                        schedulerBridge.runAsyncTask(() ->
+                                manager.consumePendingReturn(pending.instanceId(), player.getUniqueId()));
                     }
                 });
             });
@@ -60,12 +64,13 @@ public final class TemporaryDimensionListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
             String fromWorld = event.getFrom().getWorld() != null ? event.getFrom().getWorld().getName() : "";
             if (manager.isTemporaryDimensionWorld(fromWorld)) {
-                manager.removeParticipant(fromWorld, event.getPlayer().getUniqueId());
+                event.setCancelled(true);
+                event.getPlayer().sendMessage("\u00A7cEnd portals are disabled in temporary dimensions.");
             }
         }
     }
