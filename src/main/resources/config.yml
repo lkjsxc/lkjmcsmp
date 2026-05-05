@@ -22,7 +22,6 @@ teleport:
     trigger-radius-blocks: 200
     countdown-seconds: 5
     cancel-on-exit: true
-    once-per-player: true
 homes:
   max-per-player: 3
 economy:

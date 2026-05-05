@@ -29,7 +29,13 @@
 - `teleport.initial-trigger.trigger-radius-blocks`
 - `teleport.initial-trigger.countdown-seconds`
 - `teleport.initial-trigger.cancel-on-exit`
-- `teleport.initial-trigger.once-per-player`
+
+## Runtime Config Refresh
+
+1. `saveDefaultConfig()` does not overwrite an existing deployed config.
+2. Operators must merge new default keys into existing server config files intentionally.
+3. Local smoke runs use `tmp/mc-data`; removing containers does not remove that bind-mounted state.
+4. Use compose `down` plus explicit `tmp/mc-data` cleanup when a smoke run must prove fresh config generation.
 
 ## Menu Refresh Contract
 

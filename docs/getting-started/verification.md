@@ -35,7 +35,7 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Team disband GUI flow requires explicit confirm screen.
 - Shop detail exposes points balance indicator.
 - Shop detail direct-buy path uses final item quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`) and honors per-item rate math (`1` log = `16` points).
-- Initial trigger-zone RTP shows a countdown before first-entry random teleport.
+- Initial trigger-zone RTP shows a countdown before repeatable random teleport on every qualifying zone arrival.
 - Shop detail slot-map markers match canonical layout (`19..25`, `31`, `49`).
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
 - Action-bar markers enforce always-on idle HUD (`points+online`), teleport countdown/completion states, and 3-second combat target HP bar overlay.

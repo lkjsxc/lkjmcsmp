@@ -30,6 +30,7 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
     - GUI slot-map alignment markers for shop-detail direct-buy cluster
     - metadata-based GUI action routing and dynamic language registry markers
     - current-world-spawn respawn RTP marker
+    - repeatable all-arrival initial trigger RTP marker
     - action-bar idle/teleport/combat contract markers with always-on guarantee
 
 ## Stop Rule

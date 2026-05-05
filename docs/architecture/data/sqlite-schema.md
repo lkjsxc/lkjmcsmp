@@ -90,11 +90,6 @@
 - `after_json` TEXT NOT NULL
 - `created_at` TEXT NOT NULL
 
-### `initial_rtp_completed`
-
-- `player_uuid` TEXT PRIMARY KEY
-- `completed_at` TEXT NOT NULL
-
 ### `player_settings`
 
 - `player_uuid` TEXT PRIMARY KEY

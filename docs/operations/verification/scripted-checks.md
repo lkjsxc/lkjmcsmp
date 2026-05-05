@@ -29,7 +29,8 @@ Extended smoke suite:
 - Teleport request creation emits requester and target notifications.
 - Teleport stability delay enforces movement radius and emits cancellation when exceeded.
 - RTP path does not emit thread-context failure errors in server logs.
-- Initial trigger RTP completion state persists once per UUID.
+- Initial trigger RTP arms from join, respawn, teleport, world change, and movement into the configured zone.
+- Initial trigger RTP remains repeatable and does not use completion persistence.
 - Hotbar slot `8` opens root menu on click/use.
 - Hotbar menu item drop intent does not lose item and opens root menu.
 - Hotbar slot `8` token cannot be moved by inventory manipulation vectors.

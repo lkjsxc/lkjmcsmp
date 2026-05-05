@@ -84,6 +84,7 @@ Provide reliable player movement utilities with clear limits and Folia-safe exec
 2. Trigger RTP bypasses cooldown and does not apply a second stability delay after its own countdown.
 3. Trigger RTP still obeys whitelist, range, attempts, and safety rules.
 4. If no valid location is found, player stays in place and receives explicit failure feedback.
+5. Trigger RTP is repeatable; no command cooldown or completion row suppresses future zone arrivals.
 
 ## Stability Delay Rules
 
