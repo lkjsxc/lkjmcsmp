@@ -14,6 +14,14 @@ Define the canonical behavior and maintenance contracts for the plugin in an LLM
 6. Update parent `README.md` files in the same batch as child doc changes.
 7. Prefer action-stable interaction contracts over click-type divergence.
 
+## LLM Operating Contract
+
+1. Start from the owner doc for the behavior being changed.
+2. Follow cross-references before editing code.
+3. Treat missing docs as missing requirements, not permission to guess silently.
+4. Keep edits contract-shaped: goal, rules, failure behavior, verification.
+5. Remove obsolete contracts in the same batch as replacement behavior.
+
 ## Top-Level Index
 
 - [getting-started/README.md](getting-started/README.md): bootstrap and verification entry
@@ -30,9 +38,10 @@ Define the canonical behavior and maintenance contracts for the plugin in an LLM
 3. [repository/layout/root-layout.md](repository/layout/root-layout.md)
 4. [repository/workflow/change-sequence.md](repository/workflow/change-sequence.md)
 5. [product/features/initial-trigger-rtp.md](product/features/initial-trigger-rtp.md)
-6. [product/gui/hotbar-entrypoint.md](product/gui/hotbar-entrypoint.md)
-7. [product/hud/priority-arbitration.md](product/hud/priority-arbitration.md)
-8. [architecture/runtime/module-map.md](architecture/runtime/module-map.md)
-9. [architecture/folia/scheduler-contract.md](architecture/folia/scheduler-contract.md)
-10. [product/commands/teleport.md](product/commands/teleport.md)
-11. [operations/verification/compose-pipeline.md](operations/verification/compose-pipeline.md)
+6. [product/commands/teleport.md](product/commands/teleport.md)
+7. [operations/deployment/config-management.md](operations/deployment/config-management.md)
+8. [product/gui/hotbar-entrypoint.md](product/gui/hotbar-entrypoint.md)
+9. [product/hud/priority-arbitration.md](product/hud/priority-arbitration.md)
+10. [architecture/runtime/module-map.md](architecture/runtime/module-map.md)
+11. [architecture/folia/scheduler-contract.md](architecture/folia/scheduler-contract.md)
+12. [operations/verification/compose-pipeline.md](operations/verification/compose-pipeline.md)

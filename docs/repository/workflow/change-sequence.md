@@ -7,6 +7,7 @@
 3. Update verification scripts/contracts if needed.
 4. Run compose verification pipeline.
 5. Commit coherent verified batch.
+6. If Docker-created ignored artifacts break host Gradle, prefer compose verification over changing tracked files.
 
 ## Notes
 

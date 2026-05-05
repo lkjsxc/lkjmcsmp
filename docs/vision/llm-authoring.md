@@ -6,12 +6,20 @@
 - Keep one requirement per bullet where possible.
 - Use relative links only.
 - Keep canonical definitions in one owner file.
+- Delete stale requirements when behavior is removed.
 
 ## Topology Rules
 
 - Every docs directory has one `README.md` table of contents.
 - Every docs directory has multiple children.
 - Parent `README.md` files must be updated in the same batch as child edits.
+
+## Change Anatomy
+
+1. Identify the owner doc for the behavior.
+2. Update related command, operation, data, and architecture docs only where they add non-duplicate constraints.
+3. Keep verification docs aligned with the exact scripted checks that will fail on regression.
+4. Commit docs-only contract batches before dependent implementation batches.
 
 ## Length Rules
 

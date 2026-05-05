@@ -14,6 +14,8 @@ Keep local and CI builds deterministic and free from environment-specific failur
 
 1. Verification scripts (`scripts/verify.sh`) must use `--no-daemon` to prevent file-lock races.
 2. Local development may use the daemon, but `clean` tasks should guard against stale locks.
+3. Docker compose verification may leave ignored build artifacts owned by the container user.
+4. Host-side Gradle failures caused only by ignored build artifact ownership do not override a passing compose gate.
 
 ## Docker Mount Hygiene
 
