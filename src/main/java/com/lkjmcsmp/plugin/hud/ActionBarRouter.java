@@ -1,9 +1,9 @@
 package com.lkjmcsmp.plugin.hud;
 
-import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportHudSink;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -24,15 +24,13 @@ public final class ActionBarRouter implements TeleportHudSink {
     private static final String TEMP_DIM_SOURCE = "tempdim";
 
     private final SchedulerBridge schedulerBridge;
-    private final PointsService pointsService;
     private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
     private final ActionBarRenderer renderer;
     private final AtomicInteger onlineCount = new AtomicInteger(0);
     private volatile boolean running = false;
 
-    public ActionBarRouter(SchedulerBridge schedulerBridge, PointsService pointsService) {
+    public ActionBarRouter(SchedulerBridge schedulerBridge) {
         this.schedulerBridge = schedulerBridge;
-        this.pointsService = pointsService;
         this.renderer = new ActionBarRenderer(schedulerBridge);
     }
 
@@ -77,17 +75,12 @@ public final class ActionBarRouter implements TeleportHudSink {
         if (player == null || !player.isOnline()) {
             return;
         }
-        UUID playerId = player.getUniqueId();
         int count = onlineCount.get();
-        schedulerBridge.runAsyncTask(() -> {
-            int points = 0;
-            try {
-                points = pointsService.getBalance(playerId);
-            } catch (Exception ignored) {
+        schedulerBridge.runPlayerTask(player, () -> {
+            if (!player.isOnline()) {
+                return;
             }
-            String text = ActionBarComposer.idle(points, count);
-            states.computeIfAbsent(playerId, k -> new PlayerHudState()).put(
-                    new ActionBarMessage(ActionBarPriority.IDLE, text, IDLE_SOURCE, -1));
+            refreshIdleNow(player, count);
         });
     }
 
@@ -186,9 +179,17 @@ public final class ActionBarRouter implements TeleportHudSink {
             }
             PlayerHudState state = states.get(player.getUniqueId());
             if (state != null) {
+                refreshIdleNow(player, onlineCount.get());
                 renderer.render(player, state);
             }
             scheduleNext(player);
         });
+    }
+
+    private void refreshIdleNow(Player player, int count) {
+        long playtimeTicks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
+        String text = ActionBarComposer.idle(playtimeTicks, count);
+        states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState()).put(
+                new ActionBarMessage(ActionBarPriority.IDLE, text, IDLE_SOURCE, -1));
     }
 }

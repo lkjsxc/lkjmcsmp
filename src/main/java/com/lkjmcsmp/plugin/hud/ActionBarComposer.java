@@ -6,8 +6,11 @@ final class ActionBarComposer {
     private ActionBarComposer() {
     }
 
-    static String idle(int points, int onlineCount) {
-        return "Cobblestone Points: " + points + " | Online: " + onlineCount;
+    static String idle(long playtimeTicks, int onlineCount) {
+        long totalMinutes = Math.max(0L, playtimeTicks / 20L / 60L);
+        long hours = totalMinutes / 60L;
+        long minutes = totalMinutes % 60L;
+        return "Playtime: " + hours + "h " + minutes + "m | Online: " + onlineCount;
     }
 
     static String combat(String targetName, double currentHealth, double maxHealth) {

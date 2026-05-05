@@ -16,7 +16,7 @@ final class ActionBarRenderer {
         }
         String effective = state != null ? state.computeEffective() : null;
         if (effective == null || effective.isEmpty()) {
-            effective = ActionBarComposer.idle(0, 0);
+            effective = ActionBarComposer.idle(0L, 0);
         }
         final String text = effective;
         schedulerBridge.runPlayerTask(player, () -> {

@@ -143,9 +143,11 @@ def assert_actionbar_hud_markers():
     if not SOURCE_ACTIONBAR_HUD.exists():
         raise RuntimeError(f"actionbar hud source missing: {SOURCE_ACTIONBAR_HUD}")
     hud_text = SOURCE_ACTIONBAR_HUD.read_text(encoding="utf-8")
-    for expected in ("onCombatHit", "onTeleportCountdown", "onTeleportResult", "refreshIdle"):
+    for expected in ("onCombatHit", "onTeleportCountdown", "onTeleportResult", "refreshIdle", "Statistic.PLAY_ONE_MINUTE"):
         if expected not in hud_text:
             raise RuntimeError(f"actionbar hud source missing `{expected}`")
+    if "PointsService" in hud_text or "getBalance" in hud_text:
+        raise RuntimeError("idle actionbar must not depend on points balance")
     print("[ok] actionbar hud markers present")
 
 

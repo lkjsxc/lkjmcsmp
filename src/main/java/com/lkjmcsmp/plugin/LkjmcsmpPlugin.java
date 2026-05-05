@@ -97,7 +97,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 shopConfig.getConfigurationSection("items"),
                 config.getBoolean("economy.allow-partial-convert", false),
                 config.getInt("economy.max-convert-per-op", 4096));
-        ActionBarRouter actionBarHudService = new ActionBarRouter(schedulerBridge, pointsService);
+        ActionBarRouter actionBarHudService = new ActionBarRouter(schedulerBridge);
         AchievementService achievementService = new AchievementService(
                 achievementDao,
                 pointsDao,
