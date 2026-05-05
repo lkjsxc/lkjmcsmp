@@ -38,5 +38,5 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Initial trigger-zone RTP shows a countdown before repeatable random teleport on every qualifying zone arrival.
 - Shop detail slot-map markers match canonical layout (`19..25`, `31`, `49`).
 - `/tpaccept` with multiple pending requests opens requester picker GUI.
-- Action-bar markers enforce always-on idle HUD (`points+online`), teleport countdown/completion states, and 3-second combat target HP bar overlay.
+- Action-bar markers enforce always-on idle HUD (`playtime+online`), teleport countdown/completion states, and 3-second combat target HP bar overlay.
 - Stair sitting works with empty-hand right-click and cleans up seat entities.

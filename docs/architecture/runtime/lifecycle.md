@@ -9,7 +9,7 @@
 5. Register commands.
 6. Register GUI listeners (inventory + hotbar menu entrypoint).
 7. Register teleport override and repeatable initial trigger RTP listeners.
-8. Construct `ActionBarRouter` with scheduler bridge + points dependencies.
+8. Construct `ActionBarRouter` with scheduler bridge dependency.
 9. Register HUD listeners for join/quit and combat triggers.
 10. Prime idle HUD state for already-online players and start per-player periodic tasks.
 11. Emit startup summary log including HUD state handlers and temporary dimension recovery count.

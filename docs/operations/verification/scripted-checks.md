@@ -76,7 +76,7 @@ Extended smoke suite:
 
 1. Teleport countdown overlays include remaining seconds and expire cleanly on completion/cancel/failure.
 2. Combat overlays include target name plus two-tone HP bar and expire after `3` seconds.
-3. Idle HUD renders points and online count when no overlay is active.
+3. Idle HUD renders cumulative playtime and online count when no overlay is active.
 4. No scoreboard probe path or sidebar dependency remains in runtime or smoke checks.
 5. Action bar is never blank for an online player.
 

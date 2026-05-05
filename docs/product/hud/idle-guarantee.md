@@ -6,15 +6,17 @@ The idle message is a permanent background layer. It is always present in state 
 
 ## Idle Content
 
-1. Idle HUD renders: `Cobblestone Points: <balance> | Online: <count>`
+1. Idle HUD renders: `Playtime: <hours>h <minutes>m | Online: <count>`
 2. Idle HUD changes only when either source value changes.
 3. Idle HUD must reclaim display immediately after higher-priority overlays expire.
 4. **Always-On Idle Guarantee**: the action bar must never be blank for an online player. Idle is stored as a persistent source with `expiresAt = -1`.
 5. Idle message uses source `"idle"` and priority `IDLE`.
+6. Playtime is cumulative lifetime playtime from Bukkit `Statistic.PLAY_ONE_MINUTE`.
+7. Playtime display is compact hours/minutes; seconds are not shown.
 
 ## Refresh Rules
 
-1. Idle content refreshes every `20` seconds for all online players to keep values accurate. The per-player periodic renderer sends action-bar packets every `2` ticks to prevent client fade-out.
+1. Idle content refreshes from player-safe HUD state changes and periodic renderer activity. The per-player periodic renderer sends action-bar packets every `2` ticks to prevent client fade-out.
 2. Refresh updates the idle source in the player's state directly; the next periodic evaluation picks it up.
 3. On player join, idle is computed and injected immediately before the first periodic tick.
 

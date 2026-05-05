@@ -30,7 +30,7 @@ A per-player periodic task evaluates HUD state, evicts expired messages, and dis
 
 ## Idle Fallback
 
-1. If state contains no idle source, the composer synthesizes `Cobblestone Points: 0 | Online: <count>`.
+1. If state contains no idle source, the composer synthesizes `Playtime: 0h 0m | Online: <count>`.
 2. This is a safety net; normal operation should always have an idle source present.
 
 ## Cross-References

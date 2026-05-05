@@ -27,6 +27,6 @@ Route gameplay actions through Folia-safe schedulers without exposing scheduler 
 8. Any player-facing teleport result is emitted only from completion callbacks, never pre-teleport.
 9. Delayed teleport stability checks use player-safe delayed scheduling and must re-check online state.
 10. **HUD periodic re-evaluation** runs on per-player periodic tasks (`2` tick interval); no global tick orchestration.
-11. Idle HUD inputs (points and online count) are refreshed from explicit state-change events.
+11. Idle HUD inputs (cumulative playtime and online count) are refreshed from player-safe state-change events.
 12. HUD state transitions verify player online state before mutation work.
 13. **Task Cancellation**: scheduled delayed tasks owned by the plugin must be cancellable. On plugin disable, all recurring or delayed tasks must be stopped to prevent duplication on reload.
