@@ -3,7 +3,6 @@ package com.lkjmcsmp.plugin;
 import com.lkjmcsmp.gui.HotbarMenuListener;
 import com.lkjmcsmp.gui.HotbarMenuService;
 import com.lkjmcsmp.gui.MenuListener;
-import com.lkjmcsmp.persistence.InitialRtpDao;
 import com.lkjmcsmp.plugin.hud.ActionBarHudListener;
 import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,8 +15,8 @@ final class ListenerRegistry {
     private ListenerRegistry() {
     }
 
-    static void registerAll(JavaPlugin plugin, Services services, InitialRtpDao initialRtpDao,
-                            SchedulerBridge schedulerBridge, TemporaryDimensionManager temporaryDimensionManager) {
+    static void registerAll(JavaPlugin plugin, Services services, SchedulerBridge schedulerBridge,
+                            TemporaryDimensionManager temporaryDimensionManager) {
         Logger logger = plugin.getLogger();
         FileConfiguration config = plugin.getConfig();
 
@@ -42,7 +41,6 @@ final class ListenerRegistry {
             plugin.getServer().getPluginManager().registerEvents(
                     new InitialTriggerRtpListener(
                             services.teleports(),
-                            initialRtpDao,
                             services.hud(),
                             schedulerBridge,
                             InitialTriggerRtpConfig.from(section),

@@ -9,8 +9,7 @@ record InitialTriggerRtpConfig(
         double centerZ,
         double radius,
         int countdownSeconds,
-        boolean cancelOnExit,
-        boolean oncePerPlayer) {
+        boolean cancelOnExit) {
     static InitialTriggerRtpConfig from(ConfigurationSection section) {
         return new InitialTriggerRtpConfig(
                 section.getString("trigger-world", "world"),
@@ -19,7 +18,6 @@ record InitialTriggerRtpConfig(
                 section.getDouble("center-z", 0.0D),
                 section.getDouble("trigger-radius-blocks", 200.0D),
                 section.getInt("countdown-seconds", 5),
-                section.getBoolean("cancel-on-exit", true),
-                section.getBoolean("once-per-player", true));
+                section.getBoolean("cancel-on-exit", true));
     }
 }

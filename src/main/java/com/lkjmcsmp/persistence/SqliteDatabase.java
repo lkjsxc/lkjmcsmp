@@ -128,12 +128,6 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
-                CREATE TABLE IF NOT EXISTS initial_rtp_completed (
-                  player_uuid TEXT PRIMARY KEY,
-                  completed_at TEXT NOT NULL
-                );
-                """);
-            statement.execute("""
                 CREATE TABLE IF NOT EXISTS player_settings (
                   player_uuid TEXT PRIMARY KEY,
                   language TEXT NOT NULL,

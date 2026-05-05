@@ -2,15 +2,17 @@ package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.TeleportHudSink;
-import com.lkjmcsmp.persistence.InitialRtpDao;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,24 +20,19 @@ import java.util.logging.Logger;
 
 public final class InitialTriggerRtpListener implements Listener {
     private final TeleportService teleportService;
-    private final InitialRtpDao initialRtpDao;
     private final TeleportHudSink hudSink;
     private final SchedulerBridge schedulerBridge;
     private final InitialTriggerRtpConfig config;
     private final Logger logger;
-    private final Set<UUID> completed = ConcurrentHashMap.newKeySet();
-    private final Set<UUID> checking = ConcurrentHashMap.newKeySet();
     private final Set<UUID> armed = ConcurrentHashMap.newKeySet();
 
     public InitialTriggerRtpListener(
             TeleportService teleportService,
-            InitialRtpDao initialRtpDao,
             TeleportHudSink hudSink,
             SchedulerBridge schedulerBridge,
             InitialTriggerRtpConfig config,
             Logger logger) {
         this.teleportService = teleportService;
-        this.initialRtpDao = initialRtpDao;
         this.hudSink = hudSink;
         this.schedulerBridge = schedulerBridge;
         this.config = config;
@@ -44,7 +41,27 @@ public final class InitialTriggerRtpListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        tryArm(event.getPlayer());
+        scheduleArmCheck(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        scheduleArmCheck(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent event) {
+        scheduleArmCheck(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onChangedWorld(PlayerChangedWorldEvent event) {
+        scheduleArmCheck(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        armed.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -59,31 +76,10 @@ public final class InitialTriggerRtpListener implements Listener {
 
     private void tryArm(Player player) {
         UUID playerId = player.getUniqueId();
-        if (armed.contains(playerId) || completed.contains(playerId) || !insideZone(player)) {
+        if (armed.contains(playerId) || !insideZone(player)) {
             return;
         }
-        if (!config.oncePerPlayer()) {
-            arm(player);
-            return;
-        }
-        if (!checking.add(playerId)) {
-            return;
-        }
-        schedulerBridge.runAsyncTask(() -> loadCompletionThenArm(player, playerId));
-    }
-
-    private void loadCompletionThenArm(Player player, UUID playerId) {
-        try {
-            if (initialRtpDao.hasCompleted(playerId)) {
-                completed.add(playerId);
-                return;
-            }
-            schedulerBridge.runPlayerTask(player, () -> arm(player));
-        } catch (Exception e) {
-            logger.warning("Initial trigger RTP lookup failed for " + playerId + ": " + e.getMessage());
-        } finally {
-            checking.remove(playerId);
-        }
+        arm(player);
     }
 
     private void arm(Player player) {
@@ -119,20 +115,14 @@ public final class InitialTriggerRtpListener implements Listener {
         teleportService.randomTeleport(player, targetWorld, true, false, result -> {
             armed.remove(player.getUniqueId());
             player.sendMessage(result.message());
-            if (result.success()) persistCompletion(player);
+            if (!result.success()) {
+                logger.fine("Initial trigger RTP failed for " + player.getUniqueId() + ": " + result.message());
+            }
         });
     }
 
-    private void persistCompletion(Player player) {
-        UUID playerId = player.getUniqueId();
-        completed.add(playerId);
-        schedulerBridge.runAsyncTask(() -> {
-            try {
-                initialRtpDao.markCompleted(playerId, Instant.now());
-            } catch (Exception e) {
-                logger.warning("Failed to persist initial trigger RTP for " + playerId + ": " + e.getMessage());
-            }
-        });
+    private void scheduleArmCheck(Player player) {
+        schedulerBridge.runPlayerDelayedTask(player, 1L, () -> tryArm(player));
     }
 
     private boolean eligible(Player player) {

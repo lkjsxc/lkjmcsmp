@@ -62,11 +62,15 @@ def assert_radius_defaults():
         "rtp-max-radius: 100000",
         "initial-trigger:",
         "trigger-radius-blocks: 200",
+        "center-x: 0",
+        "center-z: 0",
         "temporary-dimension:",
         "respawn-on-death:",
     ):
         if expected not in text:
             raise RuntimeError(f"config missing `{expected}`")
+    if "once-per-player" in text:
+        raise RuntimeError("config must not contain obsolete `once-per-player`")
     print("[ok] source config defaults for RTP radius")
 
 
@@ -188,13 +192,18 @@ def assert_initial_trigger_and_tempdim_markers():
     initial = SOURCE_INITIAL_RTP.read_text(encoding="utf-8")
     for expected in (
         "InitialTriggerRtpListener",
-        "initialRtpDao.hasCompleted",
+        "PlayerRespawnEvent",
+        "PlayerTeleportEvent",
+        "PlayerChangedWorldEvent",
+        "scheduleArmCheck",
         "onTeleportCountdown",
         "randomTeleport(player, targetWorld, true, false",
-        "initialRtpDao.markCompleted",
     ):
         if expected not in initial:
             raise RuntimeError(f"initial trigger RTP missing `{expected}`")
+    for forbidden in ("InitialRtpDao", "hasCompleted", "markCompleted", "oncePerPlayer"):
+        if forbidden in initial:
+            raise RuntimeError(f"initial trigger RTP still contains obsolete `{forbidden}`")
     temp_state = SOURCE_TEMP_DAO.read_text(encoding="utf-8") + SOURCE_TEMP_PARTICIPANTS.read_text(encoding="utf-8")
     for expected in ("ParticipantLifecycle", "RETURN_PENDING", "countParticipantsByState"):
         if expected not in temp_state:

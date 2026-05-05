@@ -10,7 +10,6 @@ import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.persistence.AuditDao;
 import com.lkjmcsmp.persistence.EconomyOverrideDao;
-import com.lkjmcsmp.persistence.InitialRtpDao;
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
@@ -34,7 +33,6 @@ import java.util.Objects;
 public final class LkjmcsmpPlugin extends JavaPlugin {
     private Services services;
     private SchedulerBridge schedulerBridge;
-    private InitialRtpDao initialRtpDao;
     private TemporaryDimensionManager temporaryDimensionManager;
     private SqliteDatabase database;
 
@@ -46,7 +44,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             saveResource("achievements.yml", false);
             Services initialized = initializeServices();
             CommandRegistry.registerAll(this, initialized, temporaryDimensionManager);
-            ListenerRegistry.registerAll(this, initialized, initialRtpDao, schedulerBridge, temporaryDimensionManager);
+            ListenerRegistry.registerAll(this, initialized, schedulerBridge, temporaryDimensionManager);
             ProxyRuntimeValidator.validate(this);
             this.services = initialized;
             getLogger().info("lkjmcsmp enabled");
@@ -121,8 +119,6 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 config.getInt("teleport.rtp-attempts", 10),
                 Objects.requireNonNull(config.getStringList("teleport.rtp-world-whitelist")),
                 actionBarHudService);
-        this.initialRtpDao = new InitialRtpDao(database);
-
         this.temporaryDimensionManager = TemporaryDimensionBootstrap.bootstrap(
                 this, schedulerBridge, pointsDao, new TemporaryDimensionDao(database), config, actionBarHudService);
         pointsService.registerEffect("temporary_dimension_pass", temporaryDimensionManager);

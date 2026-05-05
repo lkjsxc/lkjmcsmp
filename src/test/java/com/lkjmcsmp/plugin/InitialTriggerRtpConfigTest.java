@@ -16,7 +16,6 @@ class InitialTriggerRtpConfigTest {
         yaml.set("trigger-radius-blocks", 150);
         yaml.set("countdown-seconds", 7);
         yaml.set("cancel-on-exit", false);
-        yaml.set("once-per-player", false);
 
         InitialTriggerRtpConfig config = InitialTriggerRtpConfig.from(yaml);
 
@@ -27,6 +26,5 @@ class InitialTriggerRtpConfigTest {
         assertEquals(150, config.radius());
         assertEquals(7, config.countdownSeconds());
         assertFalse(config.cancelOnExit());
-        assertFalse(config.oncePerPlayer());
     }
 }
