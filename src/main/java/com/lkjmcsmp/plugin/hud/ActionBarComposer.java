@@ -6,11 +6,20 @@ final class ActionBarComposer {
     private ActionBarComposer() {
     }
 
-    static String idle(long playtimeTicks, int onlineCount) {
+    static String idle(int points, long playtimeTicks, int onlineCount, String template) {
         long totalMinutes = Math.max(0L, playtimeTicks / 20L / 60L);
         long hours = totalMinutes / 60L;
         long minutes = totalMinutes % 60L;
-        return "Playtime: " + hours + "h " + minutes + "m | Online: " + onlineCount;
+        return template
+                .replace("{points}", String.valueOf(points))
+                .replace("{hours}", String.valueOf(hours))
+                .replace("{minutes}", String.valueOf(minutes))
+                .replace("{online}", String.valueOf(onlineCount));
+    }
+
+    static String idleFallback(int points, long playtimeTicks, int onlineCount) {
+        return idle(points, playtimeTicks, onlineCount,
+                "Points: {points} | Playtime: {hours}h {minutes}m | Online: {online}");
     }
 
     static String combat(String targetName, double currentHealth, double maxHealth) {
@@ -28,7 +37,7 @@ final class ActionBarComposer {
     }
 
     static String shopPurchase(String itemKey, int cost) {
-        return "\u00A7aPurchased \u00A7f" + itemKey + "\u00A7a for \u00A7f" + cost + "\u00A7a Cobblestone Points";
+        return "\u00A7aPurchased \u00A7f" + itemKey + "\u00A7a for \u00A7f" + cost + "\u00A7a Points";
     }
 
     static String temporaryDimension(long remainingSeconds) {

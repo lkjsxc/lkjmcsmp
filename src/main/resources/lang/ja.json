@@ -51,5 +51,7 @@
   "home.name-required": "ホーム名が必要です",
   "home.list": "ホーム: {homes}",
   "error.unknown-action": "不明なメニュー操作です。",
-  "error.menu-action": "メニュー操作に失敗しました: {message}"
+  "error.menu-action": "メニュー操作に失敗しました: {message}",
+  "hud.idle": "ポイント: {points} | プレイ時間: {hours}h {minutes}m | オンライン: {online}",
+  "hud.shop.purchase": "§a{item}§a を §f{cost}§a ポイントで購入"
 }

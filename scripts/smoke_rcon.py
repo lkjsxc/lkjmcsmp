@@ -17,6 +17,7 @@ SOURCE_SLOT_MAP = WORKSPACE / "docs" / "product" / "gui" / "slot-maps.md"
 SOURCE_SHOP_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TopLevelMenuViews.java"
 SOURCE_TEAM_VIEW = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "gui" / "TeamMenuView.java"
 SOURCE_ACTIONBAR_HUD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRouter.java"
+SOURCE_ACTIONBAR_IDLE = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarIdleRefresh.java"
 SOURCE_ACTIONBAR_RENDERER = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "hud" / "ActionBarRenderer.java"
 SOURCE_RESPAWN_RTP = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "RespawnRtpListener.java"
 SOURCE_INITIAL_RTP = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "plugin" / "InitialTriggerRtpListener.java"
@@ -142,12 +143,16 @@ def assert_gui_slot_map_alignment_markers():
 def assert_actionbar_hud_markers():
     if not SOURCE_ACTIONBAR_HUD.exists():
         raise RuntimeError(f"actionbar hud source missing: {SOURCE_ACTIONBAR_HUD}")
+    if not SOURCE_ACTIONBAR_IDLE.exists():
+        raise RuntimeError(f"actionbar idle source missing: {SOURCE_ACTIONBAR_IDLE}")
     hud_text = SOURCE_ACTIONBAR_HUD.read_text(encoding="utf-8")
-    for expected in ("onCombatHit", "onTeleportCountdown", "onTeleportResult", "refreshIdle", "Statistic.PLAY_ONE_MINUTE"):
+    idle_text = SOURCE_ACTIONBAR_IDLE.read_text(encoding="utf-8")
+    for expected in ("onCombatHit", "onTeleportCountdown", "onTeleportResult", "refreshIdle", "hud.idle"):
         if expected not in hud_text:
             raise RuntimeError(f"actionbar hud source missing `{expected}`")
-    if "PointsService" in hud_text or "getBalance" in hud_text:
-        raise RuntimeError("idle actionbar must not depend on points balance")
+    for expected in ("Statistic.PLAY_ONE_MINUTE", "cachedPoints", "hud.idle"):
+        if expected not in idle_text:
+            raise RuntimeError(f"actionbar idle source missing `{expected}`")
     print("[ok] actionbar hud markers present")
 
 

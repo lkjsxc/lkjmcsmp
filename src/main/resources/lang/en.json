@@ -51,5 +51,7 @@
   "home.name-required": "home name is required",
   "home.list": "Homes: {homes}",
   "error.unknown-action": "Unknown menu action.",
-  "error.menu-action": "Menu action failed: {message}"
+  "error.menu-action": "Menu action failed: {message}",
+  "hud.idle": "Points: {points} | Playtime: {hours}h {minutes}m | Online: {online}",
+  "hud.shop.purchase": "§aPurchased §f{item}§a for §f{cost}§a Points"
 }

@@ -1,9 +1,10 @@
 package com.lkjmcsmp.plugin.hud;
 
+import com.lkjmcsmp.domain.MessageService;
+import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportHudSink;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import org.bukkit.Bukkit;
-import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -24,13 +25,17 @@ public final class ActionBarRouter implements TeleportHudSink {
     private static final String TEMP_DIM_SOURCE = "tempdim";
 
     private final SchedulerBridge schedulerBridge;
+    private final MessageService messages;
     private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
+    private final ActionBarIdleRefresh idleRefresh;
     private final ActionBarRenderer renderer;
     private final AtomicInteger onlineCount = new AtomicInteger(0);
     private volatile boolean running = false;
 
-    public ActionBarRouter(SchedulerBridge schedulerBridge) {
+    public ActionBarRouter(SchedulerBridge schedulerBridge, PointsService pointsService, MessageService messages) {
         this.schedulerBridge = schedulerBridge;
+        this.messages = messages;
+        this.idleRefresh = new ActionBarIdleRefresh(schedulerBridge, pointsService, messages);
         this.renderer = new ActionBarRenderer(schedulerBridge);
     }
 
@@ -61,6 +66,7 @@ public final class ActionBarRouter implements TeleportHudSink {
             return;
         }
         states.remove(player.getUniqueId());
+        idleRefresh.clear(player);
     }
 
     public void incrementOnlineCount() {
@@ -72,16 +78,7 @@ public final class ActionBarRouter implements TeleportHudSink {
     }
 
     public void refreshIdle(Player player) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
-        int count = onlineCount.get();
-        schedulerBridge.runPlayerTask(player, () -> {
-            if (!player.isOnline()) {
-                return;
-            }
-            refreshIdleNow(player, count);
-        });
+        idleRefresh.refreshAsync(player, onlineCount.get(), states);
     }
 
     public void refreshIdleAllOnline() {
@@ -124,8 +121,8 @@ public final class ActionBarRouter implements TeleportHudSink {
             return;
         }
         long expiresAt = System.currentTimeMillis() + SHOP_TTL_MS;
-        setMessage(player, new ActionBarMessage(ActionBarPriority.GAMEPLAY,
-                ActionBarComposer.shopPurchase(itemKey, cost), SHOP_SOURCE, expiresAt));
+        String text = messages.get(player, "hud.shop.purchase", "item", itemKey, "cost", cost);
+        setMessage(player, new ActionBarMessage(ActionBarPriority.GAMEPLAY, text, SHOP_SOURCE, expiresAt));
     }
 
     public void onEnterTemporaryDimension(Player player, long remainingSeconds) {
@@ -139,14 +136,6 @@ public final class ActionBarRouter implements TeleportHudSink {
 
     public void onLeaveTemporaryDimension(Player player) {
         clearMessage(player, TEMP_DIM_SOURCE);
-    }
-
-    public void onEnterTemporaryEnd(Player player, long remainingSeconds) {
-        onEnterTemporaryDimension(player, remainingSeconds);
-    }
-
-    public void onLeaveTemporaryEnd(Player player) {
-        onLeaveTemporaryDimension(player);
     }
 
     public void setMessage(Player player, ActionBarMessage message) {
@@ -179,17 +168,10 @@ public final class ActionBarRouter implements TeleportHudSink {
             }
             PlayerHudState state = states.get(player.getUniqueId());
             if (state != null) {
-                refreshIdleNow(player, onlineCount.get());
+                idleRefresh.refreshNow(player, onlineCount.get(), states);
                 renderer.render(player, state);
             }
             scheduleNext(player);
         });
-    }
-
-    private void refreshIdleNow(Player player, int count) {
-        long playtimeTicks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
-        String text = ActionBarComposer.idle(playtimeTicks, count);
-        states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState()).put(
-                new ActionBarMessage(ActionBarPriority.IDLE, text, IDLE_SOURCE, -1));
     }
 }
