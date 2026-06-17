@@ -29,3 +29,7 @@ items:
     material: GRAVEL
     points: 2
     display_name: "Gravel"
+  end_stone:
+    material: END_STONE
+    points: 8
+    display_name: "End Stone"

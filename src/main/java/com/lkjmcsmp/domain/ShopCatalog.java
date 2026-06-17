@@ -16,6 +16,7 @@ final class ShopCatalog {
             ConfigurationSection section,
             Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
         Map<String, ShopEntry> items = parseItems(section);
+        addBuiltInItems(items);
         items.putAll(HomeSlotCatalog.entries());
         mergeOverrides(items, overrides);
         return items;
@@ -45,6 +46,14 @@ final class ShopCatalog {
                     entry.getString("environment", "")));
         }
         return items;
+    }
+
+    private static void addBuiltInItems(Map<String, ShopEntry> items) {
+        items.putIfAbsent("end_stone", new ShopEntry(
+                "end_stone",
+                Material.END_STONE,
+                "End Stone",
+                8));
     }
 
     private static void mergeOverrides(

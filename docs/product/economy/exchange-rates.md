@@ -36,6 +36,7 @@ Define strict per-item base rates with optional seasonal Cobblestone Point overr
 | Dirt | 1 |
 | Sand | 2 |
 | Gravel | 2 |
+| End Stone | 8 |
 
 ## Rules
 
