@@ -58,6 +58,7 @@ final class TopLevelMenuActions {
             case "root.settings" -> { views.openSettings(player); yield true; }
             case "root.close" -> { player.closeInventory(); yield true; }
             case "settings.language" -> { views.openLanguage(player); yield true; }
+            case "settings.actionbar" -> toggleActionBar(player);
             case "settings.hotbar" -> toggleHotbar(player);
             case "language.set" -> setLanguage(player, payload);
             case "nav.back" -> backFromAction(player, title);
@@ -92,6 +93,15 @@ final class TopLevelMenuActions {
     private boolean toggleHotbar(Player player) throws Exception {
         boolean enabled = settingsService.toggleHotbarMenu(player.getUniqueId()).hotbarMenuEnabled();
         player.sendMessage(messages.get(player, enabled ? "settings.hotbar.enabled" : "settings.hotbar.disabled"));
+        views.openSettings(player);
+        return true;
+    }
+
+    private boolean toggleActionBar(Player player) throws Exception {
+        boolean enabled = settingsService.toggleActionBar(player.getUniqueId()).actionBarEnabled();
+        actionBarHudService.onActionBarPreferenceChanged(player);
+        player.sendMessage(messages.get(player,
+                enabled ? "settings.actionbar.enabled" : "settings.actionbar.disabled"));
         views.openSettings(player);
         return true;
     }

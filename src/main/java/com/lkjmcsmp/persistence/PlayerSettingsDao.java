@@ -17,14 +17,17 @@ public final class PlayerSettingsDao {
     public Optional<PlayerSettings> find(UUID playerId) throws Exception {
         try (var connection = database.open();
              PreparedStatement statement = connection.prepareStatement("""
-                     SELECT language, hotbar_menu_enabled FROM player_settings WHERE player_uuid = ?
+                     SELECT language, hotbar_menu_enabled, action_bar_enabled
+                     FROM player_settings
+                     WHERE player_uuid = ?
                      """)) {
             statement.setString(1, playerId.toString());
             try (var rs = statement.executeQuery()) {
                 if (!rs.next()) {
                     return Optional.empty();
                 }
-                return Optional.of(new PlayerSettings(rs.getString(1), rs.getInt(2) == 1));
+                return Optional.of(new PlayerSettings(
+                        rs.getString(1), rs.getInt(2) == 1, rs.getInt(3) == 1));
             }
         }
     }
@@ -32,17 +35,21 @@ public final class PlayerSettingsDao {
     public void upsert(UUID playerId, PlayerSettings settings) throws Exception {
         try (var connection = database.open();
              PreparedStatement statement = connection.prepareStatement("""
-                     INSERT INTO player_settings (player_uuid, language, hotbar_menu_enabled, updated_at)
-                     VALUES (?, ?, ?, ?)
+                     INSERT INTO player_settings (
+                       player_uuid, language, hotbar_menu_enabled, action_bar_enabled, updated_at
+                     )
+                     VALUES (?, ?, ?, ?, ?)
                      ON CONFLICT(player_uuid) DO UPDATE SET
                        language=excluded.language,
                        hotbar_menu_enabled=excluded.hotbar_menu_enabled,
+                       action_bar_enabled=excluded.action_bar_enabled,
                        updated_at=excluded.updated_at
                      """)) {
             statement.setString(1, playerId.toString());
             statement.setString(2, settings.language());
             statement.setInt(3, settings.hotbarMenuEnabled() ? 1 : 0);
-            statement.setString(4, Instant.now().toString());
+            statement.setInt(4, settings.actionBarEnabled() ? 1 : 0);
+            statement.setString(5, Instant.now().toString());
             statement.executeUpdate();
         }
     }

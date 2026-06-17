@@ -3,6 +3,7 @@
 ## Summary
 
 Each gameplay system that needs temporary action-bar visibility follows the same overlay contract: store a message with a priority and TTL, and let the periodic evaluator manage visibility.
+If the player disables the action-bar HUD, overlay messages are not stored or dispatched by this plugin.
 
 ## Teleport Overlay
 

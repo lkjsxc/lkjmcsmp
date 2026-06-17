@@ -139,9 +139,11 @@ public final class SqliteDatabase {
                   player_uuid TEXT PRIMARY KEY,
                   language TEXT NOT NULL,
                   hotbar_menu_enabled INTEGER NOT NULL,
+                  action_bar_enabled INTEGER NOT NULL DEFAULT 1,
                   updated_at TEXT NOT NULL
                 );
                 """);
+            SchemaMigrations.ensurePlayerSettingsColumns(connection);
             statement.execute("""
                 CREATE TABLE IF NOT EXISTS temporary_dimension_instances (
                   instance_id TEXT PRIMARY KEY,

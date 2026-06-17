@@ -40,23 +40,39 @@ public final class PlayerSettingsService {
         return get(playerId).hotbarMenuEnabled();
     }
 
+    public boolean actionBarEnabled(UUID playerId) {
+        return get(playerId).actionBarEnabled();
+    }
+
     public PlayerSettings setLanguage(UUID playerId, String language) throws Exception {
         String normalized = normalizeLanguage(language);
         PlayerSettings current = get(playerId);
-        PlayerSettings next = new PlayerSettings(normalized, current.hotbarMenuEnabled());
+        PlayerSettings next = new PlayerSettings(
+                normalized, current.hotbarMenuEnabled(), current.actionBarEnabled());
         persist(playerId, next);
         return next;
     }
 
     public PlayerSettings setHotbarMenuEnabled(UUID playerId, boolean enabled) throws Exception {
         PlayerSettings current = get(playerId);
-        PlayerSettings next = new PlayerSettings(current.language(), enabled);
+        PlayerSettings next = new PlayerSettings(current.language(), enabled, current.actionBarEnabled());
         persist(playerId, next);
         return next;
     }
 
     public PlayerSettings toggleHotbarMenu(UUID playerId) throws Exception {
         return setHotbarMenuEnabled(playerId, !hotbarMenuEnabled(playerId));
+    }
+
+    public PlayerSettings setActionBarEnabled(UUID playerId, boolean enabled) throws Exception {
+        PlayerSettings current = get(playerId);
+        PlayerSettings next = new PlayerSettings(current.language(), current.hotbarMenuEnabled(), enabled);
+        persist(playerId, next);
+        return next;
+    }
+
+    public PlayerSettings toggleActionBar(UUID playerId) throws Exception {
+        return setActionBarEnabled(playerId, !actionBarEnabled(playerId));
     }
 
     public void setHotbarChangeHandler(Consumer<UUID> handler) {
@@ -67,11 +83,12 @@ public final class PlayerSettingsService {
         try {
             PlayerSettings loaded = dao.find(playerId).orElse(PlayerSettings.DEFAULT);
             if (!supportedLanguages.contains(loaded.language())) {
-                return new PlayerSettings(defaultLanguage, loaded.hotbarMenuEnabled());
+                return new PlayerSettings(
+                        defaultLanguage, loaded.hotbarMenuEnabled(), loaded.actionBarEnabled());
             }
             return loaded;
         } catch (Exception ignored) {
-            return new PlayerSettings(defaultLanguage, true);
+            return new PlayerSettings(defaultLanguage, true, true);
         }
     }
 

@@ -28,6 +28,17 @@ public final class MessageService {
         this.catalogs = loadCatalogs(plugin, languages);
     }
 
+    public MessageService(
+            PlayerSettingsService settings,
+            LanguageRegistry languages,
+            Map<String, Map<String, String>> catalogs) {
+        this.settings = settings;
+        this.languages = languages;
+        Map<String, Map<String, String>> loaded = new LinkedHashMap<>();
+        catalogs.forEach((code, entries) -> loaded.put(code, Map.copyOf(entries)));
+        this.catalogs = Map.copyOf(loaded);
+    }
+
     public Set<String> supportedLanguages() {
         return catalogs.keySet();
     }

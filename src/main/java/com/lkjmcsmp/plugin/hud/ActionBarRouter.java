@@ -1,6 +1,7 @@
 package com.lkjmcsmp.plugin.hud;
 
 import com.lkjmcsmp.domain.MessageService;
+import com.lkjmcsmp.domain.PlayerSettingsService;
 import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportHudSink;
 import com.lkjmcsmp.plugin.SchedulerBridge;
@@ -25,6 +26,7 @@ public final class ActionBarRouter implements TeleportHudSink {
     private static final String TEMP_DIM_SOURCE = "tempdim";
 
     private final SchedulerBridge schedulerBridge;
+    private final PlayerSettingsService settings;
     private final MessageService messages;
     private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
     private final ActionBarIdleRefresh idleRefresh;
@@ -32,8 +34,13 @@ public final class ActionBarRouter implements TeleportHudSink {
     private final AtomicInteger onlineCount = new AtomicInteger(0);
     private volatile boolean running = false;
 
-    public ActionBarRouter(SchedulerBridge schedulerBridge, PointsService pointsService, MessageService messages) {
+    public ActionBarRouter(
+            SchedulerBridge schedulerBridge,
+            PointsService pointsService,
+            MessageService messages,
+            PlayerSettingsService settings) {
         this.schedulerBridge = schedulerBridge;
+        this.settings = settings;
         this.messages = messages;
         this.idleRefresh = new ActionBarIdleRefresh(schedulerBridge, pointsService, messages);
         this.renderer = new ActionBarRenderer(schedulerBridge);
@@ -56,28 +63,26 @@ public final class ActionBarRouter implements TeleportHudSink {
         if (player == null || !player.isOnline()) {
             return;
         }
-        states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState());
-        refreshIdle(player);
+        if (isActionBarEnabled(player)) refreshIdle(player);
+        else clearHudState(player);
         schedulerBridge.runPlayerTask(player, () -> scheduleNext(player));
     }
 
     public void onPlayerQuit(Player player) {
-        if (player == null) {
-            return;
-        }
+        if (player == null) return;
         states.remove(player.getUniqueId());
         idleRefresh.clear(player);
     }
 
-    public void incrementOnlineCount() {
-        onlineCount.incrementAndGet();
-    }
+    public void incrementOnlineCount() { onlineCount.incrementAndGet(); }
 
-    public void decrementOnlineCount() {
-        onlineCount.decrementAndGet();
-    }
+    public void decrementOnlineCount() { onlineCount.decrementAndGet(); }
 
     public void refreshIdle(Player player) {
+        if (!isActionBarEnabled(player)) {
+            clearHudState(player);
+            return;
+        }
         idleRefresh.refreshAsync(player, onlineCount.get(), states);
     }
 
@@ -88,9 +93,6 @@ public final class ActionBarRouter implements TeleportHudSink {
     }
 
     public void onCombatHit(Player attacker, String targetName, double currentHealth, double maxHealth) {
-        if (attacker == null || !attacker.isOnline()) {
-            return;
-        }
         long expiresAt = System.currentTimeMillis() + COMBAT_TTL_MS;
         setMessage(attacker, new ActionBarMessage(ActionBarPriority.COMBAT,
                 ActionBarComposer.combat(targetName, currentHealth, maxHealth), COMBAT_SOURCE, expiresAt));
@@ -98,9 +100,6 @@ public final class ActionBarRouter implements TeleportHudSink {
 
     @Override
     public void onTeleportCountdown(Player player, long secondsRemaining) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
         long expiresAt = System.currentTimeMillis() + 1250L;
         setMessage(player, new ActionBarMessage(ActionBarPriority.TELEPORT,
                 ActionBarComposer.teleportCountdown(secondsRemaining), TELEPORT_SOURCE, expiresAt));
@@ -108,27 +107,19 @@ public final class ActionBarRouter implements TeleportHudSink {
 
     @Override
     public void onTeleportResult(Player player, boolean success, String message) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
         long expiresAt = System.currentTimeMillis() + TELEPORT_RESULT_TTL_MS;
         setMessage(player, new ActionBarMessage(ActionBarPriority.TELEPORT,
                 ActionBarComposer.teleportResult(success, message), TELEPORT_SOURCE, expiresAt));
     }
 
     public void onShopPurchase(Player player, String itemKey, int cost) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
+        if (player == null || !player.isOnline()) return;
         long expiresAt = System.currentTimeMillis() + SHOP_TTL_MS;
         String text = messages.get(player, "hud.shop.purchase", "item", itemKey, "cost", cost);
         setMessage(player, new ActionBarMessage(ActionBarPriority.GAMEPLAY, text, SHOP_SOURCE, expiresAt));
     }
 
     public void onEnterTemporaryDimension(Player player, long remainingSeconds) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
         long expiresAt = System.currentTimeMillis() + TEMP_DIM_TTL_MS;
         setMessage(player, new ActionBarMessage(ActionBarPriority.GAMEPLAY,
                 ActionBarComposer.temporaryDimension(remainingSeconds), TEMP_DIM_SOURCE, expiresAt));
@@ -139,16 +130,15 @@ public final class ActionBarRouter implements TeleportHudSink {
     }
 
     public void setMessage(Player player, ActionBarMessage message) {
-        if (player == null || !player.isOnline()) {
+        if (!isActionBarEnabled(player)) {
+            clearHudState(player);
             return;
         }
         states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState()).put(message);
     }
 
     public void clearMessage(Player player, String source) {
-        if (player == null) {
-            return;
-        }
+        if (player == null) return;
         PlayerHudState state = states.get(player.getUniqueId());
         if (state != null) {
             state.remove(source);
@@ -158,20 +148,41 @@ public final class ActionBarRouter implements TeleportHudSink {
         }
     }
 
-    private void scheduleNext(Player player) {
-        if (!running || !player.isOnline()) {
+    public void onActionBarPreferenceChanged(Player player) {
+        if (!isActionBarEnabled(player)) {
+            clearHudState(player);
             return;
         }
+        refreshIdle(player);
+    }
+
+    void renderOnce(Player player) {
+        if (!isActionBarEnabled(player)) {
+            clearHudState(player);
+            return;
+        }
+        PlayerHudState state = states.computeIfAbsent(player.getUniqueId(), k -> new PlayerHudState());
+        idleRefresh.refreshNow(player, onlineCount.get(), states);
+        renderer.render(player, state);
+    }
+
+    private void scheduleNext(Player player) {
+        if (!running || !player.isOnline()) return;
         schedulerBridge.runPlayerDelayedTask(player, TICK_INTERVAL, () -> {
-            if (!running || !player.isOnline()) {
-                return;
-            }
-            PlayerHudState state = states.get(player.getUniqueId());
-            if (state != null) {
-                idleRefresh.refreshNow(player, onlineCount.get(), states);
-                renderer.render(player, state);
-            }
+            if (!running || !player.isOnline()) return;
+            renderOnce(player);
             scheduleNext(player);
         });
+    }
+
+    private boolean isActionBarEnabled(Player player) {
+        return player != null && player.isOnline() && settings.actionBarEnabled(player.getUniqueId());
+    }
+
+    private void clearHudState(Player player) {
+        if (player != null) {
+            states.remove(player.getUniqueId());
+            idleRefresh.clear(player);
+        }
     }
 }
