@@ -22,19 +22,20 @@
 ## Rules
 
 1. Home names are case-insensitive and normalized.
-2. Each player has a configurable home limit.
-3. Warp creation and deletion are operator-restricted by default.
-4. Home and warp teleports share teleport cooldown contract unless explicitly disabled.
-5. `/homes` and `/warps` output sorted stable lists.
-6. GUI lists must mirror command list ordering.
-7. Homes GUI includes `Add Current Location`, equivalent to `/sethome <generated-name>`.
-8. `/sethome [name]` and `/homes addcurrent [name]` create or update the named home at the current location.
-9. `/homes addcurrent` with no name generates `home-<n>` using the first available positive sequential index (`home-1`, `home-2`, ...).
-10. `/sethome` with no name uses `home`.
-11. `Add Current Location` returns the chosen name in success feedback.
-12. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
-13. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
-14. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
+2. Each player has a configurable base home limit plus purchased Home slot upgrades.
+3. Purchased Home slot upgrades cap at 21 extra slots.
+4. Warp creation and deletion are operator-restricted by default.
+5. Home and warp teleports share teleport cooldown contract unless explicitly disabled.
+6. `/homes` and `/warps` output sorted stable lists.
+7. GUI lists must mirror command list ordering.
+8. Homes GUI includes `Add Current Location`, equivalent to `/sethome <generated-name>`.
+9. `/sethome [name]` and `/homes addcurrent [name]` create or update the named home at the current location.
+10. `/homes addcurrent` with no name generates `home-<n>` using the first available positive sequential index (`home-1`, `home-2`, ...).
+11. `/sethome` with no name uses `home`.
+12. `Add Current Location` returns the chosen name in success feedback.
+13. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
+14. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
+15. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
 
 ## Failures
 

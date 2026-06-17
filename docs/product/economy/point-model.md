@@ -29,3 +29,4 @@ Provide a strict, auditable Cobblestone Points economy where cobblestone convers
 - `ADMIN_ADJUST`
 - `SEASONAL_OVERRIDE_APPLIED`
 - `TEMPORARY_DIMENSION_REFUND`
+- `SERVICE_PURCHASE_REFUND`

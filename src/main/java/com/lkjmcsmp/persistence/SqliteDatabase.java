@@ -60,6 +60,13 @@ public final class SqliteDatabase {
                 );
                 """);
             statement.execute("""
+                CREATE TABLE IF NOT EXISTS player_home_slots (
+                  player_uuid TEXT PRIMARY KEY,
+                  purchased_slots INTEGER NOT NULL,
+                  updated_at TEXT NOT NULL
+                );
+                """);
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS warps (
                   warp_name TEXT PRIMARY KEY,
                   world TEXT NOT NULL,

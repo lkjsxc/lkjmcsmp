@@ -39,6 +39,7 @@
 ## Homes Menu
 
 - Home list (paginated)
+- Info panel shows current Home count and current Home limit
 - Home entry click: teleport
 - Add Current Location (auto-name `home-<n>` using first available sequential index)
 - Open Home Deletion Page
@@ -78,6 +79,7 @@
 - Item list (paginated)
 - Convert cobblestone
 - Select item to open purchase detail page
+- Home slot upgrades are purchased only through the Points Shop
 - Back (`ARROW`)
 
 ## Points Shop Detail Menu

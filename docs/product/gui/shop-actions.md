@@ -34,6 +34,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 4. Points balance indicator (slot `50`) shows current Cobblestone Points.
 5. After the service effect reports final success, return to shop list.
 6. After failed purchase, return to shop list with exact reason.
+7. Home slot upgrades are service items and must be bought one at a time.
 
 ## Cobblestone Conversion Rules
 
@@ -52,6 +53,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 4. The executor receives the deducted amount and must report final success or failure through a completion callback.
 5. No inventory capacity check is performed for service items.
 6. The `temporary_dimension_pass` executor calls `TemporaryDimensionManager.createInstance` with the entry's configured environment.
+7. Home slot upgrade executors increase the player's Home limit only when the selected key is the next unpurchased slot.
 
 ## Failure Semantics
 
@@ -59,6 +61,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 2. **Unknown shop item**: rejected with explicit "unknown shop item" message.
 3. **Inventory full (physical items only)**: rejected before deduction.
 4. **Effect execution failure**: exact deducted Cobblestone Points are refunded; player receives explicit failure reason; audit log captures the failure.
+5. **Out-of-order Home slot purchase**: exact deducted Cobblestone Points are refunded with `SERVICE_PURCHASE_REFUND`.
 
 ## Cross-References
 

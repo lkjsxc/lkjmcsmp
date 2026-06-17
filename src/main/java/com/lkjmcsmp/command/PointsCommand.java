@@ -1,6 +1,8 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.PointsService;
+import com.lkjmcsmp.domain.ShopEffectExecutor;
+import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarRouter;
@@ -79,9 +81,21 @@ public final class PointsCommand implements CommandExecutor {
                     return;
                 }
             }
-            var result = pointsService.purchase(player, args[1], quantity);
+            String itemKey = args[1].toLowerCase();
+            ShopEntry entry = pointsService.getShopItems().get(itemKey);
+            var result = entry != null && entry.service()
+                    ? pointsService.purchase(player, itemKey, quantity,
+                    finalResult -> finishServicePurchase(player, entry, finalResult))
+                    : pointsService.purchase(player, itemKey, quantity);
+            if (result.pending()) {
+                player.sendMessage(result.message());
+                return;
+            }
             if (result.success()) {
                 achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", quantity);
+                if (entry != null) {
+                    actionBarHudService.onShopPurchase(player, itemKey, entry.points() * quantity);
+                }
                 actionBarHudService.refreshIdle(player);
             }
             player.sendMessage(result.message());
@@ -103,5 +117,20 @@ public final class PointsCommand implements CommandExecutor {
             return;
         }
         player.sendMessage("Usage: /shop [buy <item> [quantity]|override <item> <points>]");
+    }
+
+    private void finishServicePurchase(
+            org.bukkit.entity.Player player,
+            ShopEntry entry,
+            ShopEffectExecutor.Result result) {
+        if (result.success()) {
+            try {
+                achievementService.increment(player.getUniqueId(), "shop_purchase_quantity", 1);
+            } catch (Exception ignored) {
+            }
+            actionBarHudService.onShopPurchase(player, entry.key(), entry.points());
+            actionBarHudService.refreshIdle(player);
+        }
+        player.sendMessage(result.message());
     }
 }

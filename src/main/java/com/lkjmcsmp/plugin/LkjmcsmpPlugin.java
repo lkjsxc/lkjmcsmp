@@ -1,6 +1,7 @@
 package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.HomeSlotCatalog;
 import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.domain.PartyService;
 import com.lkjmcsmp.domain.PlayerSettingsService;
@@ -11,6 +12,7 @@ import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.persistence.AuditDao;
 import com.lkjmcsmp.persistence.EconomyOverrideDao;
 import com.lkjmcsmp.persistence.HomeDao;
+import com.lkjmcsmp.persistence.HomeSlotDao;
 import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
 import com.lkjmcsmp.persistence.PlayerSettingsDao;
@@ -77,6 +79,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         PointsDao pointsDao = new PointsDao(database);
         EconomyOverrideDao economyOverrideDao = new EconomyOverrideDao(database);
         HomeDao homeDao = new HomeDao(database);
+        HomeSlotDao homeSlotDao = new HomeSlotDao(database);
         WarpDao warpDao = new WarpDao(database);
         PartyDao partyDao = new PartyDao(database);
         AchievementDao achievementDao = new AchievementDao(database);
@@ -103,7 +106,10 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 pointsDao,
                 achievementsConfig.getConfigurationSection("achievements"));
 
-        HomeService homeService = new HomeService(homeDao, config.getInt("homes.max-per-player", 3));
+        HomeService homeService = new HomeService(
+                homeDao,
+                homeSlotDao,
+                config.getInt("homes.max-per-player", 3));
         WarpService warpService = new WarpService(warpDao);
         PartyService partyService = new PartyService(
                 partyDao,
@@ -122,6 +128,8 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         this.temporaryDimensionManager = TemporaryDimensionBootstrap.bootstrap(
                 this, schedulerBridge, pointsDao, new TemporaryDimensionDao(database), config, actionBarHudService);
         pointsService.registerEffect("temporary_dimension_pass", temporaryDimensionManager);
+        HomeSlotEffectExecutor homeSlotEffect = new HomeSlotEffectExecutor(homeService);
+        HomeSlotCatalog.entries().keySet().forEach(key -> pointsService.registerEffect(key, homeSlotEffect));
 
         MenuService menuService = new MenuService(
                 pointsService,

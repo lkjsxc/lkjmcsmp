@@ -20,9 +20,12 @@ final class HomeWarpViews {
 
     void openHomes(Player player, int page) throws Exception {
         List<com.lkjmcsmp.domain.model.NamedLocation> homes = homeService.list(player.getUniqueId());
+        int homeLimit = homeService.maxHomes(player.getUniqueId());
         int bounded = MenuPagination.clampPage(page, homes.size());
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.HOMES);
-        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Your Homes"));
+        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
+                "Your Homes",
+                "Homes: " + homes.size() + " / " + homeLimit));
         int slotIdx = 0;
         for (var home : MenuPagination.pageSlice(homes, bounded)) {
             if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {

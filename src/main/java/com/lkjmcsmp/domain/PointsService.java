@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -18,7 +17,7 @@ public final class PointsService {
     private final EconomyOverrideDao economyOverrideDao;
     private final AuditDao auditDao;
     private final Map<String, ShopEntry> shopItems;
-    private final Map<String, ShopEffectExecutor> effectExecutors = new HashMap<>();
+    private final Map<String, ShopEffectExecutor> effectExecutors = new java.util.HashMap<>();
     private final boolean allowPartialConvert;
     private final int maxConvertPerOp;
 
@@ -32,43 +31,9 @@ public final class PointsService {
         this.pointsDao = pointsDao;
         this.economyOverrideDao = economyOverrideDao;
         this.auditDao = auditDao;
-        this.shopItems = parseItems(shopItemsSection);
-        mergeOverrides(this.shopItems, economyOverrideDao.list());
+        this.shopItems = ShopCatalog.load(shopItemsSection, economyOverrideDao.list());
         this.allowPartialConvert = allowPartialConvert;
         this.maxConvertPerOp = maxConvertPerOp;
-    }
-
-    private static Map<String, ShopEntry> parseItems(ConfigurationSection section) {
-        Map<String, ShopEntry> items = new HashMap<>();
-        if (section == null) {
-            return items;
-        }
-        for (String key : section.getKeys(false)) {
-            ConfigurationSection entry = section.getConfigurationSection(key);
-            if (entry == null) {
-                continue;
-            }
-            Material material = Material.matchMaterial(entry.getString("material", ""));
-            if (material == null) {
-                continue;
-            }
-            String displayName = entry.getString("display_name", key);
-            items.put(key.toLowerCase(), new ShopEntry(
-                    key.toLowerCase(), material, displayName, entry.getInt("points", 1), entry.getBoolean("service", false), entry.getString("environment", "")));
-        }
-        return items;
-    }
-
-    private static void mergeOverrides(Map<String, ShopEntry> baseItems, Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
-        for (EconomyOverrideDao.OverrideRecord override : overrides) {
-            String itemKey = override.itemKey().toLowerCase();
-            ShopEntry base = baseItems.get(itemKey);
-            if (base == null) {
-                continue;
-            }
-            baseItems.put(itemKey, new ShopEntry(
-                    base.key(), base.material(), base.displayName(), override.pointsCost(), base.service(), base.environment()));
-        }
     }
 
     public void registerEffect(String itemKey, ShopEffectExecutor executor) {
@@ -113,6 +78,9 @@ public final class PointsService {
         if (entry == null) {
             return Result.fail("unknown shop item");
         }
+        if (entry.service() && quantity != 1) {
+            return Result.fail("service items must be purchased one at a time");
+        }
         int totalPoints;
         try {
             totalPoints = Math.multiplyExact(entry.points(), quantity);
@@ -132,18 +100,33 @@ public final class PointsService {
         } else {
             ShopEffectExecutor executor = effectExecutors.get(entry.key());
             if (executor == null) {
-                refundServicePurchase(player, totalPoints, "missing_executor");
+                refundServicePurchase(player, entry, totalPoints, "missing_executor");
                 return Result.fail("service item is not available");
             }
             try {
+                java.util.concurrent.atomic.AtomicBoolean returned = new java.util.concurrent.atomic.AtomicBoolean(false);
+                java.util.concurrent.atomic.AtomicReference<ShopEffectExecutor.Result> immediate = new java.util.concurrent.atomic.AtomicReference<>();
                 executor.execute(player, entry, totalPoints, result -> {
+                    if (!returned.get()) {
+                        immediate.set(result);
+                        return;
+                    }
                     if (!result.success()) {
-                        refundServicePurchase(player, totalPoints, "effect_failed");
+                        refundServicePurchase(player, entry, totalPoints, "effect_failed");
                     }
                     serviceCallback.accept(result);
                 });
+                returned.set(true);
+                ShopEffectExecutor.Result immediateResult = immediate.get();
+                if (immediateResult != null) {
+                    if (!immediateResult.success()) {
+                        refundServicePurchase(player, entry, totalPoints, "effect_failed");
+                        return Result.fail(immediateResult.message());
+                    }
+                    return Result.ok(immediateResult.message());
+                }
             } catch (RuntimeException ex) {
-                refundServicePurchase(player, totalPoints, "executor_exception");
+                refundServicePurchase(player, entry, totalPoints, "executor_exception");
                 return Result.fail("service purchase failed: " + ex.getMessage());
             }
             return Result.pending("creating service purchase");
@@ -151,11 +134,21 @@ public final class PointsService {
         return Result.ok("purchased " + quantity + "x " + entry.displayName() + " for " + totalPoints + " Cobblestone Points");
     }
 
-    private void refundServicePurchase(Player player, int amount, String reason) {
+    private void refundServicePurchase(Player player, ShopEntry entry, int amount, String reason) {
         try {
-            pointsDao.addPoints(player.getUniqueId(), amount, "TEMPORARY_DIMENSION_REFUND", "{\"reason\":\"" + reason + "\"}");
+            pointsDao.addPoints(player.getUniqueId(), amount, refundReason(entry), refundMeta(entry, reason));
         } catch (Exception ignored) {
         }
+    }
+
+    private static String refundReason(ShopEntry entry) {
+        return entry.key().equals("temporary_dimension_pass")
+                ? "TEMPORARY_DIMENSION_REFUND"
+                : "SERVICE_PURCHASE_REFUND";
+    }
+
+    private static String refundMeta(ShopEntry entry, String reason) {
+        return "{\"item\":\"" + entry.key() + "\",\"reason\":\"" + reason + "\"}";
     }
 
     public Result applyOverride(Player actor, String itemKey, int newPoints) throws Exception {
@@ -167,6 +160,9 @@ public final class PointsService {
             return Result.fail("unknown shop item");
         }
         String normalizedItemKey = itemKey.toLowerCase();
+        if (HomeSlotCatalog.isHomeSlotKey(normalizedItemKey)) {
+            return Result.fail("home slot prices are fixed");
+        }
         economyOverrideDao.upsert(normalizedItemKey, newPoints, 1, actor.getUniqueId());
         ShopEntry next = new ShopEntry(current.key(), current.material(), current.displayName(), newPoints, current.service(), current.environment());
         shopItems.put(normalizedItemKey, next);

@@ -29,6 +29,12 @@
 - `pitch` REAL NOT NULL
 - PRIMARY KEY (`player_uuid`, `home_name`)
 
+### `player_home_slots`
+
+- `player_uuid` TEXT PRIMARY KEY
+- `purchased_slots` INTEGER NOT NULL
+- `updated_at` TEXT NOT NULL
+
 ### `warps`
 
 - `warp_name` TEXT PRIMARY KEY
