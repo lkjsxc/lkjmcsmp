@@ -27,6 +27,9 @@ homes:
 economy:
   allow-partial-convert: false
   max-convert-per-op: 4096
+hud:
+  # Higher values reduce action-bar packet traffic. 10 ticks = 0.5 seconds.
+  actionbar-refresh-interval-ticks: 10
 party:
   invite-timeout-seconds: 60
 respawn-on-death:

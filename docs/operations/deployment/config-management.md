@@ -30,6 +30,10 @@
 - `teleport.initial-trigger.countdown-seconds`
 - `teleport.initial-trigger.cancel-on-exit`
 
+## HUD Config Keys
+
+- `hud.actionbar-refresh-interval-ticks` (default `10`; higher values reduce action-bar packet traffic)
+
 ## Runtime Config Refresh
 
 1. `saveDefaultConfig()` does not overwrite an existing deployed config.

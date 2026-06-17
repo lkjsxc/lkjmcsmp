@@ -16,7 +16,7 @@ The idle message is a permanent background layer for players who have the action
 
 ## Refresh Rules
 
-1. Idle content refreshes from player-safe HUD state changes and periodic renderer activity. The per-player periodic renderer sends action-bar packets every `2` ticks to prevent client fade-out.
+1. Idle content refreshes from player-safe HUD state changes and periodic renderer activity. The per-player periodic renderer sends action-bar packets every `10` ticks by default to reduce packet pressure.
 2. Refresh updates the idle source in the player's state directly; the next periodic evaluation picks it up.
 3. On player join, idle is computed and injected immediately before the first periodic tick when the HUD is enabled.
 

@@ -101,7 +101,12 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 config.getBoolean("economy.allow-partial-convert", false),
                 config.getInt("economy.max-convert-per-op", 4096));
         ActionBarRouter actionBarHudService = new ActionBarRouter(
-                schedulerBridge, pointsService, messageService, settingsService);
+                schedulerBridge,
+                pointsService,
+                messageService,
+                settingsService,
+                config.getLong("hud.actionbar-refresh-interval-ticks",
+                        ActionBarRouter.DEFAULT_REFRESH_INTERVAL_TICKS));
         AchievementService achievementService = new AchievementService(
                 achievementDao,
                 pointsDao,

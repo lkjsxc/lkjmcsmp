@@ -147,7 +147,14 @@ def assert_actionbar_hud_markers():
         raise RuntimeError(f"actionbar idle source missing: {SOURCE_ACTIONBAR_IDLE}")
     hud_text = SOURCE_ACTIONBAR_HUD.read_text(encoding="utf-8")
     idle_text = SOURCE_ACTIONBAR_IDLE.read_text(encoding="utf-8")
-    for expected in ("onCombatHit", "onTeleportCountdown", "onTeleportResult", "refreshIdle", "hud.idle"):
+    for expected in (
+        "DEFAULT_REFRESH_INTERVAL_TICKS = 10L",
+        "onCombatHit",
+        "onTeleportCountdown",
+        "onTeleportResult",
+        "refreshIdle",
+        "hud.idle",
+    ):
         if expected not in hud_text:
             raise RuntimeError(f"actionbar hud source missing `{expected}`")
     for expected in ("Statistic.PLAY_ONE_MINUTE", "cachedPoints", "hud.idle"):
@@ -159,7 +166,7 @@ def assert_actionbar_hud_markers():
 def assert_reliability_markers():
     renderer = SOURCE_ACTIONBAR_RENDERER.read_text(encoding="utf-8")
     if "player.sendActionBar(text)" not in renderer or "shouldSend(effective)" in renderer:
-        raise RuntimeError("actionbar renderer must continuously send effective text")
+        raise RuntimeError("actionbar renderer must send periodic effective text")
     respawn = SOURCE_RESPAWN_RTP.read_text(encoding="utf-8")
     for expected in ("runPlayerDelayedTask", "isCurrentSpawnBlock", "getSpawnLocation", "temporaryDimensionManager.isTemporaryDimensionWorld"):
         if expected not in respawn:

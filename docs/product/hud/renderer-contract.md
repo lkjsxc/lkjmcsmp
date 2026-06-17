@@ -2,12 +2,12 @@
 
 ## Summary
 
-A per-player periodic task evaluates HUD state, evicts expired messages, and dispatches action-bar packets often enough that the client action bar never fades out when the player's HUD preference is enabled.
+A per-player periodic task evaluates HUD state, evicts expired messages, and dispatches action-bar packets at a configurable cadence when the player's HUD preference is enabled.
 
 ## Per-Player Periodic Task
 
 1. Every online player has a dedicated periodic re-evaluation task scheduled on their player scheduler.
-2. Task interval: `2` ticks (`0.1` second).
+2. Default task interval: `10` ticks (`0.5` second), configured by `hud.actionbar-refresh-interval-ticks`.
 3. Each tick performs:
    - Drop plugin HUD state and skip dispatch if the player's HUD preference is disabled.
    - Evict expired messages from the player's state.
@@ -18,11 +18,11 @@ A per-player periodic task evaluates HUD state, evicts expired messages, and dis
 5. On player quit, the periodic task stops and state is dropped.
 6. On plugin disable, all periodic tasks stop.
 
-## Continuous Send Rule
+## Periodic Send Rule
 
-1. The renderer sends the effective action-bar text every `2` ticks, even when the text is unchanged.
-2. This intentionally avoids relying on client-side action-bar retention.
-3. State may still remember the last text for diagnostics, but it must not suppress periodic sends.
+1. The renderer sends the effective action-bar text at the configured interval, even when the text is unchanged.
+2. This balances client-side action-bar retention with packet-limit headroom.
+3. State may still remember the last text for diagnostics, but it must not suppress configured periodic sends.
 4. Disabled players receive no blank or clearing action bar from this plugin.
 
 ## Immediate Trigger

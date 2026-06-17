@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ActionBarRouter implements TeleportHudSink {
-    private static final long TICK_INTERVAL = 2L;
+    public static final long DEFAULT_REFRESH_INTERVAL_TICKS = 10L;
+    private static final long MIN_REFRESH_INTERVAL_TICKS = 2L;
     private static final long COMBAT_TTL_MS = 3000L;
     private static final long TELEPORT_RESULT_TTL_MS = 2000L;
     private static final long SHOP_TTL_MS = 3000L;
@@ -29,19 +30,23 @@ public final class ActionBarRouter implements TeleportHudSink {
     private final PlayerSettingsService settings;
     private final MessageService messages;
     private final Map<UUID, PlayerHudState> states = new ConcurrentHashMap<>();
+    private final long refreshIntervalTicks;
     private final ActionBarIdleRefresh idleRefresh;
     private final ActionBarRenderer renderer;
     private final AtomicInteger onlineCount = new AtomicInteger(0);
     private volatile boolean running = false;
 
-    public ActionBarRouter(
-            SchedulerBridge schedulerBridge,
-            PointsService pointsService,
-            MessageService messages,
-            PlayerSettingsService settings) {
+    public ActionBarRouter(SchedulerBridge schedulerBridge, PointsService pointsService,
+                           MessageService messages, PlayerSettingsService settings) {
+        this(schedulerBridge, pointsService, messages, settings, DEFAULT_REFRESH_INTERVAL_TICKS);
+    }
+
+    public ActionBarRouter(SchedulerBridge schedulerBridge, PointsService pointsService,
+                           MessageService messages, PlayerSettingsService settings, long refreshIntervalTicks) {
         this.schedulerBridge = schedulerBridge;
         this.settings = settings;
         this.messages = messages;
+        this.refreshIntervalTicks = Math.max(MIN_REFRESH_INTERVAL_TICKS, refreshIntervalTicks);
         this.idleRefresh = new ActionBarIdleRefresh(schedulerBridge, pointsService, messages);
         this.renderer = new ActionBarRenderer(schedulerBridge);
     }
@@ -168,7 +173,7 @@ public final class ActionBarRouter implements TeleportHudSink {
 
     private void scheduleNext(Player player) {
         if (!running || !player.isOnline()) return;
-        schedulerBridge.runPlayerDelayedTask(player, TICK_INTERVAL, () -> {
+        schedulerBridge.runPlayerDelayedTask(player, refreshIntervalTicks, () -> {
             if (!running || !player.isOnline()) return;
             renderOnce(player);
             scheduleNext(player);

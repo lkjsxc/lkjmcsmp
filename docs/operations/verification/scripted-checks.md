@@ -58,7 +58,7 @@ Extended smoke suite:
 - Action-bar source markers enforce deterministic state priority (teleport > combat > idle).
 - Action-bar markers include teleport countdown/completion and combat 3-second HP-bar overlay.
 - Action bar never stays blank after combat or teleport overlay expires; idle reclaims immediately.
-- Action bar is re-sent continuously and does not rely on changed text to stay visible.
+- Action bar is re-sent periodically and does not rely on changed text to stay visible.
 - Combat overlay text omits the literal `"HP"`; shows target name followed by HP bar only.
 - Shop list renders service items with configured material and `"§dService Item — executes on purchase"` lore line.
 - Temporary End Pass shop item is visible and purchasable.
