@@ -10,6 +10,7 @@ import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import com.lkjmcsmp.gui.MenuService;
 import com.lkjmcsmp.plugin.hud.ActionBarRouter;
+import com.lkjmcsmp.plugin.tips.TipService;
 import com.lkjmcsmp.achievement.AchievementService;
 
 public record Services(
@@ -23,5 +24,6 @@ public record Services(
         AchievementService achievement,
         HomeSlotPurchaseService homeSlotPurchases,
         ActionBarRouter hud,
+        TipService tips,
         MenuService menus) {
 }

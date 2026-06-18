@@ -13,7 +13,7 @@ public final class LkjmcsmpTabCompleter implements TabCompleter {
     private static final List<String> ROOT = List.of(
             "help", "menu", "home", "shop", "achievement", "profile",
             "settings", "language", "points", "teleport", "warps", "team");
-    private static final List<String> HOME = List.of("list", "go", "set", "addcurrent", "delete", "buy-slot");
+    private static final List<String> HOME = List.of("list", "go", "create", "delete", "buy-slot");
     private static final List<String> SHOP = List.of("buy", "convert");
     private static final List<String> SETTINGS = List.of("hotbar", "actionbar");
     private static final List<String> TELEPORT = List.of("rtp", "tpa", "tpahere", "tp", "accept", "deny");
@@ -44,7 +44,7 @@ public final class LkjmcsmpTabCompleter implements TabCompleter {
     private List<String> completeHome(CommandSender sender, String[] args) {
         if (args.length == 2) return prefix(HOME, args[1]);
         if (!(sender instanceof Player player) || args.length != 3) return List.of();
-        if (!List.of("go", "delete").contains(args[1].toLowerCase(Locale.ROOT))) return List.of();
+        if (!List.of("go", "create", "delete").contains(args[1].toLowerCase(Locale.ROOT))) return List.of();
         try {
             return prefix(services.homes().list(player.getUniqueId()).stream().map(h -> h.name()).toList(), args[2]);
         } catch (Exception ex) {

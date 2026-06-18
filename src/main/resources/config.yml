@@ -30,6 +30,9 @@ economy:
 hud:
   # Higher values reduce action-bar packet traffic. 10 ticks = 0.5 seconds.
   actionbar-refresh-interval-ticks: 10
+tips:
+  enabled: true
+  interval-ticks: 72000
 party:
   invite-timeout-seconds: 60
 respawn-on-death:

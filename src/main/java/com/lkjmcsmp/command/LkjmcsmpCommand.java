@@ -64,8 +64,7 @@ public final class LkjmcsmpCommand implements CommandExecutor {
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "list" -> player.performCommand("homes");
             case "go" -> player.performCommand("home " + (args.length > 1 ? args[1] : "home"));
-            case "set" -> player.performCommand("sethome " + (args.length > 1 ? args[1] : "home"));
-            case "addcurrent" -> player.performCommand("homes addcurrent" + suffix(args, 1));
+            case "create" -> player.performCommand("home create" + suffix(args, 1));
             case "delete" -> player.performCommand(args.length > 1 ? "delhome " + args[1] : "delhome");
             case "buy-slot" -> buyHomeSlot(player);
             default -> sendHelp(player, "home");
@@ -175,7 +174,7 @@ public final class LkjmcsmpCommand implements CommandExecutor {
 
     private void sendHelp(CommandSender sender, String topic) {
         if (topic.equalsIgnoreCase("home")) {
-            sender.sendMessage("/lkjmcsmp home <list|go|set|addcurrent|delete|buy-slot>");
+            sender.sendMessage("/lkjmcsmp home <list|go|create|delete|buy-slot>");
         } else if (topic.equalsIgnoreCase("shop")) {
             sender.sendMessage("/lkjmcsmp shop [buy <item> [quantity]|convert]");
         } else if (topic.equalsIgnoreCase("settings")) {

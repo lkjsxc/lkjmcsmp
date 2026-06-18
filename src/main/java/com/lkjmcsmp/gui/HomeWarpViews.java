@@ -48,9 +48,9 @@ final class HomeWarpViews {
         }
         inventory.setItem(MenuLayout.CONTEXT_SLOT, MenuItems.action(
                 Material.RESPAWN_ANCHOR,
-                "home.addcurrent",
-                "Add Current Location",
-                "Runs /homes addcurrent"));
+                "home.create",
+                "Create Home",
+                "Runs /home create"));
         renderHomeSlotPurchase(player, inventory, homeLimit);
         inventory.setItem(51, MenuItems.action(
                 Material.BARRIER,

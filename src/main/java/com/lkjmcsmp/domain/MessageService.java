@@ -47,6 +47,10 @@ public final class MessageService {
         return languages;
     }
 
+    public String language(Player player) {
+        return settings.language(player.getUniqueId());
+    }
+
     public String get(Player player, String key, Object... placeholders) {
         return get(settings.language(player.getUniqueId()), key, placeholders);
     }

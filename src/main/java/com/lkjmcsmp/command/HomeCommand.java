@@ -35,13 +35,6 @@ public final class HomeCommand implements CommandExecutor {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
                 switch (command.getName().toLowerCase()) {
-                    case "sethome" -> {
-                        var result = homeService.setHome(player, args.length == 0 ? "home" : args[0]);
-                        if (result.success()) {
-                            achievementService.increment(player.getUniqueId(), "home_set", 1);
-                        }
-                        player.sendMessage(result.message());
-                    }
                     case "delhome" -> {
                         if (args.length == 0) {
                             player.sendMessage("Usage: /delhome <name>");
@@ -49,7 +42,7 @@ public final class HomeCommand implements CommandExecutor {
                         }
                         player.sendMessage(homeService.deleteHome(player.getUniqueId(), args[0]).message());
                     }
-                    case "homes" -> listHomesOrAddCurrentOrBuySlot(player, args);
+                    case "homes" -> listHomesOrBuySlot(player, args);
                     case "home" -> teleportHome(player, args);
                     default -> {
                         return false;
@@ -63,6 +56,25 @@ public final class HomeCommand implements CommandExecutor {
     }
 
     private void teleportHome(org.bukkit.entity.Player player, String[] args) throws Exception {
+        if (args.length > 0 && args[0].equalsIgnoreCase("create")) {
+            createHome(player, args);
+            return;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("list")) {
+            listHomes(player);
+            return;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("go")) {
+            args = java.util.Arrays.copyOfRange(args, 1, args.length);
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("delete")) {
+            deleteHome(player, args);
+            return;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("buy-slot")) {
+            buySlot(player);
+            return;
+        }
         String name = args.length == 0 ? "home" : args[0];
         var home = homeService.findHome(player.getUniqueId(), name);
         if (home.isEmpty()) {
@@ -77,23 +89,39 @@ public final class HomeCommand implements CommandExecutor {
         teleportService.teleportToLocation(player, location.get(), "Teleported home.", result -> player.sendMessage(result.message()));
     }
 
-    private void listHomesOrAddCurrentOrBuySlot(org.bukkit.entity.Player player, String[] args) throws Exception {
-        if (args.length > 0 && (args[0].equalsIgnoreCase("addcurrent") || args[0].equalsIgnoreCase("add-current-location"))) {
-            var result = args.length > 1 ? homeService.setHome(player, args[1]) : homeService.setAutoHome(player);
-            if (result.success()) {
-                achievementService.increment(player.getUniqueId(), "home_set", 1);
-            }
-            player.sendMessage(result.message());
-            return;
-        }
+    private void listHomesOrBuySlot(org.bukkit.entity.Player player, String[] args) throws Exception {
         if (args.length > 0 && args[0].equalsIgnoreCase("buy-slot")) {
-            var result = homeSlotPurchases.purchaseNext(player);
-            if (result.success()) {
-                actionBarHudService.refreshIdle(player);
-            }
-            player.sendMessage(result.message());
+            buySlot(player);
             return;
         }
+        listHomes(player);
+    }
+
+    private void createHome(org.bukkit.entity.Player player, String[] args) throws Exception {
+        var result = args.length > 1 ? homeService.setHome(player, args[1]) : homeService.setAutoHome(player);
+        if (result.success()) {
+            achievementService.increment(player.getUniqueId(), "home_set", 1);
+        }
+        player.sendMessage(result.message());
+    }
+
+    private void deleteHome(org.bukkit.entity.Player player, String[] args) throws Exception {
+        if (args.length < 2) {
+            player.sendMessage("Usage: /home delete <name>");
+            return;
+        }
+        player.sendMessage(homeService.deleteHome(player.getUniqueId(), args[1]).message());
+    }
+
+    private void buySlot(org.bukkit.entity.Player player) throws Exception {
+        var result = homeSlotPurchases.purchaseNext(player);
+        if (result.success()) {
+            actionBarHudService.refreshIdle(player);
+        }
+        player.sendMessage(result.message());
+    }
+
+    private void listHomes(org.bukkit.entity.Player player) throws Exception {
         player.sendMessage("Homes: " + homeService.list(player.getUniqueId()).stream()
                 .map(h -> h.name())
                 .toList());

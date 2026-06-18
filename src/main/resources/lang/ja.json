@@ -58,6 +58,7 @@
   "error.menu-action": "メニュー操作に失敗しました: {message}",
   "hud.idle": "ポイント: {points} | プレイ時間: {hours}h {minutes}m | オンライン: {online}",
   "hud.shop.purchase": "§a{item}§a を §f{cost}§a ポイントで購入",
+  "tips.prefix": "§6[ヒント]§f",
   "achievement.menu.info": "実績",
   "achievement.menu.empty": "実績がありません",
   "achievement.status.locked": "未達成",

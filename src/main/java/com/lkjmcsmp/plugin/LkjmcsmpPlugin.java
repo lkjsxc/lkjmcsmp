@@ -22,6 +22,8 @@ import com.lkjmcsmp.persistence.TemporaryDimensionDao;
 import com.lkjmcsmp.persistence.WarpDao;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarRouter;
+import com.lkjmcsmp.plugin.tips.TipCatalog;
+import com.lkjmcsmp.plugin.tips.TipService;
 import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionBootstrap;
 import com.lkjmcsmp.plugin.temporarydimension.TemporaryDimensionManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -47,6 +49,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
             Services initialized = initializeServices();
             CommandRegistry.registerAll(this, initialized, temporaryDimensionManager);
             ListenerRegistry.registerAll(this, initialized, schedulerBridge, temporaryDimensionManager);
+            initialized.tips().start();
             ProxyRuntimeValidator.validate(this);
             this.services = initialized;
             getLogger().info("lkjmcsmp enabled");
@@ -60,6 +63,9 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
     public void onDisable() {
         if (services != null && services.hud() != null) {
             services.hud().stop();
+        }
+        if (services != null && services.tips() != null) {
+            services.tips().stop();
         }
         if (schedulerBridge != null) {
             schedulerBridge.cancelTasks();
@@ -135,6 +141,12 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         this.temporaryDimensionManager = TemporaryDimensionBootstrap.bootstrap(
                 this, schedulerBridge, pointsDao, new TemporaryDimensionDao(database), config, actionBarHudService);
         pointsService.registerEffect("temporary_dimension_pass", temporaryDimensionManager);
+        TipService tipService = new TipService(
+                schedulerBridge,
+                messageService,
+                TipCatalog.load(this, languages),
+                config.getBoolean("tips.enabled", true),
+                config.getLong("tips.interval-ticks", TipService.DEFAULT_INTERVAL_TICKS));
 
         MenuService menuService = new MenuService(
                 pointsService,
@@ -158,6 +170,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 achievementService,
                 homeSlotPurchaseService,
                 actionBarHudService,
+                tipService,
                 menuService);
     }
 

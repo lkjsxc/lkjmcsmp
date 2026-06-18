@@ -65,8 +65,8 @@ final class CoreMenuActions {
     private boolean handleHomes(Player player, String action, String payload) throws Exception {
         return switch (action) {
             case "home.teleport" -> command(player, "home " + payload);
-            case "home.addcurrent" -> {
-                command(player, "homes addcurrent");
+            case "home.create" -> {
+                command(player, "home create");
                 views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
                 yield true;
             }

@@ -58,6 +58,7 @@
   "error.menu-action": "Menu action failed: {message}",
   "hud.idle": "Points: {points} | Playtime: {hours}h {minutes}m | Online: {online}",
   "hud.shop.purchase": "§aPurchased §f{item}§a for §f{cost}§a Points",
+  "tips.prefix": "§6[Tip]§f",
   "achievement.menu.info": "Achievements",
   "achievement.menu.empty": "No Achievements",
   "achievement.status.locked": "Locked",

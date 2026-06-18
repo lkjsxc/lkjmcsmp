@@ -2,6 +2,7 @@ package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.command.AchievementCommand;
 import com.lkjmcsmp.command.HomeCommand;
+import com.lkjmcsmp.command.HomeTabCompleter;
 import com.lkjmcsmp.command.LkjmcsmpCommand;
 import com.lkjmcsmp.command.LkjmcsmpTabCompleter;
 import com.lkjmcsmp.command.MenuCommand;
@@ -34,8 +35,8 @@ final class CommandRegistry {
         HomeCommand homeCommand = new HomeCommand(
                 services.homes(), services.homeSlotPurchases(),
                 services.teleports(), services.achievement(), services.hud());
-        register(plugin, "home", homeCommand);
-        register(plugin, "sethome", homeCommand);
+        HomeTabCompleter homeCompleter = new HomeTabCompleter(services.homes());
+        register(plugin, "home", homeCommand, homeCompleter);
         register(plugin, "delhome", homeCommand);
         register(plugin, "homes", homeCommand);
         register(plugin, "warp", new WarpCommand(services.warps(), services.teleports(), services.achievement()));
