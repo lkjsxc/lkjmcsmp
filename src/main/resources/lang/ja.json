@@ -67,7 +67,7 @@
   "achievement.lore.status": "状態: {status}",
   "achievement.lore.key": "キー: {key}",
   "achievement.lore.progress": "進捗: {current}/{target} ({percent}%)",
-  "achievement.lore.reward": "報酬: {points} Cobblestone Points",
+  "achievement.lore.reward": "報酬: {points} ポイント",
   "achievement.lore.claim-available": "クリックで報酬を受け取る",
   "achievement.lore.claim-unavailable": "まだ受け取れません",
   "achievement.first_convert.title": "初めての変換",

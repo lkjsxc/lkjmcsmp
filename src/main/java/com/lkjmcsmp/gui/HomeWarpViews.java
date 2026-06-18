@@ -78,7 +78,7 @@ final class HomeWarpViews {
                 balance >= entry.points() ? Material.LIME_DYE : Material.GRAY_DYE,
                 "home.buy-slot",
                 "Buy Next Home Slot",
-                "Cost: " + entry.points() + " Cobblestone Points",
+                "Cost: " + entry.points() + " Points",
                 "Balance: " + balance,
                 "New limit: " + (currentLimit + 1)));
     }

@@ -28,7 +28,7 @@ public final class HomeSlotPurchaseService {
         ShopEntry entry = next.get();
         int balance = pointsDao.getBalance(player.getUniqueId());
         if (balance < entry.points()) {
-            return Result.fail("insufficient Cobblestone Points");
+            return Result.fail("insufficient Points");
         }
         pointsDao.addPoints(player.getUniqueId(), -entry.points(), "HOME_SLOT_PURCHASE",
                 "{\"slot\":\"" + entry.key() + "\"}");

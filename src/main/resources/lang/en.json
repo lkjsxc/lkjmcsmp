@@ -67,7 +67,7 @@
   "achievement.lore.status": "Status: {status}",
   "achievement.lore.key": "Key: {key}",
   "achievement.lore.progress": "Progress: {current}/{target} ({percent}%)",
-  "achievement.lore.reward": "Reward: {points} Cobblestone Points",
+  "achievement.lore.reward": "Reward: {points} Points",
   "achievement.lore.claim-available": "Click to claim reward",
   "achievement.lore.claim-unavailable": "Claim unavailable",
   "achievement.first_convert.title": "First Conversion",

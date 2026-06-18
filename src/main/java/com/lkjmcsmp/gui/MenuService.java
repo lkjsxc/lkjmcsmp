@@ -175,7 +175,7 @@ public final class MenuService {
                 || display.equals(" ")
                 || display.startsWith("Page ::")
                 || display.startsWith("Selected ::")
-                || display.equals("Your Cobblestone Points")
+                || display.equals("Your Points")
                 || event.getRawSlot() == MenuLayout.INFO_PANEL_SLOT
                 || type.name().endsWith("STAINED_GLASS_PANE");
     }

@@ -55,7 +55,7 @@ final class TopLevelMenuViews {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.SHOP);
         int points = safePoints(player);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
-                "Points Shop", "Your balance: " + points + " Cobblestone Points"));
+                "Points Shop", "Your balance: " + points + " Points"));
         int slotIdx = 0;
         for (Map.Entry<String, ShopEntry> entry : MenuPagination.pageSlice(sorted, bounded)) {
             ShopEntry value = entry.getValue();
@@ -64,7 +64,7 @@ final class TopLevelMenuViews {
             meta.setDisplayName("Item :: " + entry.getKey());
             List<String> lore = new ArrayList<>();
             lore.add(value.displayName());
-            lore.add("Price: " + value.points() + " Cobblestone Points");
+            lore.add("Price: " + value.points() + " Points");
             if (value.service()) {
                 lore.add("\u00A7dService Item — executes on purchase");
             } else {
@@ -86,7 +86,7 @@ final class TopLevelMenuViews {
                 Material.COBBLESTONE,
                 "shop.convert",
                 "Convert Cobblestone",
-                "Converts all cobblestone in inventory to Cobblestone Points"));
+                "Converts all cobblestone in inventory to Points"));
         inventory.setItem(50, playerPointsItem(player));
         MenuPagination.renderControls(inventory, bounded, sorted.size());
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
@@ -113,18 +113,18 @@ final class TopLevelMenuViews {
         }
         int points = safePoints(player);
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(
-                "Buying: " + selected.displayName(), "Price: " + selected.points() + " Cobblestone Points"));
+                "Buying: " + selected.displayName(), "Price: " + selected.points() + " Points"));
         inventory.setItem(13, MenuItems.named(
                 selected.material(),
                 "Selected :: " + selected.displayName(),
-                "Price: " + selected.points() + " Cobblestone Points",
+                "Price: " + selected.points() + " Points",
                 selected.service() ? "\u00A7dService — executes on purchase" : "Direct buy amounts: 1, 2, 4, 8, 16, 32, 64",
                 "Click a button to purchase immediately."));
         inventory.setItem(50, MenuItems.named(
                 Material.SUNFLOWER,
-                "Your Cobblestone Points",
+                "Your Points",
                 "Balance: " + points,
-                "Price: " + selected.points() + " Cobblestone Points"));
+                "Price: " + selected.points() + " Points"));
         if (selected.service()) {
             int total = selected.points();
             boolean affordable = points >= total;
@@ -132,8 +132,8 @@ final class TopLevelMenuViews {
                     affordable ? Material.LIME_DYE : Material.GRAY_DYE,
                     affordable ? "shop.purchase.service" : "locked",
                     affordable ? "Purchase" : "Purchase (Locked)",
-                    "Cost: " + total + " Cobblestone Points",
-                    affordable ? "Click to purchase now" : "Not enough Cobblestone Points"));
+                    "Cost: " + total + " Points",
+                    affordable ? "Click to purchase now" : "Not enough Points"));
         } else {
             inventory.setItem(19, quantityItem(selected.points(), points, 1));
             inventory.setItem(20, quantityItem(selected.points(), points, 2));
@@ -153,7 +153,7 @@ final class TopLevelMenuViews {
     }
 
     private ItemStack playerPointsItem(Player player) {
-        return MenuItems.named(Material.SUNFLOWER, "Your Cobblestone Points", "Balance: " + safePoints(player));
+        return MenuItems.named(Material.SUNFLOWER, "Your Points", "Balance: " + safePoints(player));
     }
 
     private static ItemStack quantityItem(int pointsPerItem, int balance, int quantity) {
@@ -164,8 +164,8 @@ final class TopLevelMenuViews {
                 affordable ? "shop.purchase.quantity" : "locked",
                 String.valueOf(quantity),
                 "Buy x" + quantity,
-                "Cost: " + total + " Cobblestone Points",
-                affordable ? "Click to purchase now" : "Not enough Cobblestone Points");
+                "Cost: " + total + " Points",
+                affordable ? "Click to purchase now" : "Not enough Points");
     }
 
     void openProfile(Player player) {

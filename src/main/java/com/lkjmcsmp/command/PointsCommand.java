@@ -32,7 +32,7 @@ public final class PointsCommand implements CommandExecutor {
         return CommandUtil.requirePlayer(sender).map(player -> {
             try {
                 switch (command.getName().toLowerCase()) {
-                    case "points" -> player.sendMessage("Cobblestone Points: " + pointsService.getBalance(player.getUniqueId()));
+                    case "points" -> player.sendMessage("Points: " + pointsService.getBalance(player.getUniqueId()));
                     case "convert" -> handleConvert(player, args);
                     case "shop" -> handleShop(player, args);
                     default -> {
