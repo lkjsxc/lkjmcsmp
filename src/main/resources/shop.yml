@@ -1,15 +1,15 @@
 items:
   oak_log:
     material: OAK_LOG
-    points: 16
+    points: 8
     display_name: "Oak Log"
   spruce_log:
     material: SPRUCE_LOG
-    points: 16
+    points: 8
     display_name: "Spruce Log"
   birch_log:
     material: BIRCH_LOG
-    points: 16
+    points: 8
     display_name: "Birch Log"
   temporary_dimension_pass:
     material: DRAGON_EGG

@@ -62,6 +62,12 @@ public final class PointsService {
         return Result.ok("converted " + consume + " cobblestone into " + consume + " Cobblestone Points", consume);
     }
 
+    public Result convertAllCobblestone(Player player) throws Exception {
+        int available = InventoryUtil.countMaterial(player, Material.COBBLESTONE);
+        if (available <= 0) return Result.fail("no cobblestone available");
+        return convertCobblestone(player, available);
+    }
+
     public Result purchase(Player player, String itemKey) throws Exception {
         return purchase(player, itemKey, 1);
     }
@@ -155,13 +161,13 @@ public final class PointsService {
         if (newPoints <= 0) {
             return Result.fail("points must be positive");
         }
-        ShopEntry current = shopItems.get(itemKey.toLowerCase());
-        if (current == null) {
-            return Result.fail("unknown shop item");
-        }
         String normalizedItemKey = itemKey.toLowerCase();
         if (HomeSlotCatalog.isHomeSlotKey(normalizedItemKey)) {
             return Result.fail("home slot prices are fixed");
+        }
+        ShopEntry current = shopItems.get(normalizedItemKey);
+        if (current == null) {
+            return Result.fail("unknown shop item");
         }
         economyOverrideDao.upsert(normalizedItemKey, newPoints, 1, actor.getUniqueId());
         ShopEntry next = new ShopEntry(current.key(), current.material(), current.displayName(), newPoints, current.service(), current.environment());
@@ -185,9 +191,5 @@ public final class PointsService {
         public static Result fail(String message) { return new Result(Status.FAILURE, message, 0); }
     }
 
-    public enum Status {
-        SUCCESS,
-        PENDING,
-        FAILURE
-    }
+    public enum Status { SUCCESS, PENDING, FAILURE }
 }

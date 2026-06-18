@@ -13,6 +13,8 @@
 - `/lkjmcsmp home addcurrent [name]`
 - `/lkjmcsmp home delete <name>`
 - `/lkjmcsmp home buy-slot`
+- `/lkjmcsmp warps list`
+- `/lkjmcsmp warps go <name>`
 - `/warp <name>`
 - `/setwarp <name>`
 - `/delwarp <name>`

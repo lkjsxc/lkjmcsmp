@@ -37,10 +37,11 @@ public final class MenuService {
         this.profileMenuView = new ProfileMenuView(pointsService, achievementService, partyService);
         RootSettingsMenuView rootSettingsView = new RootSettingsMenuView(settingsService, messageService);
         this.topLevelViews = new TopLevelMenuViews(
-                pointsService, achievementService, profileMenuView, rootSettingsView);
+                pointsService, achievementService, messageService, profileMenuView, rootSettingsView);
         CoreMenuViews coreViews = new CoreMenuViews(
                 homeService,
                 warpService,
+                pointsService,
                 partyService,
                 teleportService);
         this.coreMenus = new CoreMenuService(coreViews, this::openRoot);
@@ -67,6 +68,30 @@ public final class MenuService {
     public void openAchievement(Player player) {
         topLevelActions.setAchievementPage(player.getUniqueId(), 0);
         topLevelViews.openAchievement(player, topLevelActions.achievementPage(player.getUniqueId()));
+    }
+
+    public void openSettings(Player player) {
+        topLevelViews.openSettings(player);
+    }
+
+    public void openLanguage(Player player) {
+        topLevelViews.openLanguage(player);
+    }
+
+    public void openTeleport(Player player) throws Exception {
+        coreMenus.open(player, MenuTitles.TELEPORT);
+    }
+
+    public void openHomes(Player player) throws Exception {
+        coreMenus.open(player, MenuTitles.HOMES);
+    }
+
+    public void openWarps(Player player) throws Exception {
+        coreMenus.open(player, MenuTitles.WARPS);
+    }
+
+    public void openTeam(Player player) throws Exception {
+        coreMenus.open(player, MenuTitles.TEAM);
     }
 
     public void openProfile(Player player) {

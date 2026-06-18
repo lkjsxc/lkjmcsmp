@@ -19,6 +19,10 @@ class ShopCatalogTest {
         var items = ShopCatalog.load(config.getConfigurationSection("items"), List.of());
 
         assertEndStone(items);
+        assertEquals(8, items.get("oak_log").points());
+        assertEquals(8, items.get("spruce_log").points());
+        assertEquals(8, items.get("birch_log").points());
+        assertTrue(items.keySet().stream().noneMatch(HomeSlotCatalog::isHomeSlotKey));
     }
 
     @Test

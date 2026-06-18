@@ -25,6 +25,7 @@ public final class ActionBarRouter implements TeleportHudSink {
     private static final String COMBAT_SOURCE = "combat";
     private static final String SHOP_SOURCE = "shop";
     private static final String TEMP_DIM_SOURCE = "tempdim";
+    private static final String IDLE_MESSAGE_KEY = "hud.idle";
 
     private final SchedulerBridge schedulerBridge;
     private final PlayerSettingsService settings;

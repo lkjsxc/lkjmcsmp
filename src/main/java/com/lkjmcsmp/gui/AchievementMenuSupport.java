@@ -2,16 +2,16 @@ package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.achievement.AchievementStatus;
 import com.lkjmcsmp.achievement.AchievementService;
+import com.lkjmcsmp.domain.MessageService;
+import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 final class AchievementMenuSupport {
-    private static final String KEY_PREFIX = "Key: ";
-
     private AchievementMenuSupport() {
     }
 
-    static ItemStack toItem(AchievementService.AchievementView view) {
+    static ItemStack toItem(AchievementService.AchievementView view, MessageService messages, Player player) {
         int target = Math.max(1, view.definition().target());
         int current = Math.max(0, view.progress());
         int percent = Math.min(100, (int) Math.round((current * 100.0D) / target));
@@ -20,25 +20,18 @@ final class AchievementMenuSupport {
                 statusMaterial(view.status()),
                 action,
                 view.definition().key(),
-                view.definition().title(),
-                KEY_PREFIX + view.definition().key(),
-                "Status: " + view.status().name(),
-                "Progress: " + current + "/" + target + " (" + percent + "%)",
-                "Reward: " + view.definition().rewardPoints() + " Cobblestone Points",
-                view.definition().description(),
-                view.status() == AchievementStatus.COMPLETED_UNCLAIMED ? "Click to claim reward" : "Claim unavailable");
-    }
-
-    static String extractKey(ItemStack item) {
-        if (item == null || item.getItemMeta() == null || item.getItemMeta().getLore() == null) {
-            return null;
-        }
-        for (String line : item.getItemMeta().getLore()) {
-            if (line.startsWith(KEY_PREFIX)) {
-                return line.substring(KEY_PREFIX.length()).trim();
-            }
-        }
-        return null;
+                messages.get(player, view.definition().titleKey()),
+                messages.get(player, "achievement.lore.key", "key", view.definition().key()),
+                messages.get(player, "achievement.lore.status",
+                        "status", messages.get(player, statusKey(view.status()))),
+                messages.get(player, "achievement.lore.progress",
+                        "current", current, "target", target, "percent", percent),
+                messages.get(player, "achievement.lore.reward",
+                        "points", view.definition().rewardPoints()),
+                messages.get(player, view.definition().descriptionKey()),
+                messages.get(player, view.status() == AchievementStatus.COMPLETED_UNCLAIMED
+                        ? "achievement.lore.claim-available"
+                        : "achievement.lore.claim-unavailable"));
     }
 
     private static Material statusMaterial(AchievementStatus status) {
@@ -47,6 +40,15 @@ final class AchievementMenuSupport {
             case IN_PROGRESS -> Material.YELLOW_DYE;
             case COMPLETED_UNCLAIMED -> Material.LIME_DYE;
             case COMPLETED_CLAIMED -> Material.EMERALD;
+        };
+    }
+
+    private static String statusKey(AchievementStatus status) {
+        return switch (status) {
+            case LOCKED -> "achievement.status.locked";
+            case IN_PROGRESS -> "achievement.status.in-progress";
+            case COMPLETED_UNCLAIMED -> "achievement.status.completed-unclaimed";
+            case COMPLETED_CLAIMED -> "achievement.status.completed-claimed";
         };
     }
 }

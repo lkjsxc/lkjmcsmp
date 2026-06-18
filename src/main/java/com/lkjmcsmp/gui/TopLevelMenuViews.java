@@ -1,6 +1,7 @@
 package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.PointsService;
+import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.domain.model.ShopEntry;
 import com.lkjmcsmp.achievement.AchievementService;
 import org.bukkit.Bukkit;
@@ -17,19 +18,20 @@ import java.util.Map;
 
 final class TopLevelMenuViews {
     private final PointsService pointsService;
-    private final AchievementService achievementService;
     private final ProfileMenuView profileMenuView;
     private final RootSettingsMenuView rootSettingsView;
+    private final AchievementMenuView achievementMenuView;
 
     TopLevelMenuViews(
             PointsService pointsService,
             AchievementService achievementService,
+            MessageService messages,
             ProfileMenuView profileMenuView,
             RootSettingsMenuView rootSettingsView) {
         this.pointsService = pointsService;
-        this.achievementService = achievementService;
         this.profileMenuView = profileMenuView;
         this.rootSettingsView = rootSettingsView;
+        this.achievementMenuView = new AchievementMenuView(achievementService, messages);
     }
 
     void openRoot(Player player) {
@@ -147,26 +149,7 @@ final class TopLevelMenuViews {
     }
 
     void openAchievement(Player player, int page) {
-        Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.ACHIEVEMENT);
-        inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel("Achievements"));
-        try {
-            List<AchievementService.AchievementView> views = achievementService.getViews(player.getUniqueId()).values().stream().toList();
-            int bounded = MenuPagination.clampPage(page, views.size());
-            int slotIdx = 0;
-            for (var view : MenuPagination.pageSlice(views, bounded)) {
-                if (slotIdx < MenuLayout.CONTENT_SLOTS.length) {
-                    inventory.setItem(MenuLayout.CONTENT_SLOTS[slotIdx], AchievementMenuSupport.toItem(view));
-                }
-                slotIdx++;
-            }
-            if (views.isEmpty()) inventory.setItem(22, MenuItems.named(Material.GRAY_DYE, "No Achievements"));
-            MenuPagination.renderControls(inventory, bounded, views.size());
-        } catch (Exception ex) {
-            player.sendMessage("Failed to load achievement: " + ex.getMessage());
-        }
-        inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
-        MenuDecor.fillBorder(inventory, MenuDecor.ACHIEVEMENT_BORDER);
-        player.openInventory(inventory);
+        achievementMenuView.open(player, page);
     }
 
     private ItemStack playerPointsItem(Player player) {

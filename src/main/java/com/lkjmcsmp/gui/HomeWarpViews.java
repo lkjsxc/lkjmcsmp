@@ -1,7 +1,10 @@
 package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.HomeSlotCatalog;
+import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.WarpService;
+import com.lkjmcsmp.domain.model.ShopEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,10 +15,12 @@ import java.util.List;
 final class HomeWarpViews {
     private final HomeService homeService;
     private final WarpService warpService;
+    private final PointsService pointsService;
 
-    HomeWarpViews(HomeService homeService, WarpService warpService) {
+    HomeWarpViews(HomeService homeService, WarpService warpService, PointsService pointsService) {
         this.homeService = homeService;
         this.warpService = warpService;
+        this.pointsService = pointsService;
     }
 
     void openHomes(Player player, int page) throws Exception {
@@ -46,7 +51,8 @@ final class HomeWarpViews {
                 "home.addcurrent",
                 "Add Current Location",
                 "Runs /homes addcurrent"));
-        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.action(
+        renderHomeSlotPurchase(player, inventory, homeLimit);
+        inventory.setItem(51, MenuItems.action(
                 Material.BARRIER,
                 "home.delete.open",
                 "Delete Homes",
@@ -55,6 +61,26 @@ final class HomeWarpViews {
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.HOMES_BORDER);
         player.openInventory(inventory);
+    }
+
+    private void renderHomeSlotPurchase(Player player, Inventory inventory, int currentLimit) throws Exception {
+        var next = HomeSlotCatalog.nextEntry(homeService.purchasedHomeSlots(player.getUniqueId()));
+        if (next.isEmpty()) {
+            inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.named(
+                    Material.EMERALD,
+                    "Home Slots Maxed",
+                    "Current limit: " + currentLimit));
+            return;
+        }
+        ShopEntry entry = next.get();
+        int balance = safePoints(player);
+        inventory.setItem(MenuLayout.CLOSE_SLOT, MenuItems.action(
+                balance >= entry.points() ? Material.LIME_DYE : Material.GRAY_DYE,
+                "home.buy-slot",
+                "Buy Next Home Slot",
+                "Cost: " + entry.points() + " Cobblestone Points",
+                "Balance: " + balance,
+                "New limit: " + (currentLimit + 1)));
     }
 
     void openHomesDelete(Player player, int page) throws Exception {
@@ -112,5 +138,13 @@ final class HomeWarpViews {
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", "Back"));
         MenuDecor.fillBorder(inventory, MenuDecor.WARPS_BORDER);
         player.openInventory(inventory);
+    }
+
+    private int safePoints(Player player) {
+        try {
+            return pointsService.getBalance(player.getUniqueId());
+        } catch (Exception ex) {
+            return 0;
+        }
     }
 }

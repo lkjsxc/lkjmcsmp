@@ -32,6 +32,8 @@
 16. `/lkjmcsmp shop buy <item> [quantity]` mirrors `/shop buy <item> [quantity]`.
 17. `/lkjmcsmp shop convert` converts all cobblestone in inventory.
 18. `/lkjmcsmp language <code>` changes the sender's language when the code is registered.
+19. `/lkjmcsmp settings hotbar|actionbar` applies the setting immediately.
+20. `/lkjmcsmp teleport ...`, `/lkjmcsmp warps ...`, and `/lkjmcsmp team ...` delegate to the same service paths as direct commands.
 
 ## Failures
 

@@ -70,6 +70,11 @@ final class CoreMenuActions {
                 views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
                 yield true;
             }
+            case "home.buy-slot" -> {
+                command(player, "lkjmcsmp home buy-slot");
+                views.openHomes(player, tracker.page(player.getUniqueId(), MenuTitles.HOMES));
+                yield true;
+            }
             case "home.delete.open" -> {
                 tracker.setPage(player.getUniqueId(), MenuTitles.HOMES_DELETE, 0);
                 views.openHomesDelete(player, 0);

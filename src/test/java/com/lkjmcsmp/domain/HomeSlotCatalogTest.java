@@ -13,17 +13,18 @@ class HomeSlotCatalogTest {
     @Test
     void exposesFixedHomeSlotCatalogInKeyOrder() {
         assertEquals(List.of(
-                2400, 3120, 4056, 5272, 6854, 8911, 11584,
-                15059, 19577, 25450, 33086, 43011, 55915,
-                72690, 94497, 122846, 159699, 207609, 269892,
-                350860, 456119),
+                600, 780, 1014, 1318, 1713, 2228, 2896,
+                3765, 4894, 6363, 8271, 10753, 13979,
+                18173, 23624, 30712, 39925, 51902, 67473,
+                87715, 114030),
                 HomeSlotCatalog.prices());
         assertEquals(21, HomeSlotCatalog.entries().size());
         assertEquals("home_slot_01", HomeSlotCatalog.keyForSlotNumber(1));
         assertEquals("home_slot_21", HomeSlotCatalog.keyForSlotNumber(21));
         assertEquals("home_slot_01", List.copyOf(HomeSlotCatalog.entries().keySet()).get(0));
         assertEquals("home_slot_21", List.copyOf(HomeSlotCatalog.entries().keySet()).get(20));
-        assertEquals(2400, HomeSlotCatalog.entries().get("home_slot_01").points());
+        assertEquals(600, HomeSlotCatalog.entries().get("home_slot_01").points());
+        assertEquals("home_slot_02", HomeSlotCatalog.nextEntry(1).orElseThrow().key());
         assertEquals(Material.RED_BED, HomeSlotCatalog.entries().get("home_slot_01").material());
         assertTrue(HomeSlotCatalog.entries().get("home_slot_01").service());
     }
@@ -41,7 +42,7 @@ class HomeSlotCatalogTest {
     }
 
     @Test
-    void builtInHomeSlotsOverrideConfigAndIgnoreSeasonalOverrides() {
+    void shopCatalogExcludesHomeSlotsEvenWhenConfigAndOverridesMentionThem() {
         YamlConfiguration config = new YamlConfiguration();
         config.set("items.home_slot_01.material", "DIRT");
         config.set("items.home_slot_01.points", 1);
@@ -51,8 +52,6 @@ class HomeSlotCatalogTest {
                 config.getConfigurationSection("items"),
                 List.of(new EconomyOverrideDao.OverrideRecord("home_slot_01", 1, 1)));
 
-        assertEquals(2400, items.get("home_slot_01").points());
-        assertEquals(Material.RED_BED, items.get("home_slot_01").material());
-        assertEquals("Home Slot Upgrade 01", items.get("home_slot_01").displayName());
+        assertFalse(items.containsKey("home_slot_01"));
     }
 }

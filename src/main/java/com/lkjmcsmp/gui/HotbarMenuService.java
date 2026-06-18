@@ -37,7 +37,8 @@ public final class HotbarMenuService {
 
     public void install(Player player) {
         if (!isEnabled(player)) {
-            removeStrayTokens(player);
+            removeAllTokens(player);
+            player.updateInventory();
             return;
         }
         removeStrayTokens(player);
@@ -46,7 +47,7 @@ public final class HotbarMenuService {
 
     public void ensureInstalled(Player player) {
         if (!isEnabled(player)) {
-            removeStrayTokens(player);
+            removeAllTokens(player);
             return;
         }
         if (!isToken(player.getInventory().getItem(HOTBAR_SLOT))) {
@@ -133,9 +134,17 @@ public final class HotbarMenuService {
     }
 
     private void removeStrayTokens(Player player) {
+        removeTokens(player, false);
+    }
+
+    private void removeAllTokens(Player player) {
+        removeTokens(player, true);
+    }
+
+    private void removeTokens(Player player, boolean includeHotbarSlot) {
         var inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getSize(); slot++) {
-            if (slot != HOTBAR_SLOT && isToken(inventory.getItem(slot))) {
+            if ((includeHotbarSlot || slot != HOTBAR_SLOT) && isToken(inventory.getItem(slot))) {
                 inventory.setItem(slot, null);
             }
         }

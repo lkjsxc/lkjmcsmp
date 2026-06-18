@@ -1,6 +1,7 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.gui.MenuService;
+import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.achievement.AchievementService;
 import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.Bukkit;
@@ -13,14 +14,17 @@ public final class AchievementCommand implements CommandExecutor {
     private final AchievementService achievementService;
     private final MenuService menuService;
     private final ActionBarRouter actionBarHudService;
+    private final MessageService messages;
 
     public AchievementCommand(
             AchievementService achievementService,
             MenuService menuService,
-            ActionBarRouter actionBarHudService) {
+            ActionBarRouter actionBarHudService,
+            MessageService messages) {
         this.achievementService = achievementService;
         this.menuService = menuService;
         this.actionBarHudService = actionBarHudService;
+        this.messages = messages;
     }
 
     @Override
@@ -57,7 +61,8 @@ public final class AchievementCommand implements CommandExecutor {
                                     entry.getKey()
                                             + " [" + view.status().name() + "] "
                                             + view.progress() + "/" + view.definition().target()
-                                            + " :: " + view.definition().description());
+                                            + " :: " + messages.get(player, view.definition().titleKey())
+                                            + " - " + messages.get(player, view.definition().descriptionKey()));
                         }
                         return true;
                     }

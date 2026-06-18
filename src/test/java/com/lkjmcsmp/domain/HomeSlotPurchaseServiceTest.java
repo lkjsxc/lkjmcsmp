@@ -1,15 +1,9 @@
-package com.lkjmcsmp.plugin;
+package com.lkjmcsmp.domain;
 
-import com.lkjmcsmp.domain.HomeService;
-import com.lkjmcsmp.domain.HomeSlotCatalog;
-import com.lkjmcsmp.domain.PointsService;
-import com.lkjmcsmp.persistence.AuditDao;
-import com.lkjmcsmp.persistence.EconomyOverrideDao;
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.HomeSlotDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.SqliteDatabase;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,48 +11,37 @@ import org.junit.jupiter.api.io.TempDir;
 import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HomeSlotEffectExecutorTest {
+class HomeSlotPurchaseServiceTest {
     @TempDir
     Path tempDir;
 
     @Test
-    void servicePurchaseUnlocksNextSlotAndRefundsFutureSlot() throws Exception {
+    void purchaseNextSlotDeductsPointsAndIncreasesLimit() throws Exception {
         TestContext context = context();
-        context.registerHomeSlotExecutor();
-        context.grantPoints(10000);
+        context.pointsDao.addPoints(context.playerId, 600, "ADMIN_ADJUST", "{}");
 
-        var first = context.points.purchase(context.player, "home_slot_01", 1);
+        var result = context.service.purchaseNext(context.player);
 
-        assertTrue(first.success());
+        assertTrue(result.success());
         assertEquals(4, context.homes.maxHomes(context.playerId));
-        assertEquals(7600, context.balance());
-
-        AtomicInteger callbacks = new AtomicInteger();
-        var future = context.points.purchase(
-                context.player,
-                "home_slot_03",
-                1,
-                result -> callbacks.incrementAndGet());
-
-        assertFalse(future.success());
-        assertEquals(0, callbacks.get());
-        assertEquals(4, context.homes.maxHomes(context.playerId));
-        assertEquals(7600, context.balance());
-        assertEquals(1, context.ledgerCount("SERVICE_PURCHASE_REFUND"));
+        assertEquals(0, context.pointsDao.getBalance(context.playerId));
+        assertEquals(1, context.ledgerCount("HOME_SLOT_PURCHASE"));
     }
 
     @Test
-    void overrideCannotChangeFixedHomeSlotPrices() throws Exception {
+    void purchaseFailsBeforeMutationWhenBalanceIsTooLow() throws Exception {
         TestContext context = context();
+        context.pointsDao.addPoints(context.playerId, 599, "ADMIN_ADJUST", "{}");
 
-        var result = context.points.applyOverride(player(UUID.randomUUID()), "home_slot_01", 1);
+        var result = context.service.purchaseNext(context.player);
 
         assertFalse(result.success());
-        assertEquals(2400, context.points.getShopItems().get("home_slot_01").points());
+        assertEquals(3, context.homes.maxHomes(context.playerId));
+        assertEquals(599, context.pointsDao.getBalance(context.playerId));
+        assertEquals(0, context.ledgerCount("HOME_SLOT_PURCHASE"));
     }
 
     private TestContext context() throws Exception {
@@ -66,15 +49,11 @@ class HomeSlotEffectExecutorTest {
         database.initialize();
         PointsDao pointsDao = new PointsDao(database);
         HomeService homes = new HomeService(new HomeDao(database), new HomeSlotDao(database), 3);
-        PointsService points = new PointsService(
-                pointsDao,
-                new EconomyOverrideDao(database),
-                new AuditDao(database),
-                new YamlConfiguration().createSection("items"),
-                false,
-                4096);
         UUID playerId = UUID.randomUUID();
-        return new TestContext(database, pointsDao, homes, points, playerId, player(playerId));
+        return new TestContext(
+                database, pointsDao, homes,
+                new HomeSlotPurchaseService(pointsDao, homes),
+                playerId, player(playerId));
     }
 
     private static Player player(UUID playerId) {
@@ -93,15 +72,9 @@ class HomeSlotEffectExecutorTest {
     }
 
     private static Object defaultValue(Class<?> type) {
-        if (!type.isPrimitive()) {
-            return null;
-        }
-        if (type == boolean.class) {
-            return false;
-        }
-        if (type == char.class) {
-            return '\0';
-        }
+        if (!type.isPrimitive()) return null;
+        if (type == boolean.class) return false;
+        if (type == char.class) return '\0';
         return 0;
     }
 
@@ -109,22 +82,9 @@ class HomeSlotEffectExecutorTest {
             SqliteDatabase database,
             PointsDao pointsDao,
             HomeService homes,
-            PointsService points,
+            HomeSlotPurchaseService service,
             UUID playerId,
             Player player) {
-        void registerHomeSlotExecutor() {
-            HomeSlotEffectExecutor executor = new HomeSlotEffectExecutor(homes);
-            HomeSlotCatalog.entries().keySet().forEach(key -> points.registerEffect(key, executor));
-        }
-
-        void grantPoints(int amount) throws Exception {
-            pointsDao.addPoints(playerId, amount, "ADMIN_ADJUST", "{}");
-        }
-
-        int balance() throws Exception {
-            return pointsDao.getBalance(playerId);
-        }
-
         int ledgerCount(String reasonCode) throws Exception {
             try (var connection = database.open();
                  var statement = connection.prepareStatement("""

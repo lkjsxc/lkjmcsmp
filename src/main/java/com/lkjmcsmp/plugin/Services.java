@@ -1,6 +1,7 @@
 package com.lkjmcsmp.plugin;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.HomeSlotPurchaseService;
 import com.lkjmcsmp.domain.MessageService;
 import com.lkjmcsmp.domain.PartyService;
 import com.lkjmcsmp.domain.PlayerSettingsService;
@@ -20,6 +21,7 @@ public record Services(
         PlayerSettingsService settings,
         MessageService messages,
         AchievementService achievement,
+        HomeSlotPurchaseService homeSlotPurchases,
         ActionBarRouter hud,
         MenuService menus) {
 }

@@ -6,6 +6,12 @@ folia-supported: true
 authors: [lkjmcsmp contributors]
 
 commands:
+  lkjmcsmp:
+    usage: /lkjmcsmp [help|menu|home|shop|achievement|profile|settings|language|points|teleport|team]
+    permission: lkjmcsmp.menu.use
+  lkj:
+    usage: /lkj [help|menu|home|shop|achievement|profile|settings|language|points|teleport|team]
+    permission: lkjmcsmp.menu.use
   menu:
     usage: /menu
     permission: lkjmcsmp.menu.use

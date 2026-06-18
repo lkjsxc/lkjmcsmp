@@ -17,7 +17,6 @@ final class ShopCatalog {
             Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
         Map<String, ShopEntry> items = parseItems(section);
         addBuiltInItems(items);
-        items.putAll(HomeSlotCatalog.entries());
         mergeOverrides(items, overrides);
         return items;
     }
@@ -28,6 +27,10 @@ final class ShopCatalog {
             return items;
         }
         for (String key : section.getKeys(false)) {
+            String normalizedKey = key.toLowerCase();
+            if (HomeSlotCatalog.isHomeSlotKey(normalizedKey)) {
+                continue;
+            }
             ConfigurationSection entry = section.getConfigurationSection(key);
             if (entry == null) {
                 continue;
@@ -36,7 +39,6 @@ final class ShopCatalog {
             if (material == null) {
                 continue;
             }
-            String normalizedKey = key.toLowerCase();
             items.put(normalizedKey, new ShopEntry(
                     normalizedKey,
                     material,
@@ -61,9 +63,6 @@ final class ShopCatalog {
             Iterable<EconomyOverrideDao.OverrideRecord> overrides) {
         for (EconomyOverrideDao.OverrideRecord override : overrides) {
             String itemKey = override.itemKey().toLowerCase();
-            if (HomeSlotCatalog.isHomeSlotKey(itemKey)) {
-                continue;
-            }
             ShopEntry base = baseItems.get(itemKey);
             if (base == null) {
                 continue;

@@ -1,22 +1,33 @@
 package com.lkjmcsmp.command;
 
 import com.lkjmcsmp.domain.HomeService;
+import com.lkjmcsmp.domain.HomeSlotPurchaseService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.plugin.Locations;
 import com.lkjmcsmp.achievement.AchievementService;
+import com.lkjmcsmp.plugin.hud.ActionBarRouter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public final class HomeCommand implements CommandExecutor {
     private final HomeService homeService;
+    private final HomeSlotPurchaseService homeSlotPurchases;
     private final TeleportService teleportService;
     private final AchievementService achievementService;
+    private final ActionBarRouter actionBarHudService;
 
-    public HomeCommand(HomeService homeService, TeleportService teleportService, AchievementService achievementService) {
+    public HomeCommand(
+            HomeService homeService,
+            HomeSlotPurchaseService homeSlotPurchases,
+            TeleportService teleportService,
+            AchievementService achievementService,
+            ActionBarRouter actionBarHudService) {
         this.homeService = homeService;
+        this.homeSlotPurchases = homeSlotPurchases;
         this.teleportService = teleportService;
         this.achievementService = achievementService;
+        this.actionBarHudService = actionBarHudService;
     }
 
     @Override
@@ -38,7 +49,7 @@ public final class HomeCommand implements CommandExecutor {
                         }
                         player.sendMessage(homeService.deleteHome(player.getUniqueId(), args[0]).message());
                     }
-                    case "homes" -> listHomesOrAddCurrent(player, args);
+                    case "homes" -> listHomesOrAddCurrentOrBuySlot(player, args);
                     case "home" -> teleportHome(player, args);
                     default -> {
                         return false;
@@ -66,11 +77,19 @@ public final class HomeCommand implements CommandExecutor {
         teleportService.teleportToLocation(player, location.get(), "Teleported home.", result -> player.sendMessage(result.message()));
     }
 
-    private void listHomesOrAddCurrent(org.bukkit.entity.Player player, String[] args) throws Exception {
+    private void listHomesOrAddCurrentOrBuySlot(org.bukkit.entity.Player player, String[] args) throws Exception {
         if (args.length > 0 && (args[0].equalsIgnoreCase("addcurrent") || args[0].equalsIgnoreCase("add-current-location"))) {
             var result = args.length > 1 ? homeService.setHome(player, args[1]) : homeService.setAutoHome(player);
             if (result.success()) {
                 achievementService.increment(player.getUniqueId(), "home_set", 1);
+            }
+            player.sendMessage(result.message());
+            return;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("buy-slot")) {
+            var result = homeSlotPurchases.purchaseNext(player);
+            if (result.success()) {
+                actionBarHudService.refreshIdle(player);
             }
             player.sendMessage(result.message());
             return;

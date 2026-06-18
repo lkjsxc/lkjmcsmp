@@ -12,10 +12,10 @@ import java.util.OptionalInt;
 public final class HomeSlotCatalog {
     public static final String KEY_PREFIX = "home_slot_";
     private static final List<Integer> PRICES = List.of(
-            2400, 3120, 4056, 5272, 6854, 8911, 11584,
-            15059, 19577, 25450, 33086, 43011, 55915,
-            72690, 94497, 122846, 159699, 207609, 269892,
-            350860, 456119);
+            600, 780, 1014, 1318, 1713, 2228, 2896,
+            3765, 4894, 6363, 8271, 10753, 13979,
+            18173, 23624, 30712, 39925, 51902, 67473,
+            87715, 114030);
     private static final Map<String, ShopEntry> ENTRIES = buildEntries();
 
     private HomeSlotCatalog() {
@@ -42,6 +42,20 @@ public final class HomeSlotCatalog {
 
     public static boolean isHomeSlotKey(String key) {
         return slotNumber(key).isPresent();
+    }
+
+    public static OptionalInt nextSlotNumber(int purchasedSlots) {
+        int next = purchasedSlots + 1;
+        return next >= 1 && next <= PRICES.size()
+                ? OptionalInt.of(next)
+                : OptionalInt.empty();
+    }
+
+    public static java.util.Optional<ShopEntry> nextEntry(int purchasedSlots) {
+        OptionalInt slotNumber = nextSlotNumber(purchasedSlots);
+        return slotNumber.isPresent()
+                ? java.util.Optional.of(ENTRIES.get(keyForSlotNumber(slotNumber.getAsInt())))
+                : java.util.Optional.empty();
     }
 
     public static OptionalInt expectedPurchasedSlots(String key) {

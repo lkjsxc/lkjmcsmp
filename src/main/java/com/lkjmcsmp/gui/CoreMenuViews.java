@@ -2,6 +2,7 @@ package com.lkjmcsmp.gui;
 
 import com.lkjmcsmp.domain.HomeService;
 import com.lkjmcsmp.domain.PartyService;
+import com.lkjmcsmp.domain.PointsService;
 import com.lkjmcsmp.domain.TeleportService;
 import com.lkjmcsmp.domain.WarpService;
 import org.bukkit.Bukkit;
@@ -18,12 +19,13 @@ final class CoreMenuViews {
     CoreMenuViews(
             HomeService homeService,
             WarpService warpService,
+            PointsService pointsService,
             PartyService partyService,
             TeleportService teleportService) {
         this.teleportService = teleportService;
         this.pickerView = new PlayerPickerMenuView();
         this.teamMenuView = new TeamMenuView(partyService);
-        this.homeWarpViews = new HomeWarpViews(homeService, warpService);
+        this.homeWarpViews = new HomeWarpViews(homeService, warpService, pointsService);
     }
 
     CoreMenuViews(

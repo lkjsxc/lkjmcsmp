@@ -31,8 +31,8 @@ public final class AchievementService {
             }
             map.put(key, new AchievementDefinition(
                     key,
-                    entry.getString("title", key),
-                    entry.getString("description", entry.getString("title", key)),
+                    entry.getString("title-key", "achievement." + key + ".title"),
+                    entry.getString("description-key", "achievement." + key + ".description"),
                     entry.getString("kind", "custom"),
                     entry.getInt("target", 1),
                     entry.getInt("reward-points", 0)));
@@ -68,6 +68,10 @@ public final class AchievementService {
         return views;
     }
 
+    public java.util.Set<String> keys() {
+        return definitions.keySet();
+    }
+
     public Result resetAll(UUID playerId) throws Exception {
         achievementDao.deleteAllForPlayer(playerId);
         return Result.ok("achievements reset");
@@ -90,7 +94,7 @@ public final class AchievementService {
         return Result.ok("reward claimed");
     }
 
-    public record AchievementDefinition(String key, String title, String description, String kind, int target, int rewardPoints) {
+    public record AchievementDefinition(String key, String titleKey, String descriptionKey, String kind, int target, int rewardPoints) {
     }
 
     public record AchievementView(AchievementDefinition definition, AchievementStatus status, int progress) {
