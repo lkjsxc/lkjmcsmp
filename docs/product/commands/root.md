@@ -33,7 +33,7 @@ Expose menu-equivalent actions through `/lkjmcsmp` with predictable help and tab
 12. `/lkjmcsmp settings` opens settings.
 13. `/lkjmcsmp settings hotbar|actionbar` toggles the matching setting.
 14. `/lkjmcsmp language <code>` changes language.
-15. `/lkjmcsmp points` shows Cobblestone Points balance.
+15. `/lkjmcsmp points` shows Points balance.
 16. `/lkjmcsmp teleport` opens the teleport menu.
 17. `/lkjmcsmp teleport rtp|tpa|tpahere|tp|accept|deny [...]` delegates to the matching teleport command.
 18. `/lkjmcsmp team` opens the team menu.

@@ -46,7 +46,7 @@
 15. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
 16. `/lkjmcsmp home` provides the same named-Home operations with explicit subcommands.
 17. `/lkjmcsmp home buy-slot` buys the next Home slot upgrade from the Home surface.
-18. Home slot upgrades start at `600` Cobblestone Points and are bought in order.
+18. Home slot upgrades start at `600` Points and are bought in order.
 19. Buying a Home slot never goes through the Points Shop catalog.
 
 ## Failures

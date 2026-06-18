@@ -28,7 +28,7 @@
 
 ## Terminology Rules
 
-- Use `Cobblestone Points` for the player-facing currency generated from cobblestone conversion.
+- Use `Points` for the player-facing currency generated from cobblestone conversion.
 - Use `points` for internal ledger, code, and database field names.
 - Use `party` for the lightweight team system.
 - Use `achievement` for plugin-managed achievement state and contracts.

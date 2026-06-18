@@ -51,9 +51,9 @@ Extended smoke suite:
 - Shop cobblestone conversion button works regardless of held item.
 - Pagination controls keep stable ordering across pages.
 - Achievement GUI shows achievement status plus numeric progress text.
-- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 8 Cobblestone Points`.
+- Shop quantity purchase uses final item quantity (`1..64`) and computes deterministic totals; logs use `1 log = 8 Points`.
 - Shop list excludes Home slot upgrade items.
-- Homes menu and `/lkjmcsmp home buy-slot` buy the next Home slot starting at `600` Cobblestone Points.
+- Homes menu and `/lkjmcsmp home buy-slot` buy the next Home slot starting at `600` Points.
 - `/lkjmcsmp` help, subcommand parity, and tab completion expose menu-equivalent actions.
 - `/tpaccept` opens requester picker when 2+ pending requests exist.
 - Team disband action from GUI opens explicit confirm screen before execution.

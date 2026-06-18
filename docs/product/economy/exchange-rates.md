@@ -2,11 +2,11 @@
 
 ## Goal
 
-Define strict per-item base rates with optional seasonal Cobblestone Point overrides controlled by explicit permissions.
+Define strict per-item base rates with optional seasonal Point overrides controlled by explicit permissions.
 
 ## Base Rates
 
-| Item | Cobblestone Points per Item |
+| Item | Points per Item |
 | --- | --- |
 | Oak Log | 8 |
 | Spruce Log | 8 |
@@ -21,7 +21,7 @@ Define strict per-item base rates with optional seasonal Cobblestone Point overr
 
 Home slots are bought from the Homes surface, not from the Points Shop.
 
-| Upgrade | Cobblestone Points |
+| Upgrade | Points |
 | --- | --- |
 | Home Slot 01 | 600 |
 | Home Slot 02 | 780 |
@@ -48,7 +48,7 @@ Home slots are bought from the Homes surface, not from the Points Shop.
 ## Rules
 
 1. Base rates are canonical defaults.
-2. Seasonal override may modify Cobblestone Points per item.
+2. Seasonal override may modify Points per item.
 3. Seasonal override changes require:
    - permission `lkjmcsmp.economy.override`
    - audit log record with actor, before, after, and timestamp
@@ -58,14 +58,14 @@ Home slots are bought from the Homes surface, not from the Points Shop.
    - detail view executes explicit `Buy`
 5. Opening detail view resets quantity to default baseline (`1` item).
 6. Total cost is `points-per-item * selected-quantity`.
-7. Purchase succeeds only when Cobblestone Points balance and inventory capacity are sufficient.
-8. Purchase grants items or executes service effects only after Cobblestone Points deduction succeeds.
+7. Purchase succeeds only when Points balance and inventory capacity are sufficient.
+8. Purchase grants items or executes service effects only after Points deduction succeeds.
 9. Failed service effects are refunded by the service purchase flow.
 10. Temporary dimension creation failures are refunded automatically with reason `TEMPORARY_DIMENSION_REFUND`.
 11. Non-temporary-dimension service failures are refunded with reason `SERVICE_PURCHASE_REFUND`.
-12. Log purchases use per-item semantics (`1` log = `8` Cobblestone Points).
+12. Log purchases use per-item semantics (`1` log = `8` Points).
 13. Quantity selection is not interpreted as multiplier units.
-14. Service shop items (e.g., `temporary_dimension_pass`) deduct Cobblestone Points and trigger effects; no inventory capacity check is performed.
+14. Service shop items (e.g., `temporary_dimension_pass`) deduct Points and trigger effects; no inventory capacity check is performed.
 15. Service items must be purchased one at a time.
 16. Home slot upgrades are not shop items and never appear in the Points Shop list.
 17. Home slot upgrades must be bought in order; future-slot requests fail before deduction.

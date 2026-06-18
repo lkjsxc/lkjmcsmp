@@ -42,7 +42,7 @@
 - Info panel shows current Home count and current Home limit
 - Home entry click: teleport
 - Add Current Location (auto-name `home-<n>` using first available sequential index)
-- Buy Next Home Slot (deducts Cobblestone Points and increases the Home limit)
+- Buy Next Home Slot (deducts Points and increases the Home limit)
 - Open Home Deletion Page
 
 ## Homes Deletion Page

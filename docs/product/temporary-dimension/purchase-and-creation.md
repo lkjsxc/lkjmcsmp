@@ -2,19 +2,19 @@
 
 ## Summary
 
-Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated world, then reports final success only after creator activation fully completes.
+Purchasing a dimension pass reserves Points, creates a new isolated world, then reports final success only after creator activation fully completes.
 
 ## Cost and Trigger
 
-1. Default cost: `10,000` Cobblestone Points.
+1. Default cost: `10,000` Points.
 2. Cost is owned by the `temporary_dimension_pass` entry in `shop.yml`.
-3. Purchase validates balance before deducting Cobblestone Points.
+3. Purchase validates balance before deducting Points.
 4. Reason code for ledger: `SHOP_PURCHASE`.
-5. On failure, Cobblestone Points are not deducted and the player receives an explicit message.
+5. On failure, Points are not deducted and the player receives an explicit message.
 
 ## Purchase Paths
 
-1. **Shop path (primary)**: Open Points Shop, select the dimension pass item, and click Purchase. This deducts Cobblestone Points and triggers instance creation automatically.
+1. **Shop path (primary)**: Open Points Shop, select the dimension pass item, and click Purchase. This deducts Points and triggers instance creation automatically.
 2. **Command path (secondary)**: `/tempdim purchase` runs the same purchase flow using the shop entry's configured environment.
 3. All paths share the same balance validation, ledger reason code, and instance creation logic.
 
@@ -33,7 +33,7 @@ Purchasing a dimension pass reserves Cobblestone Points, creates a new isolated 
 4. World generation must use the most reliable available creation path for the runtime:
    - primary: environment-specific world creation
    - fallback: create a standard world when the requested environment cannot be created, then keep the purchased instance usable and clearly report the fallback
-5. If every creation path fails after Cobblestone Points are deducted, the exact deducted amount is refunded immediately with reason `TEMPORARY_DIMENSION_REFUND` and logged.
+5. If every creation path fails after Points are deducted, the exact deducted amount is refunded immediately with reason `TEMPORARY_DIMENSION_REFUND` and logged.
 6. Each player may have at most one active instance at a time; a second purchase is rejected with the remaining time of the active instance and an exact refund.
 7. Final success chat is sent only after world creation, spawn preparation, instance persistence, creator participant activation, and creator teleport completion succeed.
 8. Nearby-player transfers may partially fail after creator activation; each failed participant is logged, skipped, and left without an active participant row.

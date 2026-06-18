@@ -2,11 +2,11 @@
 
 ## Goal
 
-Provide a strict, auditable Cobblestone Points economy where cobblestone conversion is the primary source.
+Provide a strict, auditable Points economy where cobblestone conversion is the primary source.
 
 ## Core Rule
 
-- `1 cobblestone = 1 Cobblestone Point`
+- `1 cobblestone = 1 Point`
 
 ## Conversion Rules
 
