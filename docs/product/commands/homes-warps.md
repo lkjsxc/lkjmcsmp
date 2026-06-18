@@ -3,14 +3,12 @@
 ## Commands
 
 - `/home [name]`
-- `/sethome [name]`
+- `/home create [name]`
 - `/delhome <name>`
 - `/homes`
-- `/homes addcurrent [name]`
 - `/lkjmcsmp home list`
 - `/lkjmcsmp home go [name]`
-- `/lkjmcsmp home set [name]`
-- `/lkjmcsmp home addcurrent [name]`
+- `/lkjmcsmp home create [name]`
 - `/lkjmcsmp home delete <name>`
 - `/lkjmcsmp home buy-slot`
 - `/lkjmcsmp warps list`
@@ -36,12 +34,12 @@
 5. Home and warp teleports share teleport cooldown contract unless explicitly disabled.
 6. `/homes` and `/warps` output sorted stable lists.
 7. GUI lists must mirror command list ordering.
-8. Homes GUI includes `Add Current Location`, equivalent to `/sethome <generated-name>`.
-9. `/sethome [name]` and `/homes addcurrent [name]` create or update the named home at the current location.
-10. `/homes addcurrent` with no name generates `home-<n>` using the first available positive sequential index (`home-1`, `home-2`, ...).
-11. `/sethome` with no name uses `home`.
-12. `Add Current Location` returns the chosen name in success feedback.
-13. Homes GUI does not expose default-home shortcuts (`sethome home` / `delhome home`) as dedicated GUI actions.
+8. Homes GUI includes `Create Home`, equivalent to `/home create <generated-name>`.
+9. `/home create [name]` and `/lkjmcsmp home create [name]` create or update the named home at the current location.
+10. `create` with no name generates `home-<n>` using the first available positive sequential index (`home-1`, `home-2`, ...).
+11. Homes GUI does not expose default-home shortcuts (`home create home` / `delhome home`) as dedicated GUI actions.
+12. `Create Home` returns the chosen name in success feedback.
+13. Direct Home command completion must work for both `/home ...` and the namespaced command literal `/lkjmcsmp:home ...`.
 14. Home deletion is accessed through explicit deletion flow, not alternate click semantics.
 15. Homes/warps GUI lists refresh on actions and avoid background auto-refresh reopen loops.
 16. `/lkjmcsmp home` provides the same named-Home operations with explicit subcommands.

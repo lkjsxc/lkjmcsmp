@@ -30,7 +30,7 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 - Non-token slot interactions do not open the menu.
 - GUI menus refresh state on actions without background auto-refresh reopen loops.
 - Picker menus expose explicit manual refresh control.
-- Homes GUI add-current-location path yields sequential auto names (`home-1`, `home-2`, ...).
+- Homes GUI create path yields sequential auto names (`home-1`, `home-2`, ...).
 - Homes deletion uses explicit dedicated deletion flow.
 - Team disband GUI flow requires explicit confirm screen.
 - Shop detail exposes points balance indicator.

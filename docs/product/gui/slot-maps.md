@@ -43,7 +43,7 @@ For 54-slot menus, bottom-row control slots are:
 
 1. `4`: Info Panel (`PAPER`)
 2. `0..44`: paged home entries (skipping border slots)
-3. `45`: Add Current Location
+3. `45`: Create Home
 4. `46`: Page Prev
 5. `47`: Page Next
 6. `48`: Page Info

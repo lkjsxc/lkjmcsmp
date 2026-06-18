@@ -44,7 +44,7 @@ Extended smoke suite:
 - GUI menus avoid background auto-refresh reopen loops.
 - Picker menus render explicit manual `Refresh`.
 - Homes deletion uses dedicated explicit deletion flow (not right-click semantic split).
-- Homes GUI `Add Current Location` creates sequential names (`home-1`, `home-2`, ...).
+- Homes GUI `Create Home` creates sequential names (`home-1`, `home-2`, ...).
 - Shop item selection opens item detail purchase screen.
 - Shop detail shows current points balance.
 - Shop detail renders direct-buy quantity buttons (`1`, `2`, `4`, `8`, `16`, `32`, `64`).

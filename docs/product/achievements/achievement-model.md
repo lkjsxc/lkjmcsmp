@@ -15,7 +15,7 @@ Maintain achievement progress in plugin state without datapack dependency.
 
 - First conversion (`convert 64 cobblestone`)
 - Cumulative conversion (`convert 10000 cobblestone`)
-- First home set
+- First home created
 - First warp use
 - First party join
 - Total points earned thresholds

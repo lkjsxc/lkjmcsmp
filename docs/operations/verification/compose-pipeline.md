@@ -20,7 +20,7 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 5. `docker-compose.verify.yml` must be valid by itself for the `verify` service.
 6. Verification expectations include:
     - slot-8 hotbar open reliability in blocked/cancelled interaction contexts
-    - homes add-current and dedicated deletion flow
+    - homes create and dedicated deletion flow
     - shop list-to-detail purchase behavior with direct final-quantity (`1`, `2`, `4`, `8`, `16`, `32`, `64`) semantics
     - log price contract (`1` log costs `8` Points)
     - Home slot purchase from the Home surface, not the Points Shop

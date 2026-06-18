@@ -49,6 +49,7 @@ Expose menu-equivalent actions through `/lkjmcsmp` with predictable help and tab
 6. Language completions are loaded from `lang/languages.yml`.
 7. Warp completions include configured Warp names.
 8. Team and teleport completions expose their command-equivalent action names.
+9. Direct command completion must also work for Bukkit namespaced literals such as `/lkjmcsmp:home`.
 
 ## Failure Rules
 
