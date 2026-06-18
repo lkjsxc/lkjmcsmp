@@ -28,8 +28,8 @@ Maintain achievement progress in plugin state without datapack dependency.
 
 ## Metadata Contract
 
-- `title`: short player-facing name
-- `description`: detailed explanation of completion criteria and intent
+- `title-key`: message catalog key for the short player-facing name
+- `description-key`: message catalog key for completion criteria and intent
 - `kind`: event stream key used for progress updates
 - `target`: completion threshold
 - `reward-points`: claim reward amount
@@ -44,3 +44,5 @@ Maintain achievement progress in plugin state without datapack dependency.
 6. `LOCKED` achievements still show description and target for forward planning.
 7. `COMPLETED_UNCLAIMED` achievements must render with clear claim affordance.
 8. Growth strategy should prefer many small deterministic achievements over a single sparse chain.
+9. Achievement command and GUI output must resolve title and description through the player's language.
+10. Missing localized achievement text falls back to English before exposing a key.

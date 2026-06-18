@@ -14,6 +14,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 6. **Item entry appearance**:
    - Physical items: show material, display name, price, and `"Selectable quantity: 1..64"` lore.
    - Service items: show configured material, display name, price, `"§dService Item — executes on purchase"` lore.
+   - Home slot upgrades are excluded because they belong to the Homes surface.
 
 ## Shop Detail Actions (`lkjmcsmp :: shop-detail`)
 
@@ -34,7 +35,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 4. Points balance indicator (slot `50`) shows current Cobblestone Points.
 5. After the service effect reports final success, return to shop list.
 6. After failed purchase, return to shop list with exact reason.
-7. Home slot upgrades are service items and must be bought one at a time.
+7. Home slot upgrades do not use this service effect path.
 
 ## Cobblestone Conversion Rules
 
@@ -61,7 +62,7 @@ Define canonical behavior for every click action inside the Points Shop list, Po
 2. **Unknown shop item**: rejected with explicit "unknown shop item" message.
 3. **Inventory full (physical items only)**: rejected before deduction.
 4. **Effect execution failure**: exact deducted Cobblestone Points are refunded; player receives explicit failure reason; audit log captures the failure.
-5. **Out-of-order Home slot purchase**: exact deducted Cobblestone Points are refunded with `SERVICE_PURCHASE_REFUND`.
+5. **Out-of-order service purchase**: request is rejected before deduction when the service declares an ordering rule.
 
 ## Cross-References
 

@@ -12,6 +12,7 @@ Define player-facing behavior for commands, menus, achievements, economy, social
 4. Growth-heavy surfaces should be specified with deterministic pagination contracts.
 5. Destructive actions require explicit dedicated flows.
 6. Shop quantity contracts use explicit final-item quantities (`1..64`) and avoid multiplier semantics.
+7. Root command, GUI, and direct command surfaces must stay behaviorally aligned.
 
 ## Child Index
 

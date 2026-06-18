@@ -27,6 +27,7 @@ Define deterministic menu topology, navigation semantics, pagination behavior, s
 19. Decorative panes, info panels, page indicators, selected summaries, and balance indicators are inert and never emit unknown-action chat.
 20. The Settings page is reachable from root menu and owns player preference toggles.
 21. Player-facing labels and messages are rendered through the selected language where localized text exists.
+22. Home slot upgrades are owned by the Homes menu, not the Points Shop.
 
 ## Visual Design System
 

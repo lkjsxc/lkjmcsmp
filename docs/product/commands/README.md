@@ -13,9 +13,12 @@ Specify canonical command behavior, permissions, side effects, and error outputs
 5. GUI interactions must not rely on left-click/right-click divergence for command intent.
 6. Growth-heavy command-backed lists must preserve stable pagination ordering in GUI.
 7. Shop command quantity semantics use final item counts (`1..64`), not multiplier units.
+8. `/lkjmcsmp` is the canonical grouped command surface for menu-equivalent operations.
+9. Tab completion must expose valid subcommands, online-player targets, known item keys, and known Home/Warp names when the sender is a player.
 
 ## Child Index
 
+- [root.md](root.md): `/lkjmcsmp` grouped command, help, and completion contract
 - [teleport.md](teleport.md): direct/request/random teleport contracts and routing
 - [homes-warps.md](homes-warps.md): home and warp lifecycle contracts
 - [party.md](party.md): party command behavior and ownership rules

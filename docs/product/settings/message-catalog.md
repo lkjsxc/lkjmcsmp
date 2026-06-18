@@ -31,6 +31,15 @@ The core localization surface includes:
 3. Core command and GUI chat feedback.
 4. HUD/action-bar text emitted by plugin services.
 5. Settings and language-change confirmations.
+6. Achievement titles, descriptions, status labels, and reward/progress lore.
+
+## Achievement Keys
+
+1. Achievement definitions store message keys, not raw player-facing prose.
+2. Title keys use `achievement.<key>.title`.
+3. Description keys use `achievement.<key>.description`.
+4. Missing achievement keys fall back to English, then the raw achievement key.
+5. Achievement GUI and command list output must use the same localized strings.
 
 ## Language Selection
 

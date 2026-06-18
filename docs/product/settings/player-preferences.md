@@ -13,7 +13,7 @@
 
 1. Enabled players receive the slot `8` menu token on join and respawn.
 2. Disabled players never receive the token automatically.
-3. Disabling removes every plugin menu token from inventory and cursor.
+3. Disabling immediately removes every plugin menu token from slot `8`, the rest of the inventory, and cursor.
 4. Enabling installs the token immediately.
 5. The `/menu` command remains available regardless of this setting.
 

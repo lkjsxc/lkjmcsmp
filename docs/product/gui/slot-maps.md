@@ -48,7 +48,8 @@ For 54-slot menus, bottom-row control slots are:
 5. `47`: Page Next
 6. `48`: Page Info
 7. `49`: Back
-8. `50`: Open Home Deletion Page
+8. `50`: Buy Next Home Slot
+9. `51`: Open Home Deletion Page
 
 ## Homes Delete Menu (`lkjmcsmp :: homes-delete`)
 

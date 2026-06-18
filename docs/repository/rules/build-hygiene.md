@@ -7,7 +7,7 @@ Keep local and CI builds deterministic and free from environment-specific failur
 ## Gradle Wrapper
 
 1. The repository must include `gradlew`, `gradlew.bat`, and `gradle/wrapper/gradle-wrapper.properties`.
-2. Wrapper version must match the CI image (`8.10.2`).
+2. Wrapper Gradle release must match the CI image (`8.10.2`).
 3. Local builds use `./gradlew`; CI builds use the preinstalled Gradle.
 
 ## Daemon Policy

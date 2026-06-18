@@ -13,6 +13,6 @@ Deliver a survival-focused Folia plugin that raises SMP quality through reliable
 
 ## Non-Goals
 
-- Backward compatibility with older undocumented behavior.
-- Multi-server network sync in the initial release.
+- Preserving older undocumented behavior.
+- Multi-server network sync in the current delivery scope.
 - Human-first narrative docs over machine-retrieval clarity.

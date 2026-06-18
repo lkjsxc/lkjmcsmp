@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0
+## Current Baseline
 
 ### Added
 - Self-profile command (`/profile`) and menu showing points, team, achievements, and playtime.

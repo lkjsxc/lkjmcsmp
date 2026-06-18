@@ -12,6 +12,7 @@ Define achievement definitions, progress tracking, and reward claim semantics.
 4. Achievement set should cover multiple gameplay domains (economy, homes/warps, social, teleport, shop).
 5. Shop achievement thresholds count purchased item quantities, not multiplier units.
 6. Include one cumulative cobblestone-conversion achievement with deterministic target and rewards.
+7. Achievement display text is localized through the message catalog.
 
 ## Child Index
 

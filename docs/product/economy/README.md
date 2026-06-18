@@ -11,6 +11,7 @@ Define how Cobblestone Points are generated, stored, and exchanged for items.
 3. Error outcomes must explain missing Cobblestone Points or missing resources explicitly.
 4. Shop purchases use list-to-detail navigation with explicit final-item quantity selection (`1..64`).
 5. Shop quantity selection is not a multiplier model; selected quantity is the delivered item count.
+6. Home slot upgrades spend Cobblestone Points through Home commands and menus, not the Points Shop.
 
 ## Child Index
 

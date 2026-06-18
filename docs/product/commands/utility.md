@@ -9,6 +9,8 @@
 - `/achievement` opens the achievement GUI.
 - `/ach` is a short alias for `/achievement`.
 - `/achievement reset <player>` resets all achievement progress for a target player (admin only).
+- `/lkjmcsmp` exposes grouped help and command equivalents for menu actions.
+- `/lkj` is a short alias for `/lkjmcsmp`.
 
 ## Rules
 
@@ -27,6 +29,9 @@
 13. Hotbar slot `8` provides an always-available menu entrypoint equivalent to `/menu`, including cancelled/blocked interaction contexts.
 14. Achievement claims from GUI and `/achievement claim <key>` use the same service path.
 15. `/achievement reset <player>` requires `lkjmcsmp.achievement.admin` and deletes all achievement state for the target.
+16. `/lkjmcsmp shop buy <item> [quantity]` mirrors `/shop buy <item> [quantity]`.
+17. `/lkjmcsmp shop convert` converts all cobblestone in inventory.
+18. `/lkjmcsmp language <code>` changes the sender's language when the code is registered.
 
 ## Failures
 
@@ -34,3 +39,7 @@
 - Overflow/invalid amount: reject and log.
 - Exchange without sufficient points: reject with deficit.
 - Unknown achievement key: reject with explicit key-missing result.
+
+## Cross-References
+
+- [root.md](root.md): grouped `/lkjmcsmp` command and completion rules

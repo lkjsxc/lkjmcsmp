@@ -42,6 +42,7 @@
 - Info panel shows current Home count and current Home limit
 - Home entry click: teleport
 - Add Current Location (auto-name `home-<n>` using first available sequential index)
+- Buy Next Home Slot (deducts Cobblestone Points and increases the Home limit)
 - Open Home Deletion Page
 
 ## Homes Deletion Page
@@ -79,7 +80,7 @@
 - Item list (paginated)
 - Convert cobblestone
 - Select item to open purchase detail page
-- Home slot upgrades are purchased only through the Points Shop
+- Home slot upgrades never appear in the Points Shop
 - Back (`ARROW`)
 
 ## Points Shop Detail Menu
