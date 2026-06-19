@@ -31,7 +31,7 @@ Expose menu-equivalent actions through `/lkjmcsmp` with predictable help and tab
 10. `/lkjmcsmp achievement list|claim <key>` matches `/achievement list|claim <key>`.
 11. `/lkjmcsmp profile` opens the profile menu.
 12. `/lkjmcsmp settings` opens settings.
-13. `/lkjmcsmp settings hotbar|actionbar` toggles the matching setting.
+13. `/lkjmcsmp settings hotbar|actionbar|tips` toggles the matching setting.
 14. `/lkjmcsmp language <code>` changes language.
 15. `/lkjmcsmp points` shows Points balance.
 16. `/lkjmcsmp teleport` opens the teleport menu.
@@ -48,8 +48,9 @@ Expose menu-equivalent actions through `/lkjmcsmp` with predictable help and tab
 5. Home completions include the sender's normalized Home names.
 6. Language completions are loaded from `lang/languages.yml`.
 7. Warp completions include configured Warp names.
-8. Team and teleport completions expose their command-equivalent action names.
-9. Direct command completion must also work for Bukkit namespaced literals such as `/lkjmcsmp:home`.
+8. Settings completion exposes `hotbar`, `actionbar`, and `tips`.
+9. Team and teleport completions expose their command-equivalent action names.
+10. Direct command completion must also work for Bukkit namespaced literals such as `/lkjmcsmp:home`.
 
 ## Failure Rules
 

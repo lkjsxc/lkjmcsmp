@@ -13,6 +13,7 @@ Send useful command-discovery tips without interrupting gameplay.
 5. Scheduling stops through the plugin scheduler cancellation path.
 6. Each send pass iterates currently online players.
 7. Offline players are skipped silently.
+8. Players with `tips_enabled = 0` are skipped silently.
 
 ## Rotation
 
@@ -27,3 +28,9 @@ Send useful command-discovery tips without interrupting gameplay.
 2. Japanese prefix: `[ヒント]`.
 3. Messages should be one line.
 4. Messages should prefer concrete command literals over abstract descriptions.
+
+## Player Control
+
+1. `/lkjmcsmp settings tips` toggles the sender's tip delivery preference.
+2. The Settings menu exposes the same toggle.
+3. New players receive tips by default unless they disable them.

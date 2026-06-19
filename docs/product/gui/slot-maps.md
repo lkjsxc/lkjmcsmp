@@ -138,8 +138,10 @@ For 54-slot menus, bottom-row control slots are:
 
 1. `4`: Info Panel — Current Language (`PAPER`)
 2. `20`: Language (`WRITABLE_BOOK`)
-3. `24`: Hotbar Menu Item (`NETHER_STAR` when enabled, `GRAY_DYE` when disabled)
-4. `49`: Back (`ARROW`)
+3. `22`: Action Bar HUD (`GLOWSTONE_DUST` when enabled, `GRAY_DYE` when disabled)
+4. `24`: Hotbar Menu Item (`NETHER_STAR` when enabled, `GRAY_DYE` when disabled)
+5. `31`: Tips (`KNOWLEDGE_BOOK` when enabled, `GRAY_DYE` when disabled)
+6. `49`: Back (`ARROW`)
 
 ## Language Menu (`lkjmcsmp :: language`)
 

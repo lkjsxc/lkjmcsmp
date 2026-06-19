@@ -114,7 +114,9 @@
 ## Settings Menu
 
 - Language selector
+- Action bar HUD toggle
 - Hotbar menu item toggle
+- Tips toggle
 - Back (`ARROW`)
 
 ## Language Selector
