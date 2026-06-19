@@ -131,10 +131,7 @@ public final class LkjmcsmpCommand implements CommandExecutor {
     }
 
     private void handleSettings(Player player, String[] args) throws Exception {
-        if (args.length == 0) {
-            services.menus().openSettings(player);
-            return;
-        }
+        if (args.length == 0) { services.menus().openSettings(player); return; }
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "hotbar" -> {
                 boolean enabled = services.settings().toggleHotbarMenu(player.getUniqueId()).hotbarMenuEnabled();
@@ -146,6 +143,10 @@ public final class LkjmcsmpCommand implements CommandExecutor {
                 services.hud().onActionBarPreferenceChanged(player);
                 player.sendMessage(services.messages().get(player,
                         enabled ? "settings.actionbar.enabled" : "settings.actionbar.disabled"));
+            }
+            case "tips" -> {
+                boolean enabled = services.settings().toggleTips(player.getUniqueId()).tipsEnabled();
+                player.sendMessage(services.messages().get(player, enabled ? "settings.tips.enabled" : "settings.tips.disabled"));
             }
             default -> sendHelp(player, "settings");
         }
@@ -178,7 +179,7 @@ public final class LkjmcsmpCommand implements CommandExecutor {
         } else if (topic.equalsIgnoreCase("shop")) {
             sender.sendMessage("/lkjmcsmp shop [buy <item> [quantity]|convert]");
         } else if (topic.equalsIgnoreCase("settings")) {
-            sender.sendMessage("/lkjmcsmp settings [hotbar|actionbar]");
+            sender.sendMessage("/lkjmcsmp settings [hotbar|actionbar|tips]");
         } else if (topic.equalsIgnoreCase("teleport")) {
             sender.sendMessage("/lkjmcsmp teleport [rtp|tpa|tpahere|tp|accept|deny] [...]");
         } else if (topic.equalsIgnoreCase("warps")) {

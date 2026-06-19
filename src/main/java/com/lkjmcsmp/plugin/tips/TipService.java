@@ -1,6 +1,7 @@
 package com.lkjmcsmp.plugin.tips;
 
 import com.lkjmcsmp.domain.MessageService;
+import com.lkjmcsmp.domain.PlayerSettingsService;
 import com.lkjmcsmp.plugin.SchedulerBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -11,6 +12,7 @@ public final class TipService {
     public static final long DEFAULT_INTERVAL_TICKS = 72000L;
     private final SchedulerBridge schedulerBridge;
     private final MessageService messages;
+    private final PlayerSettingsService settings;
     private final TipCatalog catalog;
     private final boolean enabled;
     private final long intervalTicks;
@@ -20,11 +22,13 @@ public final class TipService {
     public TipService(
             SchedulerBridge schedulerBridge,
             MessageService messages,
+            PlayerSettingsService settings,
             TipCatalog catalog,
             boolean enabled,
             long intervalTicks) {
         this.schedulerBridge = schedulerBridge;
         this.messages = messages;
+        this.settings = settings;
         this.catalog = catalog;
         this.enabled = enabled;
         this.intervalTicks = Math.max(20L, intervalTicks);
@@ -58,7 +62,8 @@ public final class TipService {
     }
 
     private void sendTip(Player player, long sequence) {
-        if (!running || player == null || !player.isOnline()) {
+        if (!running || player == null || !player.isOnline()
+                || !settings.tipsEnabled(player.getUniqueId())) {
             return;
         }
         String language = messages.language(player);

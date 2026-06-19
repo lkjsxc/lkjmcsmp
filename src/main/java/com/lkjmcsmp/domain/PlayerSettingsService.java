@@ -44,18 +44,23 @@ public final class PlayerSettingsService {
         return get(playerId).actionBarEnabled();
     }
 
+    public boolean tipsEnabled(UUID playerId) {
+        return get(playerId).tipsEnabled();
+    }
+
     public PlayerSettings setLanguage(UUID playerId, String language) throws Exception {
         String normalized = normalizeLanguage(language);
         PlayerSettings current = get(playerId);
         PlayerSettings next = new PlayerSettings(
-                normalized, current.hotbarMenuEnabled(), current.actionBarEnabled());
+                normalized, current.hotbarMenuEnabled(), current.actionBarEnabled(), current.tipsEnabled());
         persist(playerId, next);
         return next;
     }
 
     public PlayerSettings setHotbarMenuEnabled(UUID playerId, boolean enabled) throws Exception {
         PlayerSettings current = get(playerId);
-        PlayerSettings next = new PlayerSettings(current.language(), enabled, current.actionBarEnabled());
+        PlayerSettings next = new PlayerSettings(
+                current.language(), enabled, current.actionBarEnabled(), current.tipsEnabled());
         persist(playerId, next);
         return next;
     }
@@ -66,13 +71,26 @@ public final class PlayerSettingsService {
 
     public PlayerSettings setActionBarEnabled(UUID playerId, boolean enabled) throws Exception {
         PlayerSettings current = get(playerId);
-        PlayerSettings next = new PlayerSettings(current.language(), current.hotbarMenuEnabled(), enabled);
+        PlayerSettings next = new PlayerSettings(
+                current.language(), current.hotbarMenuEnabled(), enabled, current.tipsEnabled());
         persist(playerId, next);
         return next;
     }
 
     public PlayerSettings toggleActionBar(UUID playerId) throws Exception {
         return setActionBarEnabled(playerId, !actionBarEnabled(playerId));
+    }
+
+    public PlayerSettings setTipsEnabled(UUID playerId, boolean enabled) throws Exception {
+        PlayerSettings current = get(playerId);
+        PlayerSettings next = new PlayerSettings(
+                current.language(), current.hotbarMenuEnabled(), current.actionBarEnabled(), enabled);
+        persist(playerId, next);
+        return next;
+    }
+
+    public PlayerSettings toggleTips(UUID playerId) throws Exception {
+        return setTipsEnabled(playerId, !tipsEnabled(playerId));
     }
 
     public void setHotbarChangeHandler(Consumer<UUID> handler) {
@@ -84,11 +102,14 @@ public final class PlayerSettingsService {
             PlayerSettings loaded = dao.find(playerId).orElse(PlayerSettings.DEFAULT);
             if (!supportedLanguages.contains(loaded.language())) {
                 return new PlayerSettings(
-                        defaultLanguage, loaded.hotbarMenuEnabled(), loaded.actionBarEnabled());
+                        defaultLanguage,
+                        loaded.hotbarMenuEnabled(),
+                        loaded.actionBarEnabled(),
+                        loaded.tipsEnabled());
             }
             return loaded;
         } catch (Exception ignored) {
-            return new PlayerSettings(defaultLanguage, true, true);
+            return new PlayerSettings(defaultLanguage, true, true, true);
         }
     }
 

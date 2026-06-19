@@ -16,11 +16,12 @@ class PlayerSettingsServiceTest {
     Path tempDir;
 
     @Test
-    void languageAndHotbarUpdatesPreserveActionBarState() throws Exception {
+    void languageAndHotbarUpdatesPreserveActionBarAndTipsState() throws Exception {
         PlayerSettingsService service = service();
         UUID playerId = UUID.randomUUID();
 
         service.setActionBarEnabled(playerId, false);
+        service.setTipsEnabled(playerId, false);
         service.setLanguage(playerId, "ja");
         service.setHotbarMenuEnabled(playerId, false);
 
@@ -28,21 +29,25 @@ class PlayerSettingsServiceTest {
         assertEquals("ja", settings.language());
         assertFalse(settings.hotbarMenuEnabled());
         assertFalse(settings.actionBarEnabled());
+        assertFalse(settings.tipsEnabled());
     }
 
     @Test
-    void actionBarTogglePreservesLanguageAndHotbarState() throws Exception {
+    void actionBarAndTipsTogglesPreserveOtherSettings() throws Exception {
         PlayerSettingsService service = service();
         UUID playerId = UUID.randomUUID();
 
         service.setLanguage(playerId, "ja");
         service.setHotbarMenuEnabled(playerId, false);
+        service.setTipsEnabled(playerId, false);
         var disabled = service.toggleActionBar(playerId);
 
         assertEquals("ja", disabled.language());
         assertFalse(disabled.hotbarMenuEnabled());
         assertFalse(disabled.actionBarEnabled());
+        assertFalse(disabled.tipsEnabled());
         assertTrue(service.toggleActionBar(playerId).actionBarEnabled());
+        assertTrue(service.toggleTips(playerId).tipsEnabled());
         assertEquals("ja", service.get(playerId).language());
         assertFalse(service.get(playerId).hotbarMenuEnabled());
     }

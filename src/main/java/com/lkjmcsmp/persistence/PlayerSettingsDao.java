@@ -17,7 +17,7 @@ public final class PlayerSettingsDao {
     public Optional<PlayerSettings> find(UUID playerId) throws Exception {
         try (var connection = database.open();
              PreparedStatement statement = connection.prepareStatement("""
-                     SELECT language, hotbar_menu_enabled, action_bar_enabled
+                     SELECT language, hotbar_menu_enabled, action_bar_enabled, tips_enabled
                      FROM player_settings
                      WHERE player_uuid = ?
                      """)) {
@@ -27,7 +27,10 @@ public final class PlayerSettingsDao {
                     return Optional.empty();
                 }
                 return Optional.of(new PlayerSettings(
-                        rs.getString(1), rs.getInt(2) == 1, rs.getInt(3) == 1));
+                        rs.getString(1),
+                        rs.getInt(2) == 1,
+                        rs.getInt(3) == 1,
+                        rs.getInt(4) == 1));
             }
         }
     }
@@ -36,20 +39,22 @@ public final class PlayerSettingsDao {
         try (var connection = database.open();
              PreparedStatement statement = connection.prepareStatement("""
                      INSERT INTO player_settings (
-                       player_uuid, language, hotbar_menu_enabled, action_bar_enabled, updated_at
+                       player_uuid, language, hotbar_menu_enabled, action_bar_enabled, tips_enabled, updated_at
                      )
-                     VALUES (?, ?, ?, ?, ?)
+                     VALUES (?, ?, ?, ?, ?, ?)
                      ON CONFLICT(player_uuid) DO UPDATE SET
                        language=excluded.language,
                        hotbar_menu_enabled=excluded.hotbar_menu_enabled,
                        action_bar_enabled=excluded.action_bar_enabled,
+                       tips_enabled=excluded.tips_enabled,
                        updated_at=excluded.updated_at
                      """)) {
             statement.setString(1, playerId.toString());
             statement.setString(2, settings.language());
             statement.setInt(3, settings.hotbarMenuEnabled() ? 1 : 0);
             statement.setInt(4, settings.actionBarEnabled() ? 1 : 0);
-            statement.setString(5, Instant.now().toString());
+            statement.setInt(5, settings.tipsEnabled() ? 1 : 0);
+            statement.setString(6, Instant.now().toString());
             statement.executeUpdate();
         }
     }

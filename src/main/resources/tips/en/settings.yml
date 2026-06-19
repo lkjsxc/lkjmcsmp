@@ -1,11 +1,11 @@
 tips:
   - "Use /lkjmcsmp settings to open settings."
-  - "Use the Settings menu to change language, hotbar menu, and action bar preferences."
+  - "Use the Settings menu to change language, hotbar menu, action bar, and tips preferences."
   - "Use /lkjmcsmp settings hotbar to toggle the hotbar menu item."
   - "When the hotbar menu item is disabled, the star is removed immediately."
   - "Use /lkjmcsmp settings actionbar to toggle plugin action-bar messages."
   - "Disabling the action bar does not disable chat messages."
-  - "Use /lkjmcsmp language en to switch to English."
+  - "Use /lkjmcsmp settings tips to toggle these chat tips."
   - "Use /lkjmcsmp language ja to switch to Japanese."
   - "The Language menu lists languages from the language registry."
   - "Unsupported language codes fall back to the default language."

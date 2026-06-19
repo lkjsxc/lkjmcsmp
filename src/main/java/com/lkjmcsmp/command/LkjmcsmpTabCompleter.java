@@ -15,7 +15,7 @@ public final class LkjmcsmpTabCompleter implements TabCompleter {
             "settings", "language", "points", "teleport", "warps", "team");
     private static final List<String> HOME = List.of("list", "go", "create", "delete", "buy-slot");
     private static final List<String> SHOP = List.of("buy", "convert");
-    private static final List<String> SETTINGS = List.of("hotbar", "actionbar");
+    private static final List<String> SETTINGS = List.of("hotbar", "actionbar", "tips");
     private static final List<String> TELEPORT = List.of("rtp", "tpa", "tpahere", "tp", "accept", "deny");
     private static final List<String> TEAM = List.of("create", "invite", "accept", "kick", "leave", "chat", "sethome", "home", "disband", "info");
     private final Services services;

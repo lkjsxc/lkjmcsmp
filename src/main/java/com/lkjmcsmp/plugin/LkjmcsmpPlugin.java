@@ -144,6 +144,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
         TipService tipService = new TipService(
                 schedulerBridge,
                 messageService,
+                settingsService,
                 TipCatalog.load(this, languages),
                 config.getBoolean("tips.enabled", true),
                 config.getLong("tips.interval-ticks", TipService.DEFAULT_INTERVAL_TICKS));

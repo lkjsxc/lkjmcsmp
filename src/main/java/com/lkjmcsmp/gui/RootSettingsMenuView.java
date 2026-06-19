@@ -36,8 +36,10 @@ final class RootSettingsMenuView {
         Inventory inventory = Bukkit.createInventory(player, MenuLayout.LARGE_CHEST_SIZE, MenuTitles.SETTINGS);
         boolean hotbar = settings.hotbarMenuEnabled(player.getUniqueId());
         boolean actionBar = settings.actionBarEnabled(player.getUniqueId());
+        boolean tips = settings.tipsEnabled(player.getUniqueId());
         String hotbarState = messages.get(player, hotbar ? "common.enabled" : "common.disabled");
         String actionBarState = messages.get(player, actionBar ? "common.enabled" : "common.disabled");
+        String tipsState = messages.get(player, tips ? "common.enabled" : "common.disabled");
         inventory.setItem(MenuLayout.INFO_PANEL_SLOT, MenuDecor.infoPanel(messages.get(player, "menu.settings.info")));
         inventory.setItem(20, MenuItems.action(Material.WRITABLE_BOOK, "settings.language", messages.get(player, "menu.settings.language")));
         inventory.setItem(22, MenuItems.action(
@@ -50,6 +52,11 @@ final class RootSettingsMenuView {
                 "settings.hotbar",
                 messages.get(player, "menu.settings.hotbar"),
                 messages.get(player, "menu.settings.hotbar.lore", "state", hotbarState)));
+        inventory.setItem(31, MenuItems.action(
+                tips ? Material.KNOWLEDGE_BOOK : Material.GRAY_DYE,
+                "settings.tips",
+                messages.get(player, "menu.settings.tips"),
+                messages.get(player, "menu.settings.tips.lore", "state", tipsState)));
         inventory.setItem(MenuLayout.BACK_SLOT, MenuItems.action(Material.ARROW, "nav.back", messages.get(player, "action.back")));
         MenuDecor.fillBorder(inventory, MenuDecor.ROOT_BORDER);
         player.openInventory(inventory);

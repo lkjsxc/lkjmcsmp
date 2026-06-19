@@ -23,25 +23,29 @@ class PlayerSettingsDaoTest {
                 new PlayerSettingsDao(database), Set.of("en", "ja"), "en");
 
         assertTrue(service.actionBarEnabled(UUID.randomUUID()));
+        assertTrue(service.tipsEnabled(UUID.randomUUID()));
     }
 
     @Test
-    void actionBarEnabledRoundTripsFalseAndTrue() throws Exception {
+    void actionBarAndTipsEnabledRoundTripFalseAndTrue() throws Exception {
         PlayerSettingsDao dao = new PlayerSettingsDao(database());
         UUID playerId = UUID.randomUUID();
 
-        dao.upsert(playerId, new PlayerSettings("ja", false, false));
+        dao.upsert(playerId, new PlayerSettings("ja", false, false, false));
         PlayerSettings disabled = dao.find(playerId).orElseThrow();
         assertEquals("ja", disabled.language());
         assertFalse(disabled.hotbarMenuEnabled());
         assertFalse(disabled.actionBarEnabled());
+        assertFalse(disabled.tipsEnabled());
 
-        dao.upsert(playerId, new PlayerSettings("ja", false, true));
-        assertTrue(dao.find(playerId).orElseThrow().actionBarEnabled());
+        dao.upsert(playerId, new PlayerSettings("ja", false, true, true));
+        PlayerSettings enabled = dao.find(playerId).orElseThrow();
+        assertTrue(enabled.actionBarEnabled());
+        assertTrue(enabled.tipsEnabled());
     }
 
     @Test
-    void legacyPlayerSettingsTableGainsActionBarDefault() throws Exception {
+    void legacyPlayerSettingsTableGainsActionBarAndTipsDefaults() throws Exception {
         UUID playerId = UUID.randomUUID();
         Path file = tempDir.resolve(UUID.randomUUID() + ".db");
         try (var connection = DriverManager.getConnection("jdbc:sqlite:" + file);
@@ -66,10 +70,12 @@ class PlayerSettingsDaoTest {
         database.initialize();
 
         assertTrue(columnExists(database, "action_bar_enabled"));
+        assertTrue(columnExists(database, "tips_enabled"));
         PlayerSettings settings = new PlayerSettingsDao(database).find(playerId).orElseThrow();
         assertEquals("ja", settings.language());
         assertFalse(settings.hotbarMenuEnabled());
         assertTrue(settings.actionBarEnabled());
+        assertTrue(settings.tipsEnabled());
     }
 
     private SqliteDatabase database() throws Exception {

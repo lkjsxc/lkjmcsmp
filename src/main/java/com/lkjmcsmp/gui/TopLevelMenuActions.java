@@ -60,6 +60,7 @@ final class TopLevelMenuActions {
             case "settings.language" -> { views.openLanguage(player); yield true; }
             case "settings.actionbar" -> toggleActionBar(player);
             case "settings.hotbar" -> toggleHotbar(player);
+            case "settings.tips" -> toggleTips(player);
             case "language.set" -> setLanguage(player, payload);
             case "nav.back" -> backFromAction(player, title);
             case "shop.convert", "shop.select", "page.prev", "page.next" -> MenuTitles.SHOP.equals(title)
@@ -102,6 +103,13 @@ final class TopLevelMenuActions {
         actionBarHudService.onActionBarPreferenceChanged(player);
         player.sendMessage(messages.get(player,
                 enabled ? "settings.actionbar.enabled" : "settings.actionbar.disabled"));
+        views.openSettings(player);
+        return true;
+    }
+
+    private boolean toggleTips(Player player) throws Exception {
+        boolean enabled = settingsService.toggleTips(player.getUniqueId()).tipsEnabled();
+        player.sendMessage(messages.get(player, enabled ? "settings.tips.enabled" : "settings.tips.disabled"));
         views.openSettings(player);
         return true;
     }

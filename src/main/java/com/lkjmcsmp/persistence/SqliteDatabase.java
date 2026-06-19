@@ -140,6 +140,7 @@ public final class SqliteDatabase {
                   language TEXT NOT NULL,
                   hotbar_menu_enabled INTEGER NOT NULL,
                   action_bar_enabled INTEGER NOT NULL DEFAULT 1,
+                  tips_enabled INTEGER NOT NULL DEFAULT 1,
                   updated_at TEXT NOT NULL
                 );
                 """);

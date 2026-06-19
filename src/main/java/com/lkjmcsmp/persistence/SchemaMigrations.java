@@ -14,6 +14,11 @@ final class SchemaMigrations {
                 "player_settings",
                 "action_bar_enabled",
                 "INTEGER NOT NULL DEFAULT 1");
+        addColumnIfMissing(
+                connection,
+                "player_settings",
+                "tips_enabled",
+                "INTEGER NOT NULL DEFAULT 1");
     }
 
     private static void addColumnIfMissing(
