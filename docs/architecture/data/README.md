@@ -13,4 +13,4 @@ Define SQLite schema, normalization rules, and consistency guarantees.
 ## Child Index
 
 - [sqlite-schema.md](sqlite-schema.md): canonical table and column contracts
-- [consistency.md](consistency.md): integrity and mutation invariants
+- [consistency.md](consistency.md): integrity, transaction ownership, and atomic Home slot purchase invariants
