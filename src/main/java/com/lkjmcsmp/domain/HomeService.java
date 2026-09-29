@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.UUID;
 
 public final class HomeService {
@@ -72,7 +71,7 @@ public final class HomeService {
     }
 
     public int maxHomes(UUID playerId) throws Exception {
-        return baseMaxHomes + purchasedHomeSlots(playerId);
+        return limitForPurchasedSlots(purchasedHomeSlots(playerId));
     }
 
     public int purchasedHomeSlots(UUID playerId) throws Exception {
@@ -81,14 +80,8 @@ public final class HomeService {
                 : Math.min(homeSlotDao.getPurchasedSlots(playerId), HomeSlotCatalog.maxPurchasableSlots());
     }
 
-    public OptionalInt purchaseAdditionalSlot(UUID playerId, int expectedPurchasedSlots) throws Exception {
-        if (homeSlotDao == null || expectedPurchasedSlots >= HomeSlotCatalog.maxPurchasableSlots()) {
-            return OptionalInt.empty();
-        }
-        OptionalInt purchasedSlots = homeSlotDao.purchaseNextSlot(playerId, expectedPurchasedSlots);
-        return purchasedSlots.isPresent()
-                ? OptionalInt.of(baseMaxHomes + purchasedSlots.getAsInt())
-                : OptionalInt.empty();
+    int limitForPurchasedSlots(int purchasedSlots) {
+        return baseMaxHomes + purchasedSlots;
     }
 
     private String nextHomeName(UUID playerId) throws Exception {

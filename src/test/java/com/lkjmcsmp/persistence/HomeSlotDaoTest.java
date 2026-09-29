@@ -14,22 +14,43 @@ class HomeSlotDaoTest {
 
     @Test
     void startsAtZeroAndPurchasesSequentialSlotsOnly() throws Exception {
-        HomeSlotDao dao = dao();
+        SqliteDatabase database = database();
+        HomeSlotDao dao = new HomeSlotDao(database);
+        HomeSlotPurchaseDao purchases = new HomeSlotPurchaseDao(database);
         UUID playerId = UUID.randomUUID();
+        new PointsDao(database).addPoints(playerId, 1380, "ADMIN_ADJUST", "{}");
 
         assertEquals(0, dao.getPurchasedSlots(playerId));
-        assertEquals(1, dao.purchaseNextSlot(playerId, 0).orElseThrow());
+        assertEquals(1, purchases.purchaseNext(playerId, 0).purchasedSlots());
         assertEquals(1, dao.getPurchasedSlots(playerId));
-        assertTrue(dao.purchaseNextSlot(playerId, 0).isEmpty());
-        assertTrue(dao.purchaseNextSlot(playerId, 3).isEmpty());
+        assertEquals(HomeSlotPurchaseDao.Status.ORDER_CHANGED, purchases.purchaseNext(playerId, 0).status());
+        assertEquals(HomeSlotPurchaseDao.Status.ORDER_CHANGED, purchases.purchaseNext(playerId, 3).status());
         assertEquals(1, dao.getPurchasedSlots(playerId));
-        assertEquals(2, dao.purchaseNextSlot(playerId, 1).orElseThrow());
+        assertEquals(2, purchases.purchaseNext(playerId, 1).purchasedSlots());
         assertEquals(2, dao.getPurchasedSlots(playerId));
     }
 
-    private HomeSlotDao dao() throws Exception {
+    @Test
+    void mutationHelpersRejectAutoCommitWithoutChangingStorage() throws Exception {
+        SqliteDatabase database = database();
+        UUID playerId = UUID.randomUUID();
+        try (var connection = database.open()) {
+            assertThrows(IllegalStateException.class,
+                    () -> new HomeSlotDao(database).purchaseNextSlot(connection, playerId, 0));
+            assertThrows(IllegalStateException.class,
+                    () -> new PointsDao(database).addPoints(connection, playerId, 600, "TEST", "{}"));
+            try (var statement = connection.createStatement();
+                 var rs = statement.executeQuery("SELECT (SELECT COUNT(*) FROM player_home_slots)"
+                         + " + (SELECT COUNT(*) FROM player_points) + (SELECT COUNT(*) FROM points_ledger)")) {
+                assertTrue(rs.next());
+                assertEquals(0, rs.getInt(1));
+            }
+        }
+    }
+
+    private SqliteDatabase database() throws Exception {
         SqliteDatabase database = new SqliteDatabase(tempDir.resolve(UUID.randomUUID() + ".db"));
         database.initialize();
-        return new HomeSlotDao(database);
+        return database;
     }
 }

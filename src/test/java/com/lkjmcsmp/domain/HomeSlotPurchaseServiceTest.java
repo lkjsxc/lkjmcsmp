@@ -2,6 +2,7 @@ package com.lkjmcsmp.domain;
 
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.HomeSlotDao;
+import com.lkjmcsmp.persistence.HomeSlotPurchaseDao;
 import com.lkjmcsmp.persistence.PointsDao;
 import com.lkjmcsmp.persistence.SqliteDatabase;
 import org.bukkit.entity.Player;
@@ -44,6 +45,45 @@ class HomeSlotPurchaseServiceTest {
         assertEquals(0, context.ledgerCount("HOME_SLOT_PURCHASE"));
     }
 
+    @Test
+    void failedSlotWriteLeavesAllPurchaseTablesUnchanged() throws Exception {
+        TestContext context = context();
+        context.pointsDao.addPoints(context.playerId, 600, "ADMIN_ADJUST", "{}");
+        context.sql("""
+                CREATE TRIGGER reject_slot BEFORE UPDATE ON player_home_slots
+                BEGIN SELECT RAISE(ABORT, 'injected slot failure'); END
+                """);
+        var before = context.snapshot();
+
+        var failure = assertThrows(java.sql.SQLException.class,
+                () -> context.service.purchaseNext(context.player));
+
+        assertTrue(failure.getMessage().contains("injected slot failure"));
+        assertEquals(before, context.snapshot());
+    }
+
+    @Test
+    void failedCommitLeavesAllPurchaseTablesUnchanged() throws Exception {
+        TestContext context = context();
+        context.pointsDao.addPoints(context.playerId, 600, "ADMIN_ADJUST", "{}");
+        context.sql("CREATE TABLE commit_parent (id INTEGER PRIMARY KEY)");
+        context.sql("""
+                CREATE TABLE commit_guard (parent_id INTEGER REFERENCES commit_parent(id)
+                DEFERRABLE INITIALLY DEFERRED)
+                """);
+        context.sql("""
+                CREATE TRIGGER reject_commit AFTER UPDATE ON player_home_slots
+                BEGIN INSERT INTO commit_guard VALUES (1); END
+                """);
+        var before = context.snapshot();
+
+        var failure = assertThrows(java.sql.SQLException.class,
+                () -> context.service.purchaseNext(context.player));
+
+        assertTrue(failure.getMessage().contains("FOREIGN KEY constraint failed"));
+        assertEquals(before, context.snapshot());
+    }
+
     private TestContext context() throws Exception {
         SqliteDatabase database = new SqliteDatabase(tempDir.resolve(UUID.randomUUID() + ".db"));
         database.initialize();
@@ -52,7 +92,7 @@ class HomeSlotPurchaseServiceTest {
         UUID playerId = UUID.randomUUID();
         return new TestContext(
                 database, pointsDao, homes,
-                new HomeSlotPurchaseService(pointsDao, homes),
+                new HomeSlotPurchaseService(new HomeSlotPurchaseDao(database), homes),
                 playerId, player(playerId));
     }
 
@@ -85,6 +125,28 @@ class HomeSlotPurchaseServiceTest {
             HomeSlotPurchaseService service,
             UUID playerId,
             Player player) {
+        void sql(String sql) throws Exception {
+            try (var connection = database.open(); var statement = connection.createStatement()) {
+                statement.execute(sql);
+            }
+        }
+
+        java.util.List<String> snapshot() throws Exception {
+            var rows = new java.util.ArrayList<String>();
+            try (var connection = database.open(); var statement = connection.createStatement()) {
+                for (String table : java.util.List.of("player_points", "player_home_slots", "points_ledger")) {
+                    try (var rs = statement.executeQuery("SELECT * FROM " + table + " ORDER BY 1")) {
+                        while (rs.next()) {
+                            var row = new java.util.ArrayList<String>();
+                            for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) row.add(rs.getString(i));
+                            rows.add(table + row);
+                        }
+                    }
+                }
+            }
+            return rows;
+        }
+
         int ledgerCount(String reasonCode) throws Exception {
             try (var connection = database.open();
                  var statement = connection.prepareStatement("""

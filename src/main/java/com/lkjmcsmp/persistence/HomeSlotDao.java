@@ -1,5 +1,6 @@
 package com.lkjmcsmp.persistence;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.Instant;
@@ -25,40 +26,35 @@ public final class HomeSlotDao {
         }
     }
 
-    public OptionalInt purchaseNextSlot(UUID playerId, int expectedPurchasedSlots) throws Exception {
-        if (expectedPurchasedSlots < 0) {
+    // Only the purchase transaction may advance a slot; this helper never commits.
+    OptionalInt purchaseNextSlot(Connection connection, UUID playerId, int expectedPurchasedSlots) throws Exception {
+        if (connection.getAutoCommit()) {
+            throw new IllegalStateException("Home slot mutations require an explicit transaction");
+        }
+        if (expectedPurchasedSlots < 0 || expectedPurchasedSlots == Integer.MAX_VALUE) {
             return OptionalInt.empty();
         }
-        try (var connection = database.open()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement insert = connection.prepareStatement("""
-                    INSERT INTO player_home_slots (player_uuid, purchased_slots, updated_at)
-                    VALUES (?, 0, ?)
-                    ON CONFLICT(player_uuid) DO NOTHING
-                    """);
-                 PreparedStatement update = connection.prepareStatement("""
-                    UPDATE player_home_slots
-                    SET purchased_slots = purchased_slots + 1, updated_at = ?
-                    WHERE player_uuid = ? AND purchased_slots = ?
-                    """)) {
-                String now = Instant.now().toString();
-                insert.setString(1, playerId.toString());
-                insert.setString(2, now);
-                insert.executeUpdate();
+        try (PreparedStatement insert = connection.prepareStatement("""
+                INSERT INTO player_home_slots (player_uuid, purchased_slots, updated_at)
+                VALUES (?, 0, ?)
+                ON CONFLICT(player_uuid) DO NOTHING
+                """);
+             PreparedStatement update = connection.prepareStatement("""
+                UPDATE player_home_slots
+                SET purchased_slots = purchased_slots + 1, updated_at = ?
+                WHERE player_uuid = ? AND purchased_slots = ?
+                """)) {
+            String now = Instant.now().toString();
+            insert.setString(1, playerId.toString());
+            insert.setString(2, now);
+            insert.executeUpdate();
 
-                update.setString(1, now);
-                update.setString(2, playerId.toString());
-                update.setInt(3, expectedPurchasedSlots);
-                if (update.executeUpdate() != 1) {
-                    connection.rollback();
-                    return OptionalInt.empty();
-                }
-                connection.commit();
-                return OptionalInt.of(expectedPurchasedSlots + 1);
-            } catch (Exception ex) {
-                connection.rollback();
-                throw ex;
-            }
+            update.setString(1, now);
+            update.setString(2, playerId.toString());
+            update.setInt(3, expectedPurchasedSlots);
+            return update.executeUpdate() == 1
+                    ? OptionalInt.of(expectedPurchasedSlots + 1)
+                    : OptionalInt.empty();
         }
     }
 }

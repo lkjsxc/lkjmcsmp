@@ -13,6 +13,7 @@ import com.lkjmcsmp.persistence.AuditDao;
 import com.lkjmcsmp.persistence.EconomyOverrideDao;
 import com.lkjmcsmp.persistence.HomeDao;
 import com.lkjmcsmp.persistence.HomeSlotDao;
+import com.lkjmcsmp.persistence.HomeSlotPurchaseDao;
 import com.lkjmcsmp.persistence.AchievementDao;
 import com.lkjmcsmp.persistence.PartyDao;
 import com.lkjmcsmp.persistence.PlayerSettingsDao;
@@ -122,7 +123,7 @@ public final class LkjmcsmpPlugin extends JavaPlugin {
                 homeDao,
                 homeSlotDao,
                 config.getInt("homes.max-per-player", 3));
-        HomeSlotPurchaseService homeSlotPurchaseService = new HomeSlotPurchaseService(pointsDao, homeService);
+        HomeSlotPurchaseService homeSlotPurchaseService = new HomeSlotPurchaseService(new HomeSlotPurchaseDao(database), homeService);
         WarpService warpService = new WarpService(warpDao);
         PartyService partyService = new PartyService(
                 partyDao,
