@@ -4,6 +4,7 @@ import sys
 import time
 from pathlib import Path
 from mctools import RCONClient
+from smoke_response import validate_response
 
 
 HOST = os.environ.get("RCON_HOST", "folia")
@@ -37,8 +38,7 @@ SOURCE_TEMP_WORLD = WORKSPACE / "src" / "main" / "java" / "com" / "lkjmcsmp" / "
 
 def run_cmd(client: RCONClient, command: str, must_contain: str | None = None):
     result = client.command(command)
-    if must_contain and must_contain.lower() not in result.lower():
-        raise RuntimeError(f"command `{command}` missing `{must_contain}` in `{result}`")
+    validate_response(command, result, must_contain)
     print(f"[ok] {command}: {result[:160]}")
 
 
@@ -249,7 +249,8 @@ def main() -> int:
         assert_initial_trigger_and_tempdim_markers()
         for command in ("menu", "points", "convert", "home", "warp", "team", "tp", "tpa", "tpahere", "tpaccept", "tpdeny", "rtp", "achievement", "ach", "profile", "tempdim"):
             run_cmd(client, f"help {command}", command)
-        run_cmd(client, "help lkjmcsmp:tp", "lkjmcsmp:tp")
+        for command in ("lkjmcsmp:tp", "lkjmcsmp:home"):
+            run_cmd(client, command, "This command can only be used by players.")
         return 0
     finally:
         client.stop()
