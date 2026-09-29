@@ -26,3 +26,4 @@ Define acceptance gates and scripted checks that block regressions.
 
 - [compose-pipeline.md](compose-pipeline.md): canonical compose command sequence
 - [scripted-checks.md](scripted-checks.md): smoke assertion contract
+- [20260930-atomic-home-purchases.md](20260930-atomic-home-purchases.md): atomic purchase and RCON false-positive regression evidence, with explicit limits

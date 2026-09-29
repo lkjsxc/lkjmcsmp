@@ -14,4 +14,5 @@ Capture why the project exists and how LLM-first maintenance should be performed
 
 - [purpose.md](purpose.md): project mission and expected player value
 - [principles.md](principles.md): core product and engineering principles
+- [engineering-roadmap.md](engineering-roadmap.md): reliability-first priorities, completed foundation, and remaining proof boundaries
 - [llm-authoring.md](llm-authoring.md): mandatory LLM authoring constraints
